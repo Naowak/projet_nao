@@ -36,6 +36,11 @@ def ask_user_abscisse() :
 	a = int(input())
 	return a
 
+def ask_user_rotate() :
+	print("To rotate de piece enter 'R', else press 'Enter' : ")
+	a = input()
+	return a
+
 
 # def main() :
 # 	grid = State.State()
@@ -67,6 +72,14 @@ def main() :
 
 		center = copy.copy(Piece.Piece.centers_init[kind])
 		piece = Piece.Piece.factory(kind, center)
+
+		boucle = True
+		while boucle :
+			rotate = ask_user_rotate()
+			if rotate == "R":
+				piece.rotate()
+			elif rotate == "" :
+				boucle = False
 
 		boucle = True
 		abscisse = 0

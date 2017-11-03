@@ -68,3 +68,11 @@ class Piece:
     
     def blocks_abs(self):
         return [(p+self.center) for p in self.blocks]
+
+    def rotate(self) :
+        new_blocks = []
+        coef = np.array([[0, 1], [-1, 0]])
+        for b in self.blocks :
+          new_blocks.append(np.dot(coef, b))
+        self.blocks = new_blocks
+        self.block_control = np.dot(coef, self.block_control)
