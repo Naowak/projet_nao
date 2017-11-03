@@ -1,0 +1,135 @@
+<html>
+    <head><script src="easeljs.min.js"></script></head>
+    <body onload="init();" style="margin:0;"></body>
+        <canvas id="canvas"></canvas>
+    </body>
+
+    <script>
+        var screen = {width: 0,
+                      height: 0,
+                      margin: 5,
+                      inner_width: 0,
+                      inner_height: 0,
+                      top: 0,
+                      left: 0,
+                      bottom: 0,
+                      right: 0};
+
+        var sidebar = {width: 0,
+                       columns: 6,
+                       choices: {lines: 14,
+                                 height: 0},
+                       }
+
+        var grid = {columns: 10,
+                    lines: 16,
+                    block_size: 0,
+                    width: 0,
+                    height: 0,
+                    top: 0,
+                    left: 0,
+                    bottom: 0,
+                    right: 0,
+                    holding_lines: 4};
+
+        var piece_T = [[-1,0],[0,0],[0,1],[1,0]];
+
+        function init() {
+            var canvas = document.getElementById("canvas");
+
+            stage = new createjs.Stage("canvas");
+
+            function resize() {
+                screen.height = window.innerHeight;
+                canvas.height = screen.height;
+                screen.inner_height = screen.height - 2*screen.top;                
+
+                grid.height = screen.inner_height;
+                grid.block_size = grid.height / grid.lines;
+                grid.width = grid.block_size * grid.columns;
+                
+                sidebar.width = sidebar.columns * grid.block_size;                
+
+                screen.width = sidebar.width + grid.width;
+                canvas.width = screen.width;
+                screen.left = screen.margin;
+                screen.top = screen.margin;
+                screen.inner_width = screen.width - 2*screen.left;
+                screen.right = screen.left + screen.inner_width;
+                screen.bottom = screen.top + screen.inner_height;
+
+                grid.left = screen.right - grid.width;
+                grid.top = screen.top;
+                grid.right = screen.right;
+                grid.bottom = screen.bottom;
+
+            }
+            resize();
+            //window.addEventListener("resize", resize, false);
+            
+            root = new createjs.Container();
+            stage.addChild(root);
+            
+            drawBackground();
+            update();
+        }
+
+        function update() {
+            stage.update();
+        }
+
+        function drawBackground() {
+            var boundary = new createjs.Shape();
+            boundary.graphics
+                     .setStrokeStyle(1)
+                     .beginStroke("black")
+                     .drawRect(screen.left, screen.top, screen.inner_width, screen.inner_height)
+                     .moveTo(grid.left, grid.top)
+                     .lineTo(grid.left, grid.bottom);
+            root.addChild(boundary);
+
+            var grid_lines = new createjs.Shape();
+            grid_lines.graphics
+                .setStrokeStyle(1)
+                .beginStroke("grey");
+            for(var i=1; i<grid.columns; i++) {
+                grid_lines.graphics.setStrokeDash([])
+                    .moveTo(grid.left+grid.block_size*i, grid.top+grid.holding_lines*grid.block_size)
+                    .lineTo(grid.left+grid.block_size*i, grid.bottom);
+                grid_lines.graphics.setStrokeDash([5,5])
+                    .moveTo(grid.left+grid.block_size*i, grid.top)
+                    .lineTo(grid.left+grid.block_size*i, grid.top+grid.holding_lines*grid.block_size);
+            }
+            for(var i=1; i<grid.lines; i++) {
+                if(i < grid.holding_lines)
+                    grid_lines.graphics.setStrokeDash([5,5]);
+                else
+                    grid_lines.graphics.setStrokeDash([]);
+                grid_lines.graphics
+                    .moveTo(grid.left, grid.top+grid.block_size*i)
+                    .lineTo(grid.right, grid.top+grid.block_size*i);
+            }
+
+            root.addChild(grid_lines);
+        }
+
+        function drawBlock(color, pos) {
+            var block = new createjs.Shape();
+            var [x, y] = pos;
+            var left = grid.left + x*grid.block_size;
+            var top = grid.bottom - (y+1)*grid.block_size;
+            block.graphics
+                 .beginFill(color)
+                 .drawRect(left, top, grid.block_size, grid.block_size);
+            
+            root.addChild(block);
+        }
+
+        function drawPiece(blocks, color, pos) {
+            [center_x, center_y] = pos;
+            blocks = blocks.map(([x,y]) => [center_x+x,center_y+y]);
+            blocks.forEach((e,i) => {drawBlock(color, e)});
+            update();
+        }
+      </script>
+</html>
