@@ -41,8 +41,8 @@ class Piece:
                      'L' : Point(-1, 0),
                      'T' : Point(-1, 0),
                      'S' : Point(-1, 0),
-                     'Z' : Point(-1, -1),
-                     'J' : Point(-1, -1)}
+                     'Z' : Point(-1, 1),
+                     'J' : Point(-1, 1)} # A REVOIR
     
     colors = {'O': Block.Block.Violet,
               'I': Block.Block.Red,
