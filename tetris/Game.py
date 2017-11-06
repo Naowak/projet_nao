@@ -5,9 +5,10 @@ import Piece
 import random
 import copy
 import json
+import Subject
 
-class Game :
-	absi = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+	#absi = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+class Game(Subject.Subject) :
 
 	def __init__(self) :
 		self.grid = State.State()
@@ -98,8 +99,3 @@ def ask_user_rotate() :
 maPartie = Game()
 while(not maPartie.is_finished) :
 	maPartie.turn()
-
-
-
-
-	
