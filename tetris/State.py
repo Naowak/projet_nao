@@ -6,9 +6,10 @@ import Block
 import json
 
 class State :
-	def __complex__(self):
-		serialize = json.dumps({"score":self.score,"grid":[ [ j.value for j in i ] for i in self.grid ]})
+	def encode_to_Json(self):
+		serialize = {"score":self.score,"grid":[ [ j.value for j in i ] for i in self.grid ]}
 		return serialize
+		
 	def __init__(self) :
 		self.grid = [[Block.Block.Empty]*gp.TAILLE_Y for i in range(gp.TAILLE_X)]
 		self.score = 0

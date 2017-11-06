@@ -4,6 +4,7 @@ import State
 import Piece
 import random
 import copy
+import json
 
 
 
@@ -63,13 +64,19 @@ def ask_user_rotate() :
 # 			print("Game Lost !")
 # 			break
 
+def encode_to_Json(state, pieces) :
+	dico = state.encode_to_Json()
+	tmp = {"pieces":[i for i in pieces]}
+	dico["pieces"]=tmp["pieces"]
+	return json.dumps(dico)
+
 def main() :
 	grid = State.State()
 	test = True
 	print(grid)
 	while test :
-		print(grid.__complex__())
 		kinds = pieces_random()
+		print(encode_to_Json(grid,kinds))
 		kind = ask_user_piece_choose(kinds)
 
 		center = copy.copy(Piece.Piece.centers_init[kind])

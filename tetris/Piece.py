@@ -6,7 +6,7 @@ import copy
 
 Point = lambda x,y: np.array([[x,y]]).T
 
-class Piece:    
+class Piece:
     kinds = {'O': [Point(-1/2,-1/2), Point(1/2,-1/2),
                    Point(-1/2,1/2),  Point(1/2,1/2)],
                    #Violet
@@ -43,7 +43,7 @@ class Piece:
                      'S' : Point(-1, 0),
                      'Z' : Point(-1, 1),
                      'J' : Point(-1, 1)} # A REVOIR
-    
+
     colors = {'O': Block.Block.Violet,
               'I': Block.Block.Red,
               'L': Block.Block.Green,
@@ -51,13 +51,13 @@ class Piece:
               'S': Block.Block.Cyan,
               'Z': Block.Block.Blue,
               'J': Block.Block.Yellow}
-    
+
     def __init__(self, center):
         self.center = center
         self.blocks = []
         self.block_control = None
         self.color = ""
-    
+
     @classmethod
     def factory(cls, kind, center):
         p = Piece(center)
@@ -65,7 +65,7 @@ class Piece:
         p.color = cls.colors[kind]
         p.block_control = copy.copy(Piece.blocks_controls[kind])
         return p
-    
+
     def blocks_abs(self):
         return [(p+self.center) for p in self.blocks]
 
