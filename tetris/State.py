@@ -3,8 +3,12 @@
 import Piece
 import GlobalParameters as gp
 import Block
+import json
 
 class State :
+	def __complex__(self):
+		serialize = json.dumps({"score":self.score,"grid":[ [ j.value for j in i ] for i in self.grid ]})
+		return serialize
 	def __init__(self) :
 		self.grid = [[Block.Block.Empty]*gp.TAILLE_Y for i in range(gp.TAILLE_X)]
 		self.score = 0

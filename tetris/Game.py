@@ -9,6 +9,7 @@ import copy
 
 absi = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
+
 def ask_user_piece_choose(pieces_kind) :
 	test = False
 	kind = ""
@@ -25,7 +26,7 @@ def ask_user_piece_choose(pieces_kind) :
 def pieces_random() :
 	kinds = ['O', 'I', 'L', 'T', 'S', 'Z', 'J']
 	kinds_select = []
-	for _ in range(3) : 
+	for _ in range(3) :
 		k = random.choice(kinds)
 		kinds.remove(k)
 		kinds_select.append(k)
@@ -54,7 +55,7 @@ def ask_user_rotate() :
 # 		while boucle :
 # 			abscisse = random.choice(absi)
 # 			boucle = not grid.is_piece_accepted_abscisse(piece, abscisse)
-			
+
 # 		center[0] = abscisse - piece.block_control[0]
 # 		result = grid.drop_piece(piece)
 # 		print(grid)
@@ -67,6 +68,7 @@ def main() :
 	test = True
 	print(grid)
 	while test :
+		print(grid.__complex__())
 		kinds = pieces_random()
 		kind = ask_user_piece_choose(kinds)
 
