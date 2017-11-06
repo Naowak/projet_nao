@@ -17,8 +17,11 @@
 
         var sidebar = {width: 0,
                        columns: 6,
-                       choices: {lines: 14,
-                                 height: 0},
+                       right: 0,
+                       choices: {lines: 10,
+                                 height: 0,
+                                 left: 0,
+                                 bottom: 0},
                        }
 
         var grid = {columns: 10,
@@ -31,8 +34,11 @@
                     bottom: 0,
                     right: 0,
                     holding_lines: 4};
+        
+        var game = {score: 1000};
 
         var piece_T = [[-1,0],[0,0],[0,1],[1,0]];
+        var piece_I = [[-1.5,-0.5],[-0.5,-0.5],[0.5,-0.5],[1.5,-0.5]];
 
         function init() {
             var canvas = document.getElementById("canvas");
@@ -42,6 +48,7 @@
             function resize() {
                 screen.height = window.innerHeight;
                 canvas.height = screen.height;
+                screen.top = screen.margin;                
                 screen.inner_height = screen.height - 2*screen.top;                
 
                 grid.height = screen.inner_height;
@@ -50,11 +57,10 @@
                 
                 sidebar.width = sidebar.columns * grid.block_size;                
 
-                screen.width = sidebar.width + grid.width;
+                screen.width = sidebar.width + grid.width + 2*screen.margin;
                 canvas.width = screen.width;
                 screen.left = screen.margin;
-                screen.top = screen.margin;
-                screen.inner_width = screen.width - 2*screen.left;
+                screen.inner_width = screen.width - 2*screen.margin;
                 screen.right = screen.left + screen.inner_width;
                 screen.bottom = screen.top + screen.inner_height;
 
@@ -63,6 +69,10 @@
                 grid.right = screen.right;
                 grid.bottom = screen.bottom;
 
+                sidebar.choices.height = sidebar.choices.lines * grid.block_size;
+                sidebar.right = grid.left;
+                sidebar.choices.bottom = screen.bottom - grid.block_size;
+                sidebar.choices.left = screen.left + 2*grid.block_size;
             }
             resize();
             //window.addEventListener("resize", resize, false);
@@ -111,24 +121,56 @@
             }
 
             root.addChild(grid_lines);
+
+            var choices_box = new createjs.Shape();
+            choices_box.graphics
+                .setStrokeStyle(1)
+                .beginStroke("grey")
+                .moveTo(screen.left, screen.bottom - sidebar.choices.height)
+                .lineTo(sidebar.right, screen.bottom - sidebar.choices.height);
+            
+            root.addChild(choices_box);
         }
 
-        function drawBlock(color, pos) {
+        function drawInfo() {
+            var score = new createjs.Text("Score : "+game.score, "20px Arial", "black");
+            score.x = screen.left + 20;
+            score.y = screen.top + 20;
+
+            root.addChild(score);
+            update();
+        }
+
+        function drawChoices(choices) {
+            var place = sidebar.choices;
+            //place.bottom -= grid.block_size;
+            place.left += grid.block_size*0.5;
+            choices.forEach((e,i) => {
+                drawPiece(e.piece, e.color, [0,0], place);
+                place.bottom -= 3*grid.block_size;
+            });
+
+            update();
+        }
+
+        function drawBlock(color, pos, ref=grid) {
             var block = new createjs.Shape();
             var [x, y] = pos;
-            var left = grid.left + x*grid.block_size;
-            var top = grid.bottom - (y+1)*grid.block_size;
+            var left = ref.left + x*grid.block_size;
+            var top = ref.bottom - (y+1)*grid.block_size;
             block.graphics
                  .beginFill(color)
+                 .drawRect(left, top, grid.block_size, grid.block_size)
+                 .endFill().beginStroke("black")
                  .drawRect(left, top, grid.block_size, grid.block_size);
             
             root.addChild(block);
         }
 
-        function drawPiece(blocks, color, pos) {
+        function drawPiece(blocks, color, pos, ref=grid) {
             [center_x, center_y] = pos;
             blocks = blocks.map(([x,y]) => [center_x+x,center_y+y]);
-            blocks.forEach((e,i) => {drawBlock(color, e)});
+            blocks.forEach((e,i) => {drawBlock(color, e, ref)});
             update();
         }
       </script>
