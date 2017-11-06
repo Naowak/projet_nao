@@ -6,15 +6,11 @@ import Block
 import json
 
 class State :
-	def encode_to_Json(self):
-		serialize = {"score":self.score,"grid":[ [ j.value for j in i ] for i in self.grid ]}
-		return serialize
-		
 	def __init__(self) :
 		self.grid = [[Block.Block.Empty]*gp.TAILLE_Y for i in range(gp.TAILLE_X)]
-		self.score = 0
+		self.score = [0, 0]
 
-	def drop_piece(self, piece) :
+	def drop_piece(self, piece, player) :
 		while not self.is_piece_blocked(piece) :
 			piece.center[1] -= 1
 		if self.is_piece_accepted_ordonne(piece) :
@@ -23,18 +19,18 @@ class State :
 		else :
 			return False
 		nb_ligne_delete = self.line_complete()
-		self.maj_score(nb_ligne_delete)
+		self.maj_score(nb_ligne_delete, player)
 		return True
 
-	def maj_score(self, nb_ligne_delete) :
+	def maj_score(self, nb_ligne_delete, player) :
 		if nb_ligne_delete == 1 :
-			self.score += 40
+			self.score[player] += 40
 		elif nb_ligne_delete == 2 :
-			self.score += 100
+			self.score[player] += 100
 		elif nb_ligne_delete == 3 :
-			self.score += 300
+			self.score[player] += 300
 		elif nb_ligne_delete == 4 :
-			self.score += 1200
+			self.score[player] += 1200
 
 	def is_piece_blocked(self, piece) :
 		for b in piece.blocks :
@@ -97,3 +93,7 @@ class State :
 			string += "\n"
 		string += "SCORE :: " + str(self.score) + "\n"
 		return string
+
+	def encode_to_Json(self):
+		serialize = {"score":self.score,"grid":[ [ j.value for j in i ] for i in self.grid ]}
+		return serialize
