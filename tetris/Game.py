@@ -6,11 +6,15 @@ import random
 import copy
 import json
 import Subject
+import Server
+import GlobalParameters as gp
+import asyncio
 
 #absi = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 class Game(Subject.Subject) :
 
 	def __init__(self) :
+		super().__init__()
 		self.grid = State.State()
 		self.is_finished = False
 		self.actual_turn = 0
@@ -26,16 +30,14 @@ class Game(Subject.Subject) :
 		self.actual_pieces = kinds_select
 		return kinds_select
 
-	def turn(self) :
-		print(self.grid)
+	async def turn(self) :
+		await self.notify_view()
 		if not self.is_finished :
 			self.actual_turn += 1 #Le tour commence à 1
 
 			kinds = self.pieces_random()
-			if self.actual_turn % 2 == 1 :
-				kind = ask_user_piece_choose(kinds)
-			else :
-				kind = ask_user_piece_choose(kinds)
+			await self.notify_all_observers()
+			kind = await self.server.ask_user_piece_choose(kinds)
 
 			center = copy.copy(Piece.Piece.centers_init[kind])
 			piece = Piece.Piece.factory(kind, center)
@@ -43,10 +45,8 @@ class Game(Subject.Subject) :
 
 			boucle = True
 			while boucle :
-				if self.actual_turn % 2 == 1 :
-					rotate = ask_user_rotate()
-				else :
-					rotate = ask_user_rotate()
+				await self.notify_all_observers()
+				rotate = await self.server.ask_user_rotate()
 				if rotate == "R":
 					piece.rotate()
 					self.grid.piece_show(piece)
@@ -56,17 +56,15 @@ class Game(Subject.Subject) :
 			boucle = True
 			abscisse = 0
 			while boucle :
-				if self.actual_turn % 2 == 1 :
-					abscisse = ask_user_abscisse()
-				else :
-					abscisse = ask_user_abscisse()
+				await self.notify_all_observers()
+				abscisse = await self.server.ask_user_abscisse()
 				boucle = not self.grid.is_piece_accepted_abscisse(piece, abscisse)
 
 			center[0] = abscisse - piece.block_control[0]
 			result = self.grid.drop_piece(piece, self.actual_turn % 2)
 			if not result :
 				self.is_finished = True
-				print(self.grid)
+				await self.notify_view()
 				print("Game Lost !")
 
 	def encode_to_Json(self) :
@@ -89,6 +87,7 @@ def ask_user_piece_choose(pieces_kind) :
 			test = True
 	return kind
 
+
 def ask_user_abscisse() :
 	print("Please enter an valid abscisse : ")
 	a = int(input())
@@ -99,6 +98,12 @@ def ask_user_rotate() :
 	a = input()
 	return a
 
-maPartie = Game()
-while(not maPartie.is_finished) :
-	maPartie.turn()
+async def main() :
+	gp.MaPartie = Game()
+	while not len(gp.MaPartie.server.mySockets["players"]) == 2 :
+            await asyncio.sleep(0)
+	while(not gp.MaPartie.is_finished) :
+		await gp.MaPartie.turn()
+
+
+asyncio.get_event_loop().run_until_complete(main())

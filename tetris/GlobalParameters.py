@@ -1,3 +1,5 @@
 TAILLE_X = 10
 TAILLE_Y = 22
 TAILLE_Y_LIMITE = TAILLE_Y - 4
+MaPartie = None
+PORT = 9687

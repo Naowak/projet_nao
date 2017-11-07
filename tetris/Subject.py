@@ -1,38 +1,39 @@
 #coding : utf-8
+import Server
+import asyncio
+import websockets
+import GlobalParameters as gp
 
 class Subject:
     def __init__(self):
         self.observers={"players": [],"viewers": []}
+        self.server = Server.Server()
+        self.server.accept_connections(gp.PORT)
 
     def bind_player(self,player) :
-        if(instanceofviewer(player)):
             self.observers["players"].append(player)
 
     def unbind_player(self,player) :
-        if(instanceofviewer(player)):
             self.observers["players"].remove(player)
 
-    def bind_player(self,viewer) :
-        if(instanceofviewer(viewer)):
+    def bind_viewer(self,viewer) :
             self.observers["viewers"].append(viewer)
 
-    def unbind_player(self,viewer) :
-        if(instanceofviewer(viewer)):
+    def unbind_viewer(self,viewer) :
             self.observers["viewers"].remove(viewer)
 
-    def notify_all_observers(self) :
-        notify_view(self)
-        notify_player(self)
+    async def notify_all_observers(self) :
+        await self.notify_view()
+        await self.notify_player()
 
-    def notify_player(self) :
-        for player in self.observers["players"].value() :
-            #envoie de paquet
+    async def notify_player(self) :
+        for ws in self.observers["players"] :
+            await self.server.send_game(ws[1])
             pass
 
-    def notify_view(self) :
-        for viewer in self.observers["viewers"].value() :
-            #envoie de paquet
-            pass
+    async def notify_view(self) :
+        for ws in self.observers["viewers"] :
+            await self.server.send_game(ws[1])
 
 
     def get_state(self) :
