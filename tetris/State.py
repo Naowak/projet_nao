@@ -22,6 +22,13 @@ class State :
 		self.maj_score(nb_ligne_delete, player)
 		return True
 
+	def piece_show(self, piece) :
+		for j in range(gp.TAILLE_Y_LIMITE, gp.TAILLE_Y) :
+			for i in range(gp.TAILLE_X) :
+				self.grid[i][j] = Block.Block.Empty
+		for b in piece.blocks :
+			self.grid[b[0] + piece.center[0]][b[1] + piece.center[1]] = piece.color
+
 	def maj_score(self, nb_ligne_delete, player) :
 		if nb_ligne_delete == 1 :
 			self.score[player] += 40
@@ -84,6 +91,13 @@ class State :
 		for i in range(gp.TAILLE_X) :
 			string += str(i) + " "
 		string += "\n"
+		for i in range(gp.TAILLE_X) :
+			string += "--"
+		string += "\n"
+		for j in reversed(range(gp.TAILLE_Y_LIMITE, gp.TAILLE_Y)) :
+			for i in range(gp.TAILLE_X) :
+				string += self.grid[i][j].value[0] + " "
+			string += "\n"
 		for i in range(gp.TAILLE_X) :
 			string += "--"
 		string += "\n"

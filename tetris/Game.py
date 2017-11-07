@@ -27,6 +27,7 @@ class Game(Subject.Subject) :
 		return kinds_select
 
 	def turn(self) :
+		print(self.grid)
 		if not self.is_finished :
 			self.actual_turn += 1 #Le tour commence à 1
 
@@ -38,6 +39,7 @@ class Game(Subject.Subject) :
 
 			center = copy.copy(Piece.Piece.centers_init[kind])
 			piece = Piece.Piece.factory(kind, center)
+			self.grid.piece_show(piece)
 
 			boucle = True
 			while boucle :
@@ -47,6 +49,7 @@ class Game(Subject.Subject) :
 					rotate = ask_user_rotate()
 				if rotate == "R":
 					piece.rotate()
+					self.grid.piece_show(piece)
 				elif rotate == "" :
 					boucle = False
 
@@ -61,16 +64,16 @@ class Game(Subject.Subject) :
 
 			center[0] = abscisse - piece.block_control[0]
 			result = self.grid.drop_piece(piece, self.actual_turn % 2)
-			print(self.grid)
 			if not result :
 				self.is_finished = True
+				print(self.grid)
 				print("Game Lost !")
 
-		def encode_to_Json(self) :
-			dico = self.grid.encode_to_Json()
-			tmp = {"pieces":[i for i in self.actual_pieces]}
-			dico["pieces"]=tmp["pieces"]
-			return json.dumps(dico)
+	def encode_to_Json(self) :
+		dico = self.grid.encode_to_Json()
+		tmp = {"pieces":[i for i in self.actual_pieces]}
+		dico["pieces"]=tmp["pieces"]
+		return json.dumps(dico)
 
 
 def ask_user_piece_choose(pieces_kind) :
@@ -96,7 +99,6 @@ def ask_user_rotate() :
 	a = input()
 	return a
 
-print(Subject.Subject)
 maPartie = Game()
 while(not maPartie.is_finished) :
 	maPartie.turn()
