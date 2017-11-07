@@ -1,5 +1,4 @@
 #coding : utf-8
-import Game
 
 class Subject:
     def __init__(self):
