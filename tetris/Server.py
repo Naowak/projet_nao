@@ -9,17 +9,21 @@ import GlobalParameters as gp
 class Server :
 	def __init__(self):
 		self.mySockets={"players": [],"viewers": []}
+		self.compteur = 0
 
 	async def connect(self, sock, path) :
 		mess = await sock.recv()
 		mess = json.loads(mess)
 		if mess["user"] == "display" :
+			self.compteur += 1
 			self.mySockets["viewers"].append(sock)
-			gp.MaPartie.bind_viewer([mess["name"],sock])
+			gp.MaPartie.bind_viewer([mess["name"],sock, self.compteur])
 			print("Un display connecté")
 		elif mess["user"] == "player" :
+			self.compteur += 1
 			self.mySockets["players"].append(sock)
-			gp.MaPartie.bind_player([mess["name"],sock])
+			gp.MaPartie.bind_player([mess["name"],sock, self.compteur])
+			await sock.send(json.dumps({"id":self.compteur}))
 			print("Un player connecté")
 		else :
 			print("WARNING ! Bad connection detected !")
@@ -38,20 +42,21 @@ class Server :
 		gp.MaPartie.unbind_viewer(name)
 
 	async def send_game(self, websocket) :
+		print(gp.MaPartie.encode_to_Json())
 		await websocket.send(gp.MaPartie.encode_to_Json())
 
 	async def ask_user_piece_choose(self, pieces_kind) :
-		mess = await self.mySockets["players"][gp.MaPartie.actual_turn%2].recv()
+		mess = await self.mySockets["players"][gp.MaPartie.actual_turn%gp.NOMBRE_DE_JOUEUR].recv()
 		data = json.loads(mess)
 		return data["kind"]
 
 	async def ask_user_rotate(self) :
-		mess = await self.mySockets["players"][gp.MaPartie.actual_turn%2].recv()
+		mess = await self.mySockets["players"][gp.MaPartie.actual_turn%gp.NOMBRE_DE_JOUEUR].recv()
 		data = json.loads(mess)
 		return data["rotate"]
 
 	async def ask_user_abscisse(self) :
-		mess = await self.mySockets["players"][gp.MaPartie.actual_turn%2].recv()
+		mess = await self.mySockets["players"][gp.MaPartie.actual_turn%gp.NOMBRE_DE_JOUEUR].recv()
 		data = json.loads(mess)
 		return int(data["abscisse"])
 

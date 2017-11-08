@@ -8,7 +8,7 @@ import json
 class State :
 	def __init__(self) :
 		self.grid = [[Block.Block.Empty]*gp.TAILLE_Y for i in range(gp.TAILLE_X)]
-		self.score = [0, 0]
+		self.score = [0]*gp.NOMBRE_DE_JOUEUR
 
 	def drop_piece(self, piece, player) :
 		while not self.is_piece_blocked(piece) :

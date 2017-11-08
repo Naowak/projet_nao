@@ -28,8 +28,8 @@ class Piece:
     kinds['J'] = list(map(symmetry, kinds['L']))
     #Yellow
 
-    centers_init = {'O' : Point((gp.TAILLE_X-1)/2 + 0.5, gp.TAILLE_Y-1.5),
-                    'I' : Point((gp.TAILLE_X-1)/2 + 0.5, gp.TAILLE_Y-1.5),
+    centers_init = {'O' : Point((gp.TAILLE_X-1)/2 + 0.5, gp.TAILLE_Y-2.5),
+                    'I' : Point((gp.TAILLE_X-1)/2 + 0.5, gp.TAILLE_Y-2.5),
                     'L' : Point((gp.TAILLE_X-1)/2, gp.TAILLE_Y-2),
                     'T' : Point((gp.TAILLE_X-1)/2, gp.TAILLE_Y-2),
                     'S' : Point((gp.TAILLE_X-1)/2, gp.TAILLE_Y-2),

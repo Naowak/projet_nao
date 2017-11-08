@@ -3,3 +3,5 @@ TAILLE_Y = 22
 TAILLE_Y_LIMITE = TAILLE_Y - 4
 MaPartie = None
 PORT = 9687
+ADRESSE = "ws://localhost:"
+NOMBRE_DE_JOUEUR = 2
