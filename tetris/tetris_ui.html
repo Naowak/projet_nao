@@ -5,6 +5,8 @@
     </body>
 
     <script>
+        var PORT = 9687;
+
         var screen = {width: 0,
                       height: 0,
                       margin: 5,
@@ -25,7 +27,7 @@
                        }
 
         var grid = {columns: 10,
-                    lines: 18,
+                    lines: 22,
                     block_size: 0,
                     width: 0,
                     height: 0,
@@ -35,15 +37,59 @@
                     right: 0,
                     holding_lines: 4};
 
-        var game = {score: 1000};
+        var stage, root;
+
+        var game = {score: 0, grid: [], choices: []};
 
         var piece_T = [[-1,0],[0,0],[0,1],[1,0]];
         var piece_I = [[-1.5,-0.5],[-0.5,-0.5],[0.5,-0.5],[1.5,-0.5]];
+        var kinds;
+        var color;
+        var nb_player;
+        var id;
+        var ws;
+
+        function connexion() {
+            ws = new WebSocket("ws://127.0.0.1:9687");
+            ws.onopen = function (event) {
+                var msg = {
+                    user: "display",
+                    name: "nao"
+                };
+                ws.send(JSON.stringify(msg));
+            };
+            ws.onmessage = (event) => {
+                var data = JSON.parse(event.data);
+                console.log(data);
+                switch(data.step){
+                    case "init" :
+                        console.log(this);
+                        kinds = data.kinds;
+                        color = data.color;
+                        id = data.nid;
+                        nb_player = data.nb_player;
+                        drawGame();
+                        //mettre en place la taille de la grille
+                        break;
+                    case "piece_choice" :
+                        game.grid = data.grid;
+                        game.score = data.score;
+                        game.choices = data.pieces;
+                        //console.log(choice);
+                        drawGame();
+                        break;
+                    default :
+                        console.log("message non reconnu");
+                        break;
+                }
+            };
+        }
 
         function init() {
             var canvas = document.getElementById("canvas");
 
             stage = new createjs.Stage("canvas");
+            root = new createjs.Container();
 
             function resize() {
                 screen.height = window.innerHeight;
@@ -73,19 +119,25 @@
                 sidebar.right = grid.left;
                 sidebar.choices.bottom = screen.bottom - grid.block_size;
                 sidebar.choices.left = screen.left + 2*grid.block_size;
-            }
+            };
             resize();
+            drawBackground();
+            connexion();
+
             //window.addEventListener("resize", resize, false);
 
-            root = new createjs.Container();
             stage.addChild(root);
 
-            drawBackground();
             update();
         }
 
         function update() {
             stage.update();
+        }
+
+        function clear_canvas() {
+            stage.clear();
+            root.removeAllChildren();
         }
 
         function drawBackground() {
@@ -119,7 +171,6 @@
                     .moveTo(grid.left, grid.top+grid.block_size*i)
                     .lineTo(grid.right, grid.top+grid.block_size*i);
             }
-
             root.addChild(grid_lines);
 
             var choices_box = new createjs.Shape();
@@ -141,12 +192,11 @@
             update();
         }
 
-        function drawChoices(choices) {
-            var place = sidebar.choices;
-            //place.bottom -= grid.block_size;
+        function drawChoices(choices=game.choices) {
+            var place = Object.assign({}, sidebar.choices);
             place.left += grid.block_size*0.5;
             choices.forEach((e,i) => {
-                drawPiece(e.blocks, e.color, [0,0], place);
+                drawPiece(kinds[e], color[e], [0,0], place);
                 place.bottom -= 3*grid.block_size;
             });
 
@@ -171,6 +221,27 @@
             [center_x, center_y] = pos;
             blocks = blocks.map(([x,y]) => [center_x+x,center_y+y]);
             blocks.forEach((e,i) => {drawBlock(color, e, ref)});
+            update();
+        }
+
+        function drawGrid() {
+            game.grid.forEach((a,i) => {
+                a.forEach((e,j) => {
+                    if(e!="White")
+                        drawBlock(e,[i,j]);
+                });
+            });
+
+            update();
+        }
+
+        function drawGame() {
+            clear_canvas();
+            drawBackground();
+            drawInfo();
+            drawChoices();
+            drawGrid();
+
             update();
         }
       </script>

@@ -32,7 +32,8 @@ class Game(Subject.Subject) :
 		return kinds_select
 
 	async def turn(self) :
-		await self.notify_view()
+		if self.step != "init" :
+			await self.notify_view()
 		print(self.grid)
 		if not self.is_finished :
 			self.actual_turn += 1 #Le tour commence à 1
@@ -44,8 +45,6 @@ class Game(Subject.Subject) :
 
 			center = copy.copy(Piece.Piece.centers_init[kind])
 			piece = Piece.Piece.factory(kind, center)
-			print(piece.color)
-			#self.grid.piece_show(piece)
 
 			self.step = "rotation"
 			boucle = True
@@ -64,7 +63,6 @@ class Game(Subject.Subject) :
 			while boucle :
 				await self.notify_all_observers()
 				abscisse = await self.server.ask_user_abscisse()
-				print("abs : " + str(abscisse))
 				boucle = not self.grid.is_piece_accepted_abscisse(piece, abscisse)
 
 			center[0] = abscisse - piece.block_control[0]

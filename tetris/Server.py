@@ -4,6 +4,7 @@ import asyncio
 import websockets
 import json
 import GlobalParameters as gp
+import Piece
 
 
 class Server :
@@ -14,13 +15,16 @@ class Server :
 	async def connect(self, sock, path) :
 		mess = await sock.recv()
 		mess = json.loads(mess)
+		self.compteur += 1
+				
 		if mess["user"] == "display" :
-			self.compteur += 1
 			self.mySockets["viewers"].append(sock)
-			gp.MaPartie.bind_viewer([mess["name"],sock, self.compteur])
+			gp.MaPartie.bind_viewer([mess["name"],sock, self.compteur])	
+			data = self.data_init_display()
+			await sock.send(json.dumps(data))		
 			print("Un display connecté")
+
 		elif mess["user"] == "player" :
-			self.compteur += 1
 			self.mySockets["players"].append(sock)
 			gp.MaPartie.bind_player([mess["name"],sock, self.compteur])
 			await sock.send(json.dumps({"id":self.compteur}))
@@ -29,6 +33,22 @@ class Server :
 			print("WARNING ! Bad connection detected !")
 		while True:
 			await asyncio.sleep(0)
+
+	def data_init_display(self) :
+		data = {}
+		data["step"] = "init"
+		data["nid"] = self.compteur
+		data["nb_player"] = gp.NOMBRE_DE_JOUEUR
+		data["kinds"] = {}
+		for (key, blocks) in Piece.Piece.kinds.items() :
+			data["kinds"][key] = []
+			for b in blocks :
+				data["kinds"][key] += [[float(b[0][0]), float(b[1][0])]]
+		data["color"] = {}
+		for (key, color) in Piece.Piece.colors.items() :
+			data["color"][key] = color.value
+		return data
+
 
 	def accept_connections(self, port) :
 		asyncio.ensure_future(websockets.serve(self.connect, 'localhost', port, timeout=100))

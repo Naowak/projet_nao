@@ -96,14 +96,20 @@ class State :
 		string += "\n"
 		for j in reversed(range(gp.TAILLE_Y_LIMITE, gp.TAILLE_Y)) :
 			for i in range(gp.TAILLE_X) :
-				string += self.grid[i][j].value[0] + " "
+				color = self.grid[i][j].value[0]
+				if color == 'W' :
+					color = '_'
+				string += color + " "
 			string += "\n"
 		for i in range(gp.TAILLE_X) :
 			string += "--"
 		string += "\n"
 		for j in reversed(range(gp.TAILLE_Y_LIMITE)) :
 			for i in range(gp.TAILLE_X) :
-				string += self.grid[i][j].value[0] + " "
+				color = self.grid[i][j].value[0]
+				if color == 'W' :
+					color = '_'
+				string += color + " "
 			string += "\n"
 		string += "SCORE :: " + str(self.score) + "\n"
 		return string
