@@ -10,20 +10,24 @@ class Server :
 	def __init__(self):
 		self.mySockets={"players": [],"viewers": []}
 
-	async def connect(sock, path) :
+	async def connect(self, sock, path) :
 		mess = await sock.recv()
 		mess = json.loads(mess)
 		if mess["user"] == "display" :
-			self.mySockets[viewers] += [sock]
+			self.mySockets["viewers"].append(sock)
 			gp.MaPartie.bind_viewer([mess["name"],sock])
+			print("Un display connecté")
 		elif mess["user"] == "player" :
-			self.mySockets[players] += [sock]
+			self.mySockets["players"].append(sock)
 			gp.MaPartie.bind_player([mess["name"],sock])
+			print("Un player connecté")
 		else :
 			print("WARNING ! Bad connection detected !")
+		while True:
+			await asyncio.sleep(0)
 
 	def accept_connections(self, port) :
-		asyncio.ensure_future(websockets.serve(Server.connect, 'localhost', port))
+		asyncio.ensure_future(websockets.serve(self.connect, 'localhost', port, timeout=100))
 
 	def disconnect_player(self, sock, name) :
 		self.mySockets["players"].remove(sock)

@@ -27,7 +27,7 @@ class State :
 			for i in range(gp.TAILLE_X) :
 				self.grid[i][j] = Block.Block.Empty
 		for b in piece.blocks :
-			self.grid[b[0] + piece.center[0]][b[1] + piece.center[1]] = piece.color
+			self.grid[int(b[0] + piece.center[0])][int(b[1] + piece.center[1])] = piece.color
 
 	def maj_score(self, nb_ligne_delete, player) :
 		if nb_ligne_delete == 1 :
