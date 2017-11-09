@@ -53,13 +53,30 @@ class Client :
 
 
 def ask_piece_to_choose(kinds) :
-	return random.choice(kinds)
+	#return random.choice(kinds)
+	test = False
+	kind = ""
+	while not test :
+		print("Choose a piece from those pieces : ")
+		for p in kinds :
+			print(p + " ")
+		print("\n")
+		kind = input()
+		if kind in kinds :
+			test = True
+	return kind
 
 def ask_rotate() :
-	return random.choice(["R", ""])
+	#return random.choice(["R", ""])
+	print("To rotate de piece enter 'R', else press 'Enter' : ")
+	a = input()
+	return a
 
 def ask_abscisse() :
-	return random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+	#return random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+	print("Please enter an valid abscisse : ")
+	a = int(input())
+	return a
 
 
 async def main() :

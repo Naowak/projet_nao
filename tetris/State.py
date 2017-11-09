@@ -31,7 +31,10 @@ class State :
 	def piece_show(self, piece) :
 		self.clear_rotation_vue()
 		for b in piece.blocks :
-			self.grid[int(b[0] + piece.center[0])][int(b[1] + piece.center[1])] = piece.color
+			if b[0] == piece.block_control[0] and b[1] == piece.block_control[1] :
+				self.grid[int(b[0] + piece.center[0])][int(b[1] + piece.center[1])] = Block.Block.Black
+			else :
+				self.grid[int(b[0] + piece.center[0])][int(b[1] + piece.center[1])] = piece.color
 
 	def show_abscisse(self, piece, abscisse) :
 		if self.is_piece_accepted_abscisse(piece, abscisse) :

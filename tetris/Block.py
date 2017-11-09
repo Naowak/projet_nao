@@ -10,3 +10,4 @@ class Block(enum.Enum):
     Violet = "Fuchsia"
     Orange = "Orange"
     Yellow = "Yellow"
+    Black = "Black"
