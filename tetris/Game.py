@@ -21,7 +21,7 @@ class Game(Subject.Subject) :
 		self.actual_pieces = list()
 		self.step = "init"
 		self.current_piece = None
-		self.current_abscisse = 5
+		self.current_abscisse = None
 
 	def pieces_random(self, nb = 3) :
 		kinds = ['O', 'I', 'L', 'T', 'S', 'Z', 'J']
@@ -34,14 +34,15 @@ class Game(Subject.Subject) :
 		return kinds_select
 
 	async def update():
-		self.grid.piece_show(self_cuurret_piece)
+		self.grid.piece_show(self_current_piece)
 		self.grid.show_abscisse(self.current_piece, self.current_abscisse)
 		await self.notify_all_observers()
 
 	def init_turn() :
-		self.actual_pieces = pieces_random;
-		self.current_pieces = self.actual_pieces[0]
-		self.current_abscisse = 5
+		self.actual_pieces = self.pieces_random();
+		self.current_piece = self.actual_pieces[0]
+		self.current_abscisse = Piece.Piece.centers_init[self.current_piece]
+		update()
 
 	def choose_piece(self,kinds) :
 		self.current_piece = kinds
@@ -66,13 +67,13 @@ class Game(Subject.Subject) :
 		else :
 			self.init_turn()
 
-	async def setEtat(self,command,value) :
+	async def set_action(self,command,value) :
 		if command == "choose" :
 			self.choose_piece(value)
 		elif command == "rotate" :
 			self.rotate_piece(value)
-		elif command == "move" :
-			self.move_piece(value)
+		elif command == "hor_move" :
+			self.hor_move_piece(value)
 		else :
 			print "Modification d'état inconnu"
 			return False

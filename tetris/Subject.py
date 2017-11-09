@@ -30,15 +30,15 @@ class Subject:
     async def notify_player(self) :
         mess = self.encode_to_Json()
         for ws in self.observers["players"] :
-            await self.server.send_game(ws[1],mess)
+            await self.server.send(ws[1],mess)
             pass
 
     async def notify_view(self) :
         mess = self.encode_to_Json()
         for ws in self.observers["viewers"] :
-            await self.server.send_game(ws[1],mess)
+            await self.server.send(ws[1],mess)
 
-    async def set_etat(self,command,value) :
+    async def set_action(self,command,value) :
         pass
 
     def encode_to_Json(self) :

@@ -23,8 +23,10 @@ class Server :
 			self.game[self.next_games_id] = Game(self.next_games_id)
 			self.next_games_id++
 			while(not self.game[self.next_games_id].is_finished) :
-				await gp.MaPartie.init_turn()
-
+				mess = await self.mySockets["players"][game.actual_turn%gp.NOMBRE_DE_JOUEUR].recv()
+				mess = json.loads(mess)
+				game.set_etat(mess["type"])
+			del self.game[game.gid]
 
 	async def connect(self, sock, path) :
 		mess = await sock.recv()
@@ -65,7 +67,7 @@ class Server :
 
 
 	def accept_connections(self, port) :
-		asyncio.ensure_future(websockets.serve(self.connect, 'localhost', port, timeout=100))
+		asyncio.ensure_future(websockets.serve(self.connect, 'localhost', port)) #, timeout=100
 
 	def disconnect_player(self, sock, name) :
 		self.mySockets["players"].remove(sock)
@@ -78,10 +80,10 @@ class Server :
 	async def send(self, websocket, mess) :
 		await websocket.send(mess)
 
-	async def recv_command(self) :
+	async def recv_command(self,game) :
 		mess = await self.mySockets["players"][gp.MaPartie.actual_turn%gp.NOMBRE_DE_JOUEUR].recv()
 		mess = json.loads(mess)
-		if mess["step"]="abscisse" :
+		game.set_etat(mess["action"])
 
 
 
