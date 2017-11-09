@@ -49,14 +49,15 @@ class Game(Subject.Subject) :
 		self.current_abscisse = 5
 
 
-	def hor_move_piece(self, move) :
+	async def hor_move_piece(self, move) :
 		if self.grid.is_piece_accepted_abscisse(self.current_pieces, self.current_abscisse + move):
 			center[0] = abscisse - piece.block_control[0]
 		self.update()
 		await self.notify_all_observers()
 
 	def rotate_piece(self, rotate):
-		self.current_piece.rotate() for i in range(rotate%4)
+		for i in range(rotate%4) :
+			self.current_piece.rotate()
 
 	def valid(self) :
 		result = self.grid.drop_piece(self.current_piece, self.actual_turn %gp.NOMBRE_DE_JOUEUR)
@@ -75,7 +76,7 @@ class Game(Subject.Subject) :
 		elif command == "hor_move" :
 			self.hor_move_piece(value)
 		else :
-			print "Modification d'état inconnu"
+			print ("Modification d'état inconnu")
 			return False
 		await self.update()
 		return True
@@ -130,7 +131,7 @@ class Game(Subject.Subject) :
 	def encode_to_Json(self) :
 		dico = self.grid.encode_to_Json()
 		tmp = {"pieces":[i for i in self.actual_pieces]}
-		dico=["gid"]=gid
+		dico["gid"]=gid
 		dico["pieces"]=tmp["pieces"]
 		dico["actual_player"] = self.observers["players"][self.actual_turn%gp.NOMBRE_DE_JOUEUR][2]
 		return json.dumps(dico)

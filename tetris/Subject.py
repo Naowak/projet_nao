@@ -8,8 +8,7 @@ class Subject:
     def __init__(self,gid):
         self.gid=gid
         self.observers={"players": [],"viewers": []}
-        self.server = Server.Server()
-        self.server.accept_connections(gp.PORT)
+        self.server = Server.serve
 
     def bind_player(self,player) :
             self.observers["players"].append(player)

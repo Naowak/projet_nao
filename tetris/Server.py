@@ -14,14 +14,16 @@ class Server :
 		self.next_games_id = 0
 		self.next_connect_id = 0
 
-	async def run_server():
-		while not len(gp.MaPartie.server.mySockets["players"]) == gp.NOMBRE_DE_JOUEUR :
+	async def run_server(self):
+		await self.accept_connections(gp.PORT)
+		print("Serveur running on")
+		while not len(self.mySockets["players"]) == gp.NOMBRE_DE_JOUEUR :
 				await asyncio.sleep(0)
-		asyncio.get_event_loop().run_until_complete(run_game())
+		asyncio.ensure_future(run_game())
 
-	async def run_game():
+	async def run_game(self):
 			self.game[self.next_games_id] = Game(self.next_games_id)
-			self.next_games_id++
+			self.next_games_id+=1
 			while(not self.game[self.next_games_id].is_finished) :
 				mess = await self.mySockets["players"][game.actual_turn%gp.NOMBRE_DE_JOUEUR].recv()
 				mess = json.loads(mess)
@@ -67,7 +69,7 @@ class Server :
 
 
 	def accept_connections(self, port) :
-		asyncio.ensure_future(websockets.serve(self.connect, 'localhost', port)) #, timeout=100
+		return websockets.serve(self.connect, 'localhost', port) #, timeout=100
 
 	def disconnect_player(self, sock, name) :
 		self.mySockets["players"].remove(sock)
@@ -110,3 +112,6 @@ class Server :
 
 	# 		elif data["action"] == "disconnect_viewer" :
 	# 			self.disconnect_viewer(websocket, data["name"])
+
+server = Server()
+asyncio.get_event_loop().run_until_complete(server.run_server())
