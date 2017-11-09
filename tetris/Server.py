@@ -10,18 +10,32 @@ import Piece
 class Server :
 	def __init__(self):
 		self.mySockets={"players": [],"viewers": []}
-		self.compteur = 0
+		self.games ={}
+		self.next_games_id = 0
+		self.next_connect_id = 0
+
+	async def run_server():
+		while not len(gp.MaPartie.server.mySockets["players"]) == gp.NOMBRE_DE_JOUEUR :
+				await asyncio.sleep(0)
+		asyncio.get_event_loop().run_until_complete(run_game())
+
+	async def run_game():
+			self.game[self.next_games_id] = Game(self.next_games_id)
+			self.next_games_id++
+			while(not self.game[self.next_games_id].is_finished) :
+				await gp.MaPartie.init_turn()
+
 
 	async def connect(self, sock, path) :
 		mess = await sock.recv()
 		mess = json.loads(mess)
 		self.compteur += 1
-				
+
 		if mess["user"] == "display" :
 			self.mySockets["viewers"].append(sock)
-			gp.MaPartie.bind_viewer([mess["name"],sock, self.compteur])	
+			gp.MaPartie.bind_viewer([mess["name"],sock, self.compteur])
 			data = self.data_init_display()
-			await sock.send(json.dumps(data))		
+			await sock.send(json.dumps(data))
 			print("Un display connecté")
 
 		elif mess["user"] == "player" :
@@ -61,23 +75,30 @@ class Server :
 		self.mySockets["viewers"].remove(sock)
 		gp.MaPartie.unbind_viewer(name)
 
-	async def send_game(self, websocket) :
-		await websocket.send(gp.MaPartie.encode_to_Json())
+	async def send(self, websocket, mess) :
+		await websocket.send(mess)
 
-	async def ask_user_piece_choose(self, pieces_kind) :
+	async def recv_command(self) :
 		mess = await self.mySockets["players"][gp.MaPartie.actual_turn%gp.NOMBRE_DE_JOUEUR].recv()
-		data = json.loads(mess)
-		return data["kind"]
+		mess = json.loads(mess)
+		if mess["step"]="abscisse" :
 
-	async def ask_user_rotate(self) :
-		mess = await self.mySockets["players"][gp.MaPartie.actual_turn%gp.NOMBRE_DE_JOUEUR].recv()
-		data = json.loads(mess)
-		return data["rotate"]
 
-	async def ask_user_abscisse(self) :
-		mess = await self.mySockets["players"][gp.MaPartie.actual_turn%gp.NOMBRE_DE_JOUEUR].recv()
-		data = json.loads(mess)
-		return int(data["abscisse"])
+
+	# async def ask_user_piece_choose(self, pieces_kind) :
+	# 	mess = await self.mySockets["players"][gp.MaPartie.actual_turn%gp.NOMBRE_DE_JOUEUR].recv()
+	# 	data = json.loads(mess)
+	# 	return data["kind"]
+	#
+	# async def ask_user_rotate(self) :
+	# 	mess = await self.mySockets["players"][gp.MaPartie.actual_turn%gp.NOMBRE_DE_JOUEUR].recv()
+	# 	data = json.loads(mess)
+	# 	return data["rotate"]
+	#
+	# async def ask_user_abscisse(self) :
+	# 	mess = await self.mySockets["players"][gp.MaPartie.actual_turn%gp.NOMBRE_DE_JOUEUR].recv()
+	# 	data = json.loads(mess)
+	# 	return int(data["abscisse"])
 
 	# async def run(self, websocket) :
 	# 	async for message in websocket:
@@ -87,4 +108,3 @@ class Server :
 
 	# 		elif data["action"] == "disconnect_viewer" :
 	# 			self.disconnect_viewer(websocket, data["name"])
-
