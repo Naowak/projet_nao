@@ -107,7 +107,7 @@ def ask_user_abscisse() :
 	return a
 
 def ask_user_rotate() :
-	print("To rotate de piece enter 'R', else press 'Enter' : ")
+	print("To rotate the piece enter 'R', else press 'Enter' : ")
 	a = input()
 	return a
 
