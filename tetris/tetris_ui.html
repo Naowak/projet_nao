@@ -39,7 +39,7 @@
 
         var stage, root;
 
-        var game = {score: 0, grid: [], choices: []};
+        var game = {score: [0], grid: [], choices: []};
 
         var piece_T = [[-1,0],[0,0],[0,1],[1,0]];
         var piece_I = [[-1.5,-0.5],[-0.5,-0.5],[0.5,-0.5],[1.5,-0.5]];
@@ -211,11 +211,14 @@
         }
 
         function drawInfo() {
-            var score = new createjs.Text("Score : "+game.score, "20px Arial", "black");
-            score.x = screen.left + 20;
-            score.y = screen.top + 20;
-
-            root.addChild(score);
+            game.score.forEach((e,i) => {
+                var score = new createjs.Text("Score J"+(i+1)+": "+e, "20px Arial", "black");
+                score.x = screen.left + 20;
+                score.y = screen.top + 20 + 20*i;
+    
+                root.addChild(score);
+            });
+            
             update();
         }
 
