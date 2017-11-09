@@ -185,6 +185,9 @@
             }
             root.addChild(grid_lines);
 
+            for(var i=0; i<grid.columns; i++)
+                drawColumnNumber(i);
+
             var choices_box = new createjs.Shape();
             choices_box.graphics
                 .setStrokeStyle(1)
@@ -193,6 +196,18 @@
                 .lineTo(sidebar.right, screen.bottom - sidebar.choices.height);
 
             root.addChild(choices_box);
+        }
+
+        function drawColumnNumber(num) {
+            var number_size = 16;
+            var number = new createjs.Text(num, number_size+"px Arial", "black");
+            var left = grid.left + (number_size/2) + num*grid.block_size;
+            var top = (number_size/2) + grid.top;
+            number.x = left;
+            number.y = top;
+            
+            root.addChild(number);
+            update();
         }
 
         function drawInfo() {
