@@ -14,10 +14,10 @@ class State :
 		self.clear_rotation_vue()
 		while not self.is_piece_blocked(piece) :
 			piece.center[1] -= 1
-		if self.is_piece_accepted_ordonne(piece) :
-			for b in piece.blocks :
-				self.grid[int(piece.center[0] + b[0])][int(piece.center[1] + b[1])] = piece.color
-		else :
+		#if self.is_piece_accepted_ordonne(piece) :
+		for b in piece.blocks :
+			self.grid[int(piece.center[0] + b[0])][int(piece.center[1] + b[1])] = piece.color
+		if not self.is_piece_accepted_ordonne(piece) :
 			return False
 		nb_ligne_delete = self.line_complete()
 		self.maj_score(nb_ligne_delete, player)
