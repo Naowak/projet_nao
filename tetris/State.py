@@ -11,6 +11,7 @@ class State :
 		self.score = [0]*gp.NOMBRE_DE_JOUEUR
 
 	def drop_piece(self, piece, player) :
+		self.clear_rotation_vue()
 		while not self.is_piece_blocked(piece) :
 			piece.center[1] -= 1
 		if self.is_piece_accepted_ordonne(piece) :
@@ -22,12 +23,21 @@ class State :
 		self.maj_score(nb_ligne_delete, player)
 		return True
 
-	def piece_show(self, piece) :
+	def clear_rotation_vue(self) :
 		for j in range(gp.TAILLE_Y_LIMITE, gp.TAILLE_Y) :
 			for i in range(gp.TAILLE_X) :
 				self.grid[i][j] = Block.Block.Empty
+
+	def piece_show(self, piece) :
+		self.clear_rotation_vue()
 		for b in piece.blocks :
 			self.grid[int(b[0] + piece.center[0])][int(b[1] + piece.center[1])] = piece.color
+
+	def show_abscisse(self, piece, abscisse) :
+		if self.is_piece_accepted_abscisse(piece, abscisse) :
+			self.clear_rotation_vue()
+			for b in piece.blocks :
+				self.grid[int(abscisse + b[0] - piece.block_control[0])][int(b[1] + piece.center[1])] = piece.color
 
 	def maj_score(self, nb_ligne_delete, player) :
 		if nb_ligne_delete == 1 :

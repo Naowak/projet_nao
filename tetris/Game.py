@@ -45,6 +45,7 @@ class Game(Subject.Subject) :
 
 			center = copy.copy(Piece.Piece.centers_init[kind])
 			piece = Piece.Piece.factory(kind, center)
+			self.grid.piece_show(piece)
 
 			self.step = "rotation"
 			boucle = True
@@ -53,7 +54,7 @@ class Game(Subject.Subject) :
 				rotate = await self.server.ask_user_rotate()
 				if rotate == "R":
 					piece.rotate()
-					#self.grid.piece_show(piece)
+					self.grid.piece_show(piece)
 				elif rotate == "" :
 					boucle = False
 
@@ -65,7 +66,11 @@ class Game(Subject.Subject) :
 				abscisse = await self.server.ask_user_abscisse()
 				boucle = not self.grid.is_piece_accepted_abscisse(piece, abscisse)
 
+
 			center[0] = abscisse - piece.block_control[0]
+			self.grid.show_abscisse(piece, abscisse)
+			self.step = "end_turn"
+			await self.notify_view()
 			result = self.grid.drop_piece(piece, self.actual_turn %gp.NOMBRE_DE_JOUEUR)
 			if not result :
 				self.step = "finished"

@@ -69,6 +69,6 @@ async def main() :
 		await asyncio.sleep(0)
 	while monClient.keep_connection :
 		await monClient.play()
-		await asyncio.sleep(0.2)
+		await asyncio.sleep(0.3)
 
 asyncio.get_event_loop().run_until_complete(main())

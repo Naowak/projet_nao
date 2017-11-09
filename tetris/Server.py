@@ -62,7 +62,6 @@ class Server :
 		gp.MaPartie.unbind_viewer(name)
 
 	async def send_game(self, websocket) :
-		print(gp.MaPartie.encode_to_Json())
 		await websocket.send(gp.MaPartie.encode_to_Json())
 
 	async def ask_user_piece_choose(self, pieces_kind) :
