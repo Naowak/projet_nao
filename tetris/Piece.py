@@ -66,9 +66,6 @@ class Piece:
         p.block_control = copy.copy(Piece.blocks_controls[kind])
         return p
 
-    def blocks_abs(self):
-        return [(p+self.center) for p in self.blocks]
-
     def rotate(self) :
         new_blocks = []
         coef = np.array([[0, 1], [-1, 0]])

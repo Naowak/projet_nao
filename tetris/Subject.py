@@ -34,10 +34,3 @@ class Subject:
     async def notify_view(self) :
         for ws in self.observers["viewers"] :
             await self.server.send_game(ws[1])
-
-
-    def get_state(self) :
-        pass
-
-    def get_rules(self) :
-        pass

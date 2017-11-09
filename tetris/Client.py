@@ -19,7 +19,7 @@ class Client :
 
 	async def connect(self, uri = URI) :
 		self.mySocket = await websockets.connect(uri)
-		await self.send_message({"user":self.user, "name":"bolosse"})
+		await self.send_message({"user":self.user, "name":"Pierre"})
 		data = await self.receive_message()
 		self.player_number = data["id"]
 		while self.keep_connection :
