@@ -5,6 +5,7 @@ import websockets
 import json
 import GlobalParameters as gp
 import Piece
+import Game
 
 
 class Server :
@@ -19,43 +20,45 @@ class Server :
 		print("Serveur running on")
 		while not len(self.mySockets["players"]) == gp.NOMBRE_DE_JOUEUR :
 				await asyncio.sleep(0)
-		asyncio.ensure_future(run_game())
+		asyncio.ensure_future(self.run_game(self.mySockets["players"],self.mySockets["players"]))
 
-	async def run_game(self):
-			self.game[self.next_games_id] = Game(self.next_games_id)
+	async def run_game(self,players,viewers):
+			gid = self.next_games_id
+			game = self.games[gid] = Game.Game(gid)
 			self.next_games_id+=1
-			while(not self.game[self.next_games_id].is_finished) :
-				mess = await self.mySockets["players"][game.actual_turn%gp.NOMBRE_DE_JOUEUR].recv()
-				mess = json.loads(mess)
-				game.set_etat(mess["type"])
-			del self.game[game.gid]
+			for viewer in viewers:
+				game.bind_viewer(viewer)
+			for player in players:
+				game.bind_player(player)
+			await game.init_turn()
+			while(not game.is_finished) :
+				await self.receive_command()
+			del self.games[game.gid]
 
 	async def connect(self, sock, path) :
 		mess = await sock.recv()
 		mess = json.loads(mess)
-		self.compteur += 1
-
+		self.next_connect_id  += 1
+		data = self.data_init_display()
 		if mess["user"] == "display" :
-			self.mySockets["viewers"].append(sock)
-			gp.MaPartie.bind_viewer([mess["name"],sock, self.compteur])
-			data = self.data_init_display()
-			await sock.send(json.dumps(data))
+			self.mySockets["viewers"].append([mess["name"],sock, self.next_connect_id])
+			await self.send_message(sock,data)
 			print("Un display connecté")
 
 		elif mess["user"] == "player" :
-			self.mySockets["players"].append(sock)
-			gp.MaPartie.bind_player([mess["name"],sock, self.compteur])
-			await sock.send(json.dumps({"id":self.compteur}))
+			self.mySockets["players"].append([mess["name"],sock, self.next_connect_id])
+			await self.send_message(sock,data)
 			print("Un player connecté")
 		else :
 			print("WARNING ! Bad connection detected !")
+
 		while True:
 			await asyncio.sleep(0)
 
 	def data_init_display(self) :
 		data = {}
 		data["step"] = "init"
-		data["nid"] = self.compteur
+		data["nid"] = self.next_connect_id
 		data["nb_player"] = gp.NOMBRE_DE_JOUEUR
 		data["kinds"] = {}
 		for (key, blocks) in Piece.Piece.kinds.items() :
@@ -79,12 +82,16 @@ class Server :
 		self.mySockets["viewers"].remove(sock)
 		gp.MaPartie.unbind_viewer(name)
 
-	async def send(self, websocket, mess) :
-		await websocket.send(mess)
+	async def send_message(self, websocket, mess) :
+		print("send")
+		print(mess)
+		await websocket.send(json.dumps(mess))
 
-	async def recv_command(self,game) :
+	async def receive_command(self,game) :
 		mess = await self.mySockets["players"][gp.MaPartie.actual_turn%gp.NOMBRE_DE_JOUEUR].recv()
 		mess = json.loads(mess)
+		print("receive")
+		print(mess)
 		game.set_etat(mess["action"])
 
 

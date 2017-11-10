@@ -8,7 +8,7 @@ class Subject:
     def __init__(self,gid):
         self.gid=gid
         self.observers={"players": [],"viewers": []}
-        self.server = Server.serve
+        self.server = Server.server
 
     def bind_player(self,player) :
             self.observers["players"].append(player)
@@ -27,18 +27,18 @@ class Subject:
         await self.notify_player()
 
     async def notify_player(self) :
-        mess = self.encode_to_Json()
+        mess = self.get_etat()
         for ws in self.observers["players"] :
-            await self.server.send(ws[1],mess)
+            await self.server.send_message(ws[1],mess)
             pass
 
     async def notify_view(self) :
-        mess = self.encode_to_Json()
+        mess = self.get_etat()
         for ws in self.observers["viewers"] :
-            await self.server.send(ws[1],mess)
+            await self.server.send_message(ws[1],mess)
 
     async def set_action(self,command,value) :
         pass
 
-    def encode_to_Json(self) :
+    def get_etat(self) :
         pass

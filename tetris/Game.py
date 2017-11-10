@@ -1,12 +1,12 @@
 # coding : utf-8
 
+
+import Server
+import Subject
 import State
 import Piece
 import random
 import copy
-import json
-import Subject
-import Server
 import GlobalParameters as gp
 import asyncio
 
@@ -29,20 +29,20 @@ class Game(Subject.Subject) :
 		for _ in range(nb) :
 			k = random.choice(kinds)
 			kinds.remove(k)
-			kinds_select.append(k)
+			kinds_select.append(Piece.Piece.factory(k,Piece.Piece.centers_init[k]))
 		self.actual_pieces = kinds_select
 		return kinds_select
 
-	async def update():
-		self.grid.piece_show(self_current_piece)
+	async def update(self):
+		self.grid.piece_show(self.current_piece)
 		self.grid.show_abscisse(self.current_piece, self.current_abscisse)
 		await self.notify_all_observers()
 
-	def init_turn() :
+	async def init_turn(self) :
 		self.actual_pieces = self.pieces_random();
 		self.current_piece = self.actual_pieces[0]
-		self.current_abscisse = Piece.Piece.centers_init[self.current_piece]
-		update()
+		self.current_abscisse = self.current_piece.center[0]
+		await self.update()
 
 	def choose_piece(self,kinds) :
 		self.current_piece = kinds
@@ -52,21 +52,19 @@ class Game(Subject.Subject) :
 	async def hor_move_piece(self, move) :
 		if self.grid.is_piece_accepted_abscisse(self.current_pieces, self.current_abscisse + move):
 			center[0] = abscisse - piece.block_control[0]
-		self.update()
-		await self.notify_all_observers()
 
 	def rotate_piece(self, rotate):
 		for i in range(rotate%4) :
 			self.current_piece.rotate()
 
-	def valid(self) :
+	async def valid(self) :
 		result = self.grid.drop_piece(self.current_piece, self.actual_turn %gp.NOMBRE_DE_JOUEUR)
 		self.actual_turn += 1 #Le tour commence à 1
 		if not result :
 			self.is_finished = True
 			print("Game Lost !")
 		else :
-			self.init_turn()
+			await self.init_turn()
 
 	async def set_action(self,command,value) :
 		if command == "choose" :
@@ -128,13 +126,17 @@ class Game(Subject.Subject) :
 	# 			await self.notify_view()
 	# 			print("Game Lost !")
 
-	def encode_to_Json(self) :
+	def get_etat(self) :
 		dico = self.grid.encode_to_Json()
-		tmp = {"pieces":[i for i in self.actual_pieces]}
-		dico["gid"]=gid
+		tmp = {"pieces":[i.kind for i in self.actual_pieces]}
+		dico["gid"]=self.gid
 		dico["pieces"]=tmp["pieces"]
 		dico["actual_player"] = self.observers["players"][self.actual_turn%gp.NOMBRE_DE_JOUEUR][2]
-		return json.dumps(dico)
+		if self.is_finished :
+			dico["step"] = "finished"
+		else :
+			dico["step"] = "game"
+		return dico
 
 
 def ask_user_piece_choose(pieces_kind) :

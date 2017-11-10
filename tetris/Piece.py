@@ -55,12 +55,14 @@ class Piece:
     def __init__(self, center):
         self.center = center
         self.blocks = []
+        self.kind = ""
         self.block_control = None
         self.color = ""
 
     @classmethod
     def factory(cls, kind, center):
         p = Piece(center)
+        p.kind = kind
         p.blocks = cls.kinds[kind]
         p.color = cls.colors[kind]
         p.block_control = copy.copy(Piece.blocks_controls[kind])
