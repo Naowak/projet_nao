@@ -1,6 +1,7 @@
 # coding: utf-8
 import enum
 
+
 class Block(enum.Enum):
     Empty = "White"
     Red = "Red"

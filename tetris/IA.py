@@ -1,22 +1,19 @@
 # coding: utf-8
-import asyncio
-import websockets
-import GlobalParameters as gp
-import json
 import random
-import sys
+import GlobalParameters as gp
 
 URI = gp.ADRESSE + str(gp.PORT)
 
+
 class IA:
-    def __init__(self,strategy) :
+    def __init__(self, strategy):
         self.strategy = strategy
 
-    def play(self,state):
+    def play(self, state):
         return self.strategy(state)
 
-def randomIA(state):
+def random_ia(state):
     piece = random.choice(state["pieces"])
-    rotat = random.randrange(1,4,1)
-    hor_move = random.randrange(0,9,1)-4
-    return {"hor_move":hor_move,"rotat":rotat,"choose":piece}
+    rotat = random.randrange(1, 4, 1)
+    hor_move = random.randrange(0, 9, 1)-4
+    return {"hor_move":hor_move, "rotat":rotat, "choose":piece}
