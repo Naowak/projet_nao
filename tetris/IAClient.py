@@ -39,7 +39,7 @@ class IAClient:
     async def action(self):
         data = await self.receive_message()
         if data["step"] == "init":
-            self.keep_connection = False
+            self.keep_connection = True
         elif data["step"] == "game" or data["step"] == "suggest":
             if (data["actual_player"] == self.nid and data["step"] == "game") or\
                     (data["step"] == "suggest" and data["actual_player"] != self.nid):
@@ -58,6 +58,7 @@ class IAClient:
         await self.my_socket.send(json.dumps(data))
 
 
+
 async def main():
     my_client = IAClient("Bernard")
     my_client.make_connection_to_server()
@@ -65,6 +66,6 @@ async def main():
         await asyncio.sleep(0)
     while my_client.keep_connection:
         await my_client.action()
-        await asyncio.sleep(0.3)
+        await asyncio.sleep(0)
 
 asyncio.get_event_loop().run_until_complete(main())

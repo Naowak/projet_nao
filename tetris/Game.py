@@ -12,7 +12,7 @@ import Subject
 
 class Game(Subject.Subject):
 
-    def __init__(self, gid, server):
+    def __init__(self, gid, server, nb_players):
         super().__init__(gid, server)
         self.grid = State.State()
         self.is_finished = False
@@ -21,16 +21,15 @@ class Game(Subject.Subject):
         self.step = "init"
         self.current_piece = None
         self.current_abscisse = None
+        self.nb_players = nb_players
 
     def pieces_random(self, number_of_pieces=3):
         kinds = ['O', 'I', 'L', 'T', 'S', 'Z', 'J']
-        kinds_select = []
+        kinds_select = {}
         for _ in range(number_of_pieces):
             choice = random.choice(kinds)
             kinds.remove(choice)
-            kinds_select.append(Piece.Piece.factory(\
-			choice, Piece.Piece.centers_init[choice]))
-            self.actual_pieces = kinds_select
+            kinds_select[choice] = Piece.Piece.factory(choice,Piece.Piece.centers_init[choice])
         return kinds_select
 
     async def update(self):
@@ -40,17 +39,18 @@ class Game(Subject.Subject):
 
     async def init_turn(self):
         self.actual_pieces = self.pieces_random()
-        self.current_piece = self.actual_pieces[0]
+        self.current_piece = self.actual_pieces[list(self.actual_pieces.keys())[0]]
         self.current_abscisse = self.current_piece.center[0]
         await self.update()
         return
 
     def choose_piece(self, kinds):
-        self.current_piece = kinds
-        self.current_abscisse = 5
+        if(self.actual_pieces[kinds]):
+            self.current_piece = self.actual_pieces[kinds]
+            self.current_abscisse = 4
 
     async def hor_move_piece(self, move):
-        if self.grid.is_piece_accepted_abscisse(self.current_piece, self.current_abscisse + move):
+        if State.is_piece_accepted_abscisse(self.current_piece, self.current_abscisse + move):
             self.current_abscisse = self.current_abscisse - \
                 self.current_piece.block_control[0]
 
@@ -68,13 +68,15 @@ class Game(Subject.Subject):
         else:
             await self.init_turn()
 
-    async def set_action(self, command, value):
-        if command == "choose":
-            self.choose_piece(value)
-        elif command == "rotate":
-            self.rotate_piece(value)
-        elif command == "hor_move":
-            self.hor_move_piece(value)
+    async def set_action(self, command):
+        if command[0] == "choose":
+            self.choose_piece(command[1])
+        elif command[0] == "rotate":
+            self.rotate_piece(command[1])
+        elif command[0] == "hor_move":
+            await self.hor_move_piece(command[1])
+        elif command[0] == "valid" :
+            await self.valid()
         else:
             print("Modification d'état inconnu")
             return False
@@ -130,11 +132,10 @@ class Game(Subject.Subject):
 
     def get_etat(self):
         dico = self.grid.encode_to_json()
-        tmp = {"pieces": [i.kind for i in self.actual_pieces]}
+        tmp = {"pieces": list(self.actual_pieces.keys())}
         dico["gid"] = self.gid
         dico["pieces"] = tmp["pieces"]
-        dico["actual_player"] = self.observers["players"][self.actual_turn %
-                                                          gp.NOMBRE_DE_JOUEUR][2]
+        dico["actual_player"] = self.observers["players"][self.actual_turn % gp.NOMBRE_DE_JOUEUR][2]
         if self.is_finished:
             dico["step"] = "finished"
         else:

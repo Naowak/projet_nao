@@ -27,7 +27,7 @@ class Server:
 
     async def run_game(self, players, viewers):
         gid = self.next_games_id
-        game = self.games[gid] = Game.Game(gid, self)
+        game = self.games[gid] = Game.Game(gid, self, gp.NOMBRE_DE_JOUEUR)
         self.next_games_id += 1
         for viewer in viewers:
             game.bind_viewer(viewer)
@@ -35,13 +35,13 @@ class Server:
             game.bind_player(player)
         await game.init_turn()
         while not game.is_finished:
+            print("attente du premier msg")
             await self.receive_command(game)
         del self.games[game.gid]
 
     async def connect(self, sock, path):
         mess = await sock.recv()
         mess = json.loads(mess)
-        self.next_connect_id += 1
         data = self.data_init_display()
         if mess["user"] == "display":
             self.my_sockets["viewers"].append(
@@ -56,7 +56,7 @@ class Server:
             print("Un player connecté")
         else:
             print("WARNING ! Bad connection detected !")
-
+        self.next_connect_id += 1
         while True:
             await asyncio.sleep(0)
 
@@ -92,12 +92,12 @@ class Server:
         await websocket.send(json.dumps(mess))
 
     async def receive_command(self, game):
-        mess = await self.my_sockets["players"]\
-		[game.actual_turn % gp.NOMBRE_DE_JOUEUR].recv()
+        print(game.actual_turn % game.nb_players)
+        mess = await self.my_sockets["players"][game.actual_turn % game.nb_players][1].recv()
         mess = json.loads(mess)
         print("receive")
         print(mess)
-        game.set_etat(mess["action"])
+        await game.set_action(mess["action"])
 
     # async def ask_user_piece_choose(self, pieces_kind) :
     #     mess = await self.my_sockets["players"]\
@@ -128,4 +128,5 @@ class Server:
 
 
 SERVER = Server()
-asyncio.get_event_loop().run_until_complete(SERVER.run_server())
+asyncio.ensure_future(SERVER.run_server())
+asyncio.get_event_loop().run_forever()
