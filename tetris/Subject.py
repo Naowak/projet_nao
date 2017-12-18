@@ -1,12 +1,10 @@
 #coding : utf-8
-import Server
-
 
 class Subject:
-    def __init__(self, gid):
+    def __init__(self, gid, server):
         self.gid = gid
         self.observers = {"players": [], "viewers": []}
-        self.server = Server.SERVER
+        self.server = server
 
     def bind_player(self, player):
         self.observers["players"].append(player)

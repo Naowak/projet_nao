@@ -2,12 +2,12 @@
 
 import json
 
+import Game
 import asyncio
 import websockets
 
 import GlobalParameters as gp
 import Piece
-import Game
 
 
 class Server:
@@ -27,7 +27,7 @@ class Server:
 
     async def run_game(self, players, viewers):
         gid = self.next_games_id
-        game = self.games[gid] = Game.Game(gid)
+        game = self.games[gid] = Game.Game(gid, self)
         self.next_games_id += 1
         for viewer in viewers:
             game.bind_viewer(viewer)
@@ -80,8 +80,7 @@ class Server:
         return websockets.serve(self.connect, 'localhost', port)
 
     def disconnect_player(self, sock, name):
-        self.my_sockets["players"].remove(sock)
-        gp.MA_PARTIE.unbind_player(name)
+        self.my_sockets["players"].remove(sock).unbind_player(name)
 
     def diconnect_viewer(self, sock, name):
         self.my_sockets["viewers"].remove(sock)
@@ -94,7 +93,7 @@ class Server:
 
     async def receive_command(self, game):
         mess = await self.my_sockets["players"]\
-		[gp.MA_PARTIE.actual_turn % gp.NOMBRE_DE_JOUEUR].recv()
+		[game.actual_turn % gp.NOMBRE_DE_JOUEUR].recv()
         mess = json.loads(mess)
         print("receive")
         print(mess)

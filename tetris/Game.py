@@ -9,10 +9,11 @@ import Subject
 
 
 # absi = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
 class Game(Subject.Subject):
 
-    def __init__(self, gid):
-        super().__init__(gid)
+    def __init__(self, gid, server):
+        super().__init__(gid, server)
         self.grid = State.State()
         self.is_finished = False
         self.actual_turn = 0
