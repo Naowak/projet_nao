@@ -20,13 +20,14 @@ class Piece:
                    Point( 0,1),      Point(1,0)],\
                    #Orange
              'S': [Point(-1,0),      Point(0,0),\
-                   Point( 0,1),      Point(1,1)]}
+                   Point( 0,1),      Point(1,1)],\
                    #Cyan
-    symmetry = np.array([[-1,0],[0,1]]).dot
-    kinds['Z'] = list(map(symmetry, kinds['S']))
-    #blue
-    kinds['J'] = list(map(symmetry, kinds['L']))
-    #Yellow
+             'Z': [Point(-1,1),      Point(0,0),\
+                   Point( 0,1),      Point(1,0)],\
+                   #Blue
+             'J': [Point( -1,0), Point(1,0),    
+                   Point(0,0), Point(-1,1)]}
+                   #Yellow
 
     centers_init = {'O' : Point((gp.TAILLE_X-1)/2 + 0.5, gp.TAILLE_Y-2.5),
                     'I' : Point((gp.TAILLE_X-1)/2 + 0.5, gp.TAILLE_Y-2.5),
@@ -42,7 +43,7 @@ class Piece:
                      'T' : Point(-1, 0),
                      'S' : Point(-1, 0),
                      'Z' : Point(-1, 1),
-                     'J' : Point(-1, 1)} # A REVOIR
+                     'J' : Point(-1,0)} # A REVOIR
 
     colors = {'O': Block.Block.Violet,
               'I': Block.Block.Red,

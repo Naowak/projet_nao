@@ -40,25 +40,30 @@ class Game(Subject.Subject):
     async def init_turn(self):
         self.actual_pieces = self.pieces_random()
         self.current_piece = self.actual_pieces[list(self.actual_pieces.keys())[0]]
-        self.current_abscisse = self.current_piece.center[0]
+        #self.current_abscisse = Piece.Piece.centers_init[self.current_piece.kind][0] \
+         #       + Piece.Piece.blocks_controls[self.current_piece.kind][0]
+        self.current_abscisse = self.current_piece.center[0] +  self.current_piece.blocks[0][0]
         await self.update()
         return
 
     def choose_piece(self, kinds):
         if(self.actual_pieces[kinds]):
             self.current_piece = self.actual_pieces[kinds]
-            self.current_abscisse = Piece.Piece.centers_init[self.current_piece.kind][0] \
-                + Piece.Piece.blocks_controls[self.current_piece.kind][0]
+            #self.current_abscisse = Piece.Piece.centers_init[self.current_piece.kind][0] \+ Piece.Piece.blocks_controls[self.current_piece.kind][0]
+            self.current_abscisse = self.current_piece.center[0] +  self.current_piece.blocks[0][0]
 
     async def hor_move_piece(self, move):
-        print(self.current_abscisse + move)
         if State.is_piece_accepted_abscisse(self.current_piece, self.current_abscisse + move):
+            print(self.current_abscisse + move)
             self.current_abscisse = self.current_abscisse + move
-            self.current_piece.center[0]= - self.current_piece.block_control[0] +self.current_abscisse     
+            #self.current_piece.center[0]= - self.current_piece.block_control[0] +self.current_abscisse     
+            self.current_piece.center[0] += move
 
     def rotate_piece(self, rotate):
         for _ in range(rotate % 4):
             self.current_piece.rotate()
+        self.current_abscisse = self.current_piece.center[0] + self.current_piece.blocks[0][0]
+        print("oizjef : ", self.current_abscisse)
 
     async def valid(self):
         result = self.grid.drop_piece(\
