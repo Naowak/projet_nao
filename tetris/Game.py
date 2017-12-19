@@ -61,6 +61,8 @@ class Game(Subject.Subject):
     async def valid(self):
         result = self.grid.drop_piece(\
         self.current_piece, self.actual_turn % gp.NOMBRE_DE_JOUEUR)
+        print("result:"+str(result))
+        input()
         self.actual_turn += 1  # Le tour commence à 1
         if not result:
             self.is_finished = True
@@ -136,6 +138,7 @@ class Game(Subject.Subject):
         dico["gid"] = self.gid
         dico["pieces"] = tmp["pieces"]
         dico["actual_player"] = self.observers["players"][self.actual_turn % gp.NOMBRE_DE_JOUEUR][2]
+        dico["turn"]=self.actual_turn
         if self.is_finished:
             dico["step"] = "finished"
         else:

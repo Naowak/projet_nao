@@ -18,6 +18,7 @@ class IAClient:
         self.my_ia = IA.IA(IA.random_ia)
         self.name = name
         self.nid = None
+        self.last_turn=-1
 
     async def connect(self, uri=URI):
         self.my_socket = await websockets.connect(uri)
@@ -39,11 +40,14 @@ class IAClient:
     async def action(self):
         data = await self.receive_message()
         if data["step"] == "init":
+            print("Succesfull server connection")
             self.keep_connection = True
         elif data["step"] == "game" or data["step"] == "suggest":
-            if (data["actual_player"] == self.nid and data["step"] == "game") or\
-                    (data["step"] == "suggest" and data["actual_player"] != self.nid):
+            if (data["actual_player"] == self.nid and data["step"] == "game" and data["turn"]!=self.last_turn ) or\
+             (data["step"] == "suggest" and data["actual_player"] != self.nid and data["turn"]!=self.last_turn ):
+
                 dec = self.my_ia.play(data)
+                self.last_turn=data["turn"]
                 for (key, value) in dec.items():
                     await self.send_message({"action": [key, value]})
                 if data["step"] == "game":
@@ -53,8 +57,8 @@ class IAClient:
         return data
 
     async def send_message(self, data):
-        print("send")
-        print(data)
+        #print("send")
+        #print(data)
         await self.my_socket.send(json.dumps(data))
 
 

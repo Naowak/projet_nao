@@ -71,22 +71,12 @@
                         drawGame();
                         //mettre en place la taille de la grille
                         break;
-                    case "piece_choice" :
+                    case "game" :
                         game.grid = data.grid;
                         game.score = data.score;
                         game.choices = data.pieces;
-                        //console.log(choice);
                         drawGame();
                         break;
-                    case "rotation" :
-                        game.grid = data.grid;
-                        drawGame();
-                    case "abscisse" :
-                        game.grid = data.grid;
-                        drawGame();
-                    case "end_turn" :
-                        game.grid = data.grid;
-                        drawGame();
                     case "finished" :
                         game.grid = data.grid;
                         drawGame();

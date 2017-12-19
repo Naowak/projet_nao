@@ -23,7 +23,7 @@ class Server:
         while not len(self.my_sockets["players"]) == gp.NOMBRE_DE_JOUEUR:
             await asyncio.sleep(0)
         asyncio.ensure_future(self.run_game(
-            self.my_sockets["players"], self.my_sockets["players"]))
+            self.my_sockets["players"], self.my_sockets["viewers"]))
 
     async def run_game(self, players, viewers):
         gid = self.next_games_id
@@ -35,7 +35,6 @@ class Server:
             game.bind_player(player)
         await game.init_turn()
         while not game.is_finished:
-            print("attente du premier msg")
             await self.receive_command(game)
         del self.games[game.gid]
 
@@ -87,16 +86,16 @@ class Server:
         gp.MA_PARTIE.unbind_viewer(name)
 
     async def send_message(self, websocket, mess):
-        print("send")
-        print(mess)
+        #print("send")
+        #print(mess)
         await websocket.send(json.dumps(mess))
 
     async def receive_command(self, game):
-        print(game.actual_turn % game.nb_players)
+        #print(game.actual_turn % game.nb_players)
         mess = await self.my_sockets["players"][game.actual_turn % game.nb_players][1].recv()
         mess = json.loads(mess)
-        print("receive")
-        print(mess)
+        #print("receive")
+        #print(mess)
         await game.set_action(mess["action"])
 
     # async def ask_user_piece_choose(self, pieces_kind) :
