@@ -33,8 +33,8 @@ class IAClient:
 
     async def receive_message(self):
         data = await self.my_socket.recv()
-        print("receive")
-        print(data)
+        #print("receive")
+        #print(data)
         return json.loads(data)
 
     async def action(self):
@@ -48,6 +48,7 @@ class IAClient:
 
                 dec = self.my_ia.play(data)
                 self.last_turn=data["turn"]
+                await self.send_message({"action": ["choose", dec.pop("choose")]})
                 for (key, value) in dec.items():
                     await self.send_message({"action": [key, value]})
                 if data["step"] == "game":
@@ -58,7 +59,7 @@ class IAClient:
 
     async def send_message(self, data):
         #print("send")
-        #print(data)
+        print(data)
         await self.my_socket.send(json.dumps(data))
 
 

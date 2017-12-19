@@ -31,6 +31,7 @@ class State:
         self.clear_rotation_vue()
         for block in piece.blocks: 
             if block[0] == piece.block_control[0] and block[1] == piece.block_control[1]:
+                print("coucou")
                 self.grid[int(block[0] + piece.center[0])]\
 				[int(block[1] + piece.center[1])] = Block.Block.Black
             else:
@@ -41,8 +42,7 @@ class State:
         if is_piece_accepted_abscisse(piece, abscisse):
             self.clear_rotation_vue()
             for block in piece.blocks:
-                self.grid[int(abscisse + block[0] - piece.block_control[0])]\
-				[int(block[1] + piece.center[1])] = piece.color
+                self.grid[int(abscisse + block[0] - piece.block_control[0])][int(block[1] + piece.center[1])] = piece.color
 
     def maj_score(self, nb_ligne_delete, player):
         if nb_ligne_delete == 1:

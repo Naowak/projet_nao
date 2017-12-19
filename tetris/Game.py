@@ -6,7 +6,7 @@ import GlobalParameters as gp
 import Piece
 import State
 import Subject
-
+import copy
 
 # absi = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
@@ -29,12 +29,12 @@ class Game(Subject.Subject):
         for _ in range(number_of_pieces):
             choice = random.choice(kinds)
             kinds.remove(choice)
-            kinds_select[choice] = Piece.Piece.factory(choice,Piece.Piece.centers_init[choice])
+            kinds_select[choice] = Piece.Piece.factory(choice,copy.copy(Piece.Piece.centers_init[choice]))
         return kinds_select
 
     async def update(self):
-        self.grid.piece_show(self.current_piece)
         self.grid.show_abscisse(self.current_piece, self.current_abscisse)
+        self.grid.piece_show(self.current_piece)
         await self.notify_all_observers()
 
     async def init_turn(self):
@@ -52,7 +52,8 @@ class Game(Subject.Subject):
     async def hor_move_piece(self, move):
         if State.is_piece_accepted_abscisse(self.current_piece, self.current_abscisse + move):
             self.current_abscisse = self.current_abscisse - \
-                self.current_piece.block_control[0]
+                self.current_piece.block_control[0] + move
+            self.current_piece.center[0]= self.current_abscisse     
 
     def rotate_piece(self, rotate):
         for _ in range(rotate % 4):
