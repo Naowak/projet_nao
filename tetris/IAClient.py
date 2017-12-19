@@ -53,8 +53,10 @@ class IAClient:
                     await self.send_message({"action": [key, value]})
                 if data["step"] == "game":
                     await self.send_message({"action": ["valid"]})
-        elif data["step"] == "finished":
+        elif data["step"] == "finished" and gp.NB_PARTIE_RESTANTE == 0:
             self.keep_connection = False
+        elif data["step"] == "finished" :
+            gp.NB_PARTIE_RESTANTE -= 1
         return data
 
     async def send_message(self, data):

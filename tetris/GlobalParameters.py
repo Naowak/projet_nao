@@ -5,3 +5,4 @@ MA_PARTIE = None
 PORT = 9687
 ADRESSE = "ws://localhost:"
 NOMBRE_DE_JOUEUR = 1
+NB_PARTIE_RESTANTE = 5

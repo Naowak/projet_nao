@@ -44,16 +44,46 @@
         var piece_T = [[-1,0],[0,0],[0,1],[1,0]];
         var piece_I = [[-1.5,-0.5],[-0.5,-0.5],[0.5,-0.5],[1.5,-0.5]];
         var kinds;
+        var ind_piece_select=0;
         var color;
         var nb_player;
+        var nb_choose;
         var id;
         var ws;
+        var in_game= false;
+        var observer_type = "player"; 
 
+        function onkeypress(event) {
+            if (in_game){
+                switch(event.key){
+                    case "ArrowDown":
+                        ws.send(JSON.stringify({'action': ['rotate', 1]}));
+                    break; 
+                    case "ArrowRight":
+                        ws.send(JSON.stringify({'action': ['hor_move', 1]}));
+                    break; 
+                    case "ArrowUp":
+                        ind_piece_select = (ind_piece_select+1)%nb_choose;
+                        ws.send(JSON.stringify({'action': ['choose',game.choices[ind_piece_select]]}));
+                    break; 
+                    case "ArrowLeft":
+                        ws.send(JSON.stringify({'action': ['hor_move', -1]}));
+                    break; 
+                    case "Enter":
+                        ws.send(JSON.stringify({'action': ['valid']}));
+                    break; 
+                    default :
+                       console.log("touches non allouées");
+                    break; 
+                }
+            }
+            return true;
+        }
         function connexion() {
             ws = new WebSocket("ws://127.0.0.1:9687");
             ws.onopen = function (event) {
                 var msg = {
-                    user: "display",
+                    user: observer_type,
                     name: "nao"
                 };
                 ws.send(JSON.stringify(msg));
@@ -68,16 +98,19 @@
                         color = data.color;
                         id = data.nid;
                         nb_player = data.nb_player;
+                        nb_choose = data.nb_choose;
                         drawGame();
                         //mettre en place la taille de la grille
                         break;
                     case "game" :
+                        in_game=true;
                         game.grid = data.grid;
                         game.score = data.score;
                         game.choices = data.pieces;
                         drawGame();
                         break;
                     case "finished" :
+                        in_game=false;
                         game.grid = data.grid;
                         drawGame();
                     default :
@@ -125,7 +158,9 @@
             resize();
             drawBackground();
             connexion();
-
+            if(observer_type == "player"){
+                document.body.onkeypress=onkeypress;
+            }
             //window.addEventListener("resize", resize, false);
 
             stage.addChild(root);

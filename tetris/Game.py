@@ -47,13 +47,14 @@ class Game(Subject.Subject):
     def choose_piece(self, kinds):
         if(self.actual_pieces[kinds]):
             self.current_piece = self.actual_pieces[kinds]
-            self.current_abscisse = 4
+            self.current_abscisse = Piece.Piece.centers_init[self.current_piece.kind][0] \
+                + Piece.Piece.blocks_controls[self.current_piece.kind][0]
 
     async def hor_move_piece(self, move):
+        print(self.current_abscisse + move)
         if State.is_piece_accepted_abscisse(self.current_piece, self.current_abscisse + move):
-            self.current_abscisse = self.current_abscisse - \
-                self.current_piece.block_control[0] + move
-            self.current_piece.center[0]= self.current_abscisse     
+            self.current_abscisse = self.current_abscisse + move
+            self.current_piece.center[0]= - self.current_piece.block_control[0] +self.current_abscisse     
 
     def rotate_piece(self, rotate):
         for _ in range(rotate % 4):
@@ -62,8 +63,6 @@ class Game(Subject.Subject):
     async def valid(self):
         result = self.grid.drop_piece(\
         self.current_piece, self.actual_turn % gp.NOMBRE_DE_JOUEUR)
-        print("result:"+str(result))
-        input()
         self.actual_turn += 1  # Le tour commence à 1
         if not result:
             self.is_finished = True

@@ -26,17 +26,19 @@ class Server:
             self.my_sockets["players"], self.my_sockets["viewers"]))
 
     async def run_game(self, players, viewers):
-        gid = self.next_games_id
-        game = self.games[gid] = Game.Game(gid, self, gp.NOMBRE_DE_JOUEUR)
-        self.next_games_id += 1
-        for viewer in viewers:
-            game.bind_viewer(viewer)
-        for player in players:
-            game.bind_player(player)
-        await game.init_turn()
-        while not game.is_finished:
-            await self.receive_command(game)
-        del self.games[game.gid]
+        for _ in range(gp.NB_PARTIE_RESTANTE) :
+            gid = self.next_games_id
+            game = self.games[gid] = Game.Game(gid, self, gp.NOMBRE_DE_JOUEUR)
+            self.next_games_id += 1
+            for viewer in viewers:
+                game.bind_viewer(viewer)
+            for player in players:
+                game.bind_player(player)
+            await game.init_turn()
+            while not game.is_finished:
+                await self.receive_command(game)
+            del self.games[game.gid]
+            gp.NB_PARTIE_RESTANTE -= 1
 
     async def connect(self, sock, path):
         mess = await sock.recv()
@@ -61,6 +63,7 @@ class Server:
 
     def data_init_display(self):
         data = {}
+        data["nb_choose"] = 3
         data["step"] = "init"
         data["nid"] = self.next_connect_id
         data["nb_player"] = gp.NOMBRE_DE_JOUEUR
@@ -95,7 +98,7 @@ class Server:
         mess = await self.my_sockets["players"][game.actual_turn % game.nb_players][1].recv()
         mess = json.loads(mess)
         #print("receive")
-        #print(mess)
+        print(mess)
         await game.set_action(mess["action"])
 
     # async def ask_user_piece_choose(self, pieces_kind) :
