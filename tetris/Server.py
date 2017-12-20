@@ -18,7 +18,7 @@ class Server:
         self.next_connect_id = 0
 
     async def run_server(self):
-        await self.accept_connections(gp.PORT)
+        #await self.accept_connections(gp.PORT)
         print("Serveur running on")
         while not len(self.my_sockets["players"]) == gp.NOMBRE_DE_JOUEUR:
             await asyncio.sleep(0)
@@ -38,7 +38,6 @@ class Server:
             while not game.is_finished:
                 await self.receive_command(game)
             del self.games[game.gid]
-            gp.NB_PARTIE_RESTANTE -= 1
 
     async def connect(self, sock, path):
         mess = await sock.recv()

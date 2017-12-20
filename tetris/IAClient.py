@@ -53,10 +53,6 @@ class IAClient:
                     await self.send_message({"action": [key, value]})
                 if data["step"] == "game":
                     await self.send_message({"action": ["valid"]})
-        elif data["step"] == "finished" and gp.NB_PARTIE_RESTANTE == 0:
-            self.keep_connection = False
-        elif data["step"] == "finished" :
-            gp.NB_PARTIE_RESTANTE -= 1
         return data
 
     async def send_message(self, data):
@@ -66,7 +62,7 @@ class IAClient:
 
 
 
-async def run_IAClient():
+async def run():
     my_client = IAClient("Bernard")
     my_client.make_connection_to_server()
     while my_client.my_socket is None:
