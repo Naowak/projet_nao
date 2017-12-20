@@ -30,10 +30,6 @@ class State:
     def piece_show(self, piece):
         self.clear_rotation_vue()
         for block in piece.blocks: 
-            if block[0] == piece.block_control[0] and block[1] == piece.block_control[1]:
-                self.grid[int(block[0] + piece.center[0])]\
-				[int(block[1] + piece.center[1])] = Block.Block.Black
-            else:
                 self.grid[int(block[0] + piece.center[0])]\
 				[int(block[1] + piece.center[1])] = piece.color
 

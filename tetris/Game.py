@@ -40,8 +40,6 @@ class Game(Subject.Subject):
     async def init_turn(self):
         self.actual_pieces = self.pieces_random()
         self.current_piece = self.actual_pieces[list(self.actual_pieces.keys())[0]]
-        #self.current_abscisse = Piece.Piece.centers_init[self.current_piece.kind][0] \
-         #       + Piece.Piece.blocks_controls[self.current_piece.kind][0]
         self.current_abscisse = self.current_piece.center[0] +  self.current_piece.blocks[0][0]
         await self.update()
         return
@@ -49,21 +47,17 @@ class Game(Subject.Subject):
     def choose_piece(self, kinds):
         if(self.actual_pieces[kinds]):
             self.current_piece = self.actual_pieces[kinds]
-            #self.current_abscisse = Piece.Piece.centers_init[self.current_piece.kind][0] \+ Piece.Piece.blocks_controls[self.current_piece.kind][0]
             self.current_abscisse = self.current_piece.center[0] +  self.current_piece.blocks[0][0]
 
     async def hor_move_piece(self, move):
         if State.is_piece_accepted_abscisse(self.current_piece, self.current_abscisse + move):
-            print(self.current_abscisse + move)
-            self.current_abscisse = self.current_abscisse + move
-            #self.current_piece.center[0]= - self.current_piece.block_control[0] +self.current_abscisse     
+            self.current_abscisse = self.current_abscisse + move   
             self.current_piece.center[0] += move
 
     def rotate_piece(self, rotate):
         for _ in range(rotate % 4):
             self.current_piece.rotate()
         self.current_abscisse = self.current_piece.center[0] + self.current_piece.blocks[0][0]
-        print("oizjef : ", self.current_abscisse)
 
     async def valid(self):
         result = self.grid.drop_piece(\
@@ -89,53 +83,6 @@ class Game(Subject.Subject):
             return False
         await self.update()
         return True
-
-    # async def turn(self) :
-    #     if self.step != "init" :
-    #         await self.notify_view()
-    #     print(self.grid)
-    #     if not self.is_finished :
-    #         self.actual_turn += 1 #Le tour commence à 1
-    #
-    #         self.step = "piece_choice"
-    #         kinds = self.pieces_random()
-    #         await self.notify_all_observers()
-    #         kind = await self.server.ask_user_piece_choose(kinds)
-    #
-    #         center = copy.copy(Piece.Piece.centers_init[kind])
-    #         piece = Piece.Piece.factory(kind, center)
-    #         self.grid.piece_show(piece)
-    #
-    #         self.step = "rotation"
-    #         boucle = True
-    #         while boucle :
-    #             await self.notify_all_observers()
-    #             rotate = await self.server.ask_user_rotate()
-    #             if rotate == "R":
-    #                 piece.rotate()
-    #                 self.grid.piece_show(piece)
-    #             elif rotate == "" :
-    #                 boucle = False
-    #
-    #         self.step = "abscisse"
-    #         boucle = True
-    #         abscisse = 0
-    #         while boucle :
-    #             await self.notify_all_observers()
-    #             abscisse = await self.server.ask_user_abscisse()
-    #             boucle = not self.grid.is_piece_accepted_abscisse(piece, abscisse)
-    #
-    #
-    #         center[0] = abscisse - piece.block_control[0]
-    #         self.grid.show_abscisse(piece, abscisse)
-    #         self.step = "end_turn"
-    #         await self.notify_view()
-    #         result = self.grid.drop_piece(piece, self.actual_turn %gp.NOMBRE_DE_JOUEUR)
-    #         if not result :
-    #             self.step = "finished"
-    #             self.is_finished = True
-    #             await self.notify_view()
-    #             print("Game Lost !")
 
     def get_etat(self):
         dico = self.grid.encode_to_json()
