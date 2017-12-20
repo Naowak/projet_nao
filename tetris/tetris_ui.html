@@ -1,7 +1,34 @@
 <html>
-    <head><script src="easeljs.min.js"></script></head>
+    <head>
+        <script src="easeljs.min.js">
+        </script>
+        <title> Tetris</title>
+    </head>
     <body onload="init();" style="margin:0;"></body>
-        <canvas id="canvas"></canvas>
+        <div id="Gauche" style="float:left">
+            <canvas id="canvas"></canvas>
+        </div>
+        <div id="Droite" style="float:right;clear:right;margin-right:250px;">
+        <center>
+            <h1>Le Super Tetris 2 joueurs</h1>
+            <h2>Oserez-vous afronter le terrible NAO ?</h2>
+            <br><br>
+            <ul id="navigation">
+                <li><a href="#" title="HH" onclick="fHH()">Human VS Human</a></li><br>
+                <li><a href="#" title="HN" onclick="fHN()">Human VS NAO</a></li><br>
+                <li><a href="#" title="NN" onclick="fNN()">NAO VS NAO</a></li><br>
+                <li><a href="#" title="OP" onclick="fO()">Oberser une partie</a></li><br>
+            </ul>
+        </center>
+        <h5>Joueur(s) connecté(s) :</h5>
+        <ol id='listJ'>
+        </ol>
+        <br><br>
+        <h5>Partie(s) en cour(s) :</h5>
+        <ol id='listP'>
+        </ol>
+        <br><br>
+        </div>
     </body>
 
     <script>
@@ -53,25 +80,79 @@
         var in_game= false;
         var observer_type = "player"; 
 
+        //LA MERDE DE JIM ------------------------------------------------------------------------------------------------------
+        var nom;
+        var tabJ;
+        var tabG;
+
+        function fHH(){
+            alert('Not Implemented yet !');
+        }
+
+        function fHN(){
+            alert('Not Implemented yet !');
+        }
+
+        function fNN(){
+            alert('Not Implemented yet !');
+        }
+
+        function fO(){
+            alert('Not Implemented yet !');
+        }
+        
+        function afficheJ(){
+            var ul = document.getElementById("listJ");
+            var li = document.createElement("li");
+            while (ul.firstChild) {
+                ul.removeChild(ul.firstChild);
+            }
+            for (var i = 0, c = tabJ.length; i < c; i++) {
+                nom = tabJ[i];
+                li.appendChild(document.createTextNode(nom));
+                //li.setAttribute("id", nom);
+                ul.appendChild(li);
+            }
+        }
+
+        function afficheG(){
+            var ul = document.getElementById("listP");
+            var li = document.createElement("li");
+            while (ul.firstChild) {
+                ul.removeChild(ul.firstChild);
+            }
+            for (var i = 0, c = tabG.length; i < c; i++) {
+                nom = tabG[i];
+                li.appendChild(document.createTextNode(nom));
+                //li.setAttribute("id", nom);
+                ul.appendChild(li);
+            }
+        }
+        
+        function ajoutJ(){
+            
+        }
+        //------------------------------------------------------------------------------------------------------
+
         function onkeypress(event) {
             //console.log(event);
             if (in_game){
                 switch(event.key){
                     case "ArrowDown": case "s":
-                        ws.send(JSON.stringify({'action': ['rotate', 1]}));
+                        ws.send(JSON.stringify({'type':'action' , 'action': ['rotate', 1]}));
                     break; 
                     case "ArrowRight": case "d":
-                        ws.send(JSON.stringify({'action': ['hor_move', 1]}));
+                        ws.send(JSON.stringify({'type':'action' ,'action': ['hor_move', 1]}));
                     break; 
                     case "ArrowUp": case "z":
                         ind_piece_select = (ind_piece_select+1)%nb_choose;
-                        ws.send(JSON.stringify({'action': ['choose',game.choices[ind_piece_select]]}));
+                        ws.send(JSON.stringify({'type':'action' ,'action': ['choose',game.choices[ind_piece_select]]}));
                     break; 
                     case "ArrowLeft": case "q":
-                        ws.send(JSON.stringify({'action': ['hor_move', -1]}));
+                        ws.send(JSON.stringify({'type':'action' ,'action': ['hor_move', -1]}));
                     break; 
                     case "Enter":
-                        ws.send(JSON.stringify({'action': ['valid']}));
+                        ws.send(JSON.stringify({'type':'action' ,'action': ['valid']}));
                     break; 
                     default :
                        console.log("touches non allouées");
@@ -84,8 +165,8 @@
             ws = new WebSocket("ws://127.0.0.1:9687");
             ws.onopen = function (event) {
                 var msg = {
-                    user: observer_type,
-                    name: "nao"
+                    name: "nao",
+                    active: true
                 };
                 ws.send(JSON.stringify(msg));
             };
@@ -110,10 +191,19 @@
                         game.choices = data.pieces;
                         drawGame();
                         break;
+                    case "menu":
+                        tabJ = data.clients;
+                        tabG = data.games;
+                        //tabJID
+                        //tabGID
+                        afficheJ();
+                        afficheG();
+                        break;
                     case "finished" :
                         in_game=false;
                         game.grid = data.grid;
                         drawGame();
+          
                     default :
                         console.log("message non reconnu");
                         break;
