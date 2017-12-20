@@ -65,6 +65,7 @@ class Game(Subject.Subject):
         self.actual_turn += 1  # Le tour commence à 1
         if not result:
             self.is_finished = True
+            self.grid.score[actual_turn % gp.NOMBRE_DE_JOUEUR] = gp.SCORE_DEPASSEMENT
             print("Game Lost !")
         else:
             await self.init_turn()

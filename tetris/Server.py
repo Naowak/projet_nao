@@ -12,59 +12,62 @@ import Piece
 
 class Server:
     def __init__(self):
-        self.my_sockets = {"players": [], "viewers": []}
+        self.my_clients = {}
         self.games = {}
         self.next_games_id = 0
         self.next_connect_id = 0
 
-    async def run_server(self):
+    #async def run_server(self):
         #await self.accept_connections(gp.PORT)
-        print("Serveur running on")
-        while not len(self.my_sockets["players"]) == gp.NOMBRE_DE_JOUEUR:
-            await asyncio.sleep(0)
-        asyncio.ensure_future(self.run_game(
-            self.my_sockets["players"], self.my_sockets["viewers"]))
+     #   print("Serveur running on")
+      #  while not len(self.my_sockets["players"]) == gp.NOMBRE_DE_JOUEUR:
+       #     await asyncio.sleep(0)
+       # asyncio.ensure_future(self.run_game(
+        #    self.my_sockets["players"], self.my_sockets["viewers"]))
 
-    async def run_game(self, players, viewers):
-        for _ in range(gp.NB_PARTIE_RESTANTE) :
-            gid = self.next_games_id
-            game = self.games[gid] = Game.Game(gid, self, gp.NOMBRE_DE_JOUEUR)
-            self.next_games_id += 1
-            for viewer in viewers:
-                game.bind_viewer(viewer)
-            for player in players:
-                game.bind_player(player)
-            await game.init_turn()
-            while not game.is_finished:
-                await self.receive_command(game)
-            del self.games[game.gid]
+    async def run_game(self, players, viewers,nb_player):
+        gid = self.next_games_id
+        game = self.games[gid] = Game.Game(gid, self, nb_player)
+        self.next_games_id += 1
+        for viewer in viewers:
+            game.bind_viewer(viewer)
+        for player in players:
+            game.bind_player(player)
+        await actualise_server_info()
+        await game.init_turn()
+        while not game.is_finished:
+            await self.receive_command(game)
+        game.quit()
+        del self.games[game.gid]
 
     async def connect(self, sock, path):
         mess = await sock.recv()
         mess = json.loads(mess)
-        data = self.data_init_display()
-        if mess["user"] == "display":
-            self.my_sockets["viewers"].append(
-                [mess["name"], sock, self.next_connect_id])
-            await self.send_message(sock, data)
-            print("Un display connecté")
-
-        elif mess["user"] == "player":
-            self.my_sockets["players"].append(
-                [mess["name"], sock, self.next_connect_id])
-            await self.send_message(sock, data)
-            print("Un player connecté")
-        else:
-            print("WARNING ! Bad connection detected !")
+        self.my_clients[self.next_connect_id].append(Client.Client(mess["name"],sock,next_connect_id,mess["active"]))
+        print(Client +" is connect (id:"+self.next_connect_id+")")
+        send_message(sock, data_connect)     
         self.next_connect_id += 1
-        while True:
-            await asyncio.sleep(0)
+        await actualise_server_info()
+        await asyncio.ensure_future(self.my_client[self.next_connect_id].request())
+        await self.disconnect_client(self.my_clients[self.next_connect_id])
+        
+    
+    def data_menu(self):
+        data={}
+        data["step"]="menu"
+        data["clients"]=[str(i) for i in my_clients] 
+        data["games"]=[str(i.gid) + " : "  + str(i.clients) for i in games] 
+        return data
+    
+    def data_connect(self):  
+        data["step"]="connect"
+        data["pid"]=self.next_connect_id  
 
-    def data_init_display(self):
+    def data_init_game(self):
         data = {}
-        data["nb_choose"] = 3
+        data["nb_choose"] = gp.NOMBRE_DE_CHOIX
         data["step"] = "init"
-        data["nid"] = self.next_connect_id
+        data["gid"] = self.next_connect_id
         data["nb_player"] = gp.NOMBRE_DE_JOUEUR
         data["kinds"] = {}
         for (key, blocks) in Piece.Piece.kinds.items():
@@ -80,12 +83,18 @@ class Server:
         # , timeout=100
         return websockets.serve(self.connect, 'localhost', port)
 
-    def disconnect_player(self, sock, name):
-        self.my_sockets["players"].remove(sock).unbind_player(name)
-
-    def diconnect_viewer(self, sock, name):
-        self.my_sockets["viewers"].remove(sock)
-        gp.MA_PARTIE.unbind_viewer(name)
+    async def disconnect_client(self, client):
+        if client.in_game and client.game.unbind_client(client) :
+            del games[client.game.gid]
+        client.ws.close()
+        del self.my_clients[client.id]
+        print(Client +" is unconnect") 
+        await actualise_server_info()
+       
+    async def actualise_server_info():
+        for client in self.my_clients:
+            await self.send_message(sock,data_menu)
+        
 
     async def send_message(self, websocket, mess):
         #print("send")
@@ -94,43 +103,14 @@ class Server:
 
     async def receive_command(self, game):
         #print(game.actual_turn % game.nb_players)
-        mess = await self.my_sockets["players"][game.actual_turn % game.nb_players][1].recv()
+        mess = await self.clients["players"][game.actual_turn % game.nb_players].ws.recv()
         mess = json.loads(mess)
         #print("receive")
         #print(mess)
         await game.set_action(mess["action"])
 
-    # async def ask_user_piece_choose(self, pieces_kind) :
-    #     mess = await self.my_sockets["players"]\
-	#     [gp.MaPartie.actual_turn%gp.NOMBRE_DE_JOUEUR].recv()
-    #     data = json.loads(mess)
-    #     return data["kind"]
-    #
-    # async def ask_user_rotate(self) :
-    #     mess = await self.my_sockets["players"]\
-	#     [gp.MaPartie.actual_turn%gp.NOMBRE_DE_JOUEUR].recv()
-    #     data = json.loads(mess)
-    #     return data["rotate"]
-    #
-    # async def ask_user_abscisse(self) :
-    #     mess = await self.my_sockets["players"]\
-	#     [gp.MaPartie.actual_turn%gp.NOMBRE_DE_JOUEUR].recv()
-    #     data = json.loads(mess)
-    #     return int(data["abscisse"])
+SERVER = Server()
+loop = asyncio.get_event_loop()
+loop.run_until_complete(SERVER.accept_connections(gp.PORT))
+loop.run_forever()
 
-    # async def run(self, websocket) :
-    #     async for message in websocket:
-    #         data = json.loads(message)
-    #         elif data["action"] == "disconnect_player" :
-    #             self.disconnect_player(websocket, data["name"])
-
-    #         elif data["action"] == "disconnect_viewer" :
-    #             self.disconnect_viewer(websocket, data["name"])
-
-
-<<<<<<< HEAD
-#SERVER = Server()
-#asyncio.ensure_future(SERVER.run_server())
-#asyncio.get_event_loop().run_forever()
-=======
->>>>>>> bdbb923b240c2a21a7069c707306b71d88638b9c
