@@ -1,0 +1,304 @@
+<html>
+    <head><script src="easeljs.min.js"></script></head>
+    <body onload="init();" style="margin:0;"></body>
+        <canvas id="canvas"></canvas>
+    </body>
+
+    <script>
+        var PORT = 9687;
+
+        var screen = {width: 0,
+                      height: 0,
+                      margin: 5,
+                      inner_width: 0,
+                      inner_height: 0,
+                      top: 0,
+                      left: 0,
+                      bottom: 0,
+                      right: 0};
+
+        var sidebar = {width: 0,
+                       columns: 6,
+                       right: 0,
+                       choices: {lines: 10,
+                                 height: 0,
+                                 left: 0,
+                                 bottom: 0},
+                       }
+
+        var grid = {columns: 10,
+                    lines: 22,
+                    block_size: 0,
+                    width: 0,
+                    height: 0,
+                    top: 0,
+                    left: 0,
+                    bottom: 0,
+                    right: 0,
+                    holding_lines: 4};
+
+        var stage, root;
+
+        var game = {score: [0], grid: [], choices: []};
+
+        var piece_T = [[-1,0],[0,0],[0,1],[1,0]];
+        var piece_I = [[-1.5,-0.5],[-0.5,-0.5],[0.5,-0.5],[1.5,-0.5]];
+        var kinds;
+        var ind_piece_select=0;
+        var color;
+        var nb_player;
+        var nb_choose;
+        var id;
+        var ws;
+        var in_game= false;
+        var observer_type = "player"; 
+
+        function onkeypress(event) {
+            //console.log(event);
+            if (in_game){
+                switch(event.key){
+                    case "ArrowDown": case "s":
+                        ws.send(JSON.stringify({'action': ['rotate', 1]}));
+                    break; 
+                    case "ArrowRight": case "d":
+                        ws.send(JSON.stringify({'action': ['hor_move', 1]}));
+                    break; 
+                    case "ArrowUp": case "z":
+                        ind_piece_select = (ind_piece_select+1)%nb_choose;
+                        ws.send(JSON.stringify({'action': ['choose',game.choices[ind_piece_select]]}));
+                    break; 
+                    case "ArrowLeft": case "q":
+                        ws.send(JSON.stringify({'action': ['hor_move', -1]}));
+                    break; 
+                    case "Enter":
+                        ws.send(JSON.stringify({'action': ['valid']}));
+                    break; 
+                    default :
+                       console.log("touches non allouées");
+                    break; 
+                }
+            }
+            return true;
+        }
+        function connexion() {
+            ws = new WebSocket("ws://127.0.0.1:9687");
+            ws.onopen = function (event) {
+                var msg = {
+                    user: observer_type,
+                    name: "nao"
+                };
+                ws.send(JSON.stringify(msg));
+            };
+            ws.onmessage = (event) => {
+                var data = JSON.parse(event.data);
+                console.log(data);
+                switch(data.step){
+                    case "init" :
+                        console.log(this);
+                        kinds = data.kinds;
+                        color = data.color;
+                        id = data.nid;
+                        nb_player = data.nb_player;
+                        nb_choose = data.nb_choose;
+                        drawGame();
+                        //mettre en place la taille de la grille
+                        break;
+                    case "game" :
+                        in_game=true;
+                        game.grid = data.grid;
+                        game.score = data.score;
+                        game.choices = data.pieces;
+                        drawGame();
+                        break;
+                    case "finished" :
+                        in_game=false;
+                        game.grid = data.grid;
+                        drawGame();
+                    default :
+                        console.log("message non reconnu");
+                        break;
+                }
+            };
+        }
+
+        function init() {
+            var canvas = document.getElementById("canvas");
+
+            stage = new createjs.Stage("canvas");
+            root = new createjs.Container();
+
+            function resize() {
+                screen.height = window.innerHeight;
+                canvas.height = screen.height;
+                screen.top = screen.margin;
+                screen.inner_height = screen.height - 2*screen.top;
+
+                grid.height = screen.inner_height;
+                grid.block_size = grid.height / grid.lines;
+                grid.width = grid.block_size * grid.columns;
+
+                sidebar.width = sidebar.columns * grid.block_size;
+
+                screen.width = sidebar.width + grid.width + 2*screen.margin;
+                canvas.width = screen.width;
+                screen.left = screen.margin;
+                screen.inner_width = screen.width - 2*screen.margin;
+                screen.right = screen.left + screen.inner_width;
+                screen.bottom = screen.top + screen.inner_height;
+
+                grid.left = screen.right - grid.width;
+                grid.top = screen.top;
+                grid.right = screen.right;
+                grid.bottom = screen.bottom;
+
+                sidebar.choices.height = sidebar.choices.lines * grid.block_size;
+                sidebar.right = grid.left;
+                sidebar.choices.bottom = screen.bottom - grid.block_size;
+                sidebar.choices.left = screen.left + 2*grid.block_size;
+            };
+            resize();
+            drawBackground();
+            connexion();
+            if(observer_type == "player"){
+                document.body.onkeypress=onkeypress;
+            }
+            //window.addEventListener("resize", resize, false);
+
+            stage.addChild(root);
+
+            update();
+        }
+
+        function update() {
+            stage.update();
+        }
+
+        function clear_canvas() {
+            stage.clear();
+            root.removeAllChildren();
+        }
+
+        function drawBackground() {
+            var boundary = new createjs.Shape();
+            boundary.graphics
+                     .setStrokeStyle(1)
+                     .beginStroke("black")
+                     .drawRect(screen.left, screen.top, screen.inner_width, screen.inner_height)
+                     .moveTo(grid.left, grid.top)
+                     .lineTo(grid.left, grid.bottom);
+            root.addChild(boundary);
+
+            var grid_lines = new createjs.Shape();
+            grid_lines.graphics
+                .setStrokeStyle(1)
+                .beginStroke("grey");
+            for(var i=1; i<grid.columns; i++) {
+                grid_lines.graphics.setStrokeDash([])
+                    .moveTo(grid.left+grid.block_size*i, grid.top+grid.holding_lines*grid.block_size)
+                    .lineTo(grid.left+grid.block_size*i, grid.bottom);
+                grid_lines.graphics.setStrokeDash([5,5])
+                    .moveTo(grid.left+grid.block_size*i, grid.top)
+                    .lineTo(grid.left+grid.block_size*i, grid.top+grid.holding_lines*grid.block_size);
+            }
+            for(var i=1; i<grid.lines; i++) {
+                if(i < grid.holding_lines)
+                    grid_lines.graphics.setStrokeDash([5,5]);
+                else
+                    grid_lines.graphics.setStrokeDash([]);
+                grid_lines.graphics
+                    .moveTo(grid.left, grid.top+grid.block_size*i)
+                    .lineTo(grid.right, grid.top+grid.block_size*i);
+            }
+            root.addChild(grid_lines);
+
+            //for(var i=0; i<grid.columns; i++)
+              //  drawColumnNumber(i);
+
+            var choices_box = new createjs.Shape();
+            choices_box.graphics
+                .setStrokeStyle(1)
+                .beginStroke("grey")
+                .moveTo(screen.left, screen.bottom - sidebar.choices.height)
+                .lineTo(sidebar.right, screen.bottom - sidebar.choices.height);
+
+            root.addChild(choices_box);
+        }
+
+        function drawColumnNumber(num) {
+            var number_size = 16;
+            var number = new createjs.Text(num, number_size+"px Arial", "black");
+            var left = grid.left + (number_size/2) + num*grid.block_size;
+            var top = (number_size/2) + grid.top;
+            number.x = left;
+            number.y = top;
+            
+            root.addChild(number);
+            update();
+        }
+
+        function drawInfo() {
+            game.score.forEach((e,i) => {
+                var score = new createjs.Text("Score J"+(i+1)+": "+e, "20px Arial", "black");
+                score.x = screen.left + 20;
+                score.y = screen.top + 20 + 20*i;
+    
+                root.addChild(score);
+            });
+            
+            update();
+        }
+
+        function drawChoices(choices=game.choices) {
+            var place = Object.assign({}, sidebar.choices);
+            place.left += grid.block_size*0.5;
+            choices.forEach((e,i) => {
+                drawPiece(kinds[e], color[e], [0,0], place);
+                place.bottom -= 3*grid.block_size;
+            });
+
+            update();
+        }
+
+        function drawBlock(color, pos, ref=grid) {
+            var block = new createjs.Shape();
+            var [x, y] = pos;
+            var left = ref.left + x*grid.block_size;
+            var top = ref.bottom - (y+1)*grid.block_size;
+            block.graphics
+                 .beginFill(color)
+                 .drawRect(left, top, grid.block_size, grid.block_size)
+                 .endFill().beginStroke("black")
+                 .drawRect(left, top, grid.block_size, grid.block_size);
+
+            root.addChild(block);
+        }
+
+        function drawPiece(blocks, color, pos, ref=grid) {
+            [center_x, center_y] = pos;
+            blocks = blocks.map(([x,y]) => [center_x+x,center_y+y]);
+            blocks.forEach((e,i) => {drawBlock(color, e, ref)});
+            update();
+        }
+
+        function drawGrid() {
+            game.grid.forEach((a,i) => {
+                a.forEach((e,j) => {
+                    if(e!="White")
+                        drawBlock(e,[i,j]);
+                });
+            });
+
+            update();
+        }
+
+        function drawGame() {
+            clear_canvas();
+            drawBackground();
+            drawInfo();
+            drawChoices();
+            drawGrid();
+
+            update();
+        }
+      </script>
+</html>
