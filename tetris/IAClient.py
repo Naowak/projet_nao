@@ -61,7 +61,7 @@ class IAClient:
 
     async def send_message(self, data):
         #print("send")
-        print(data)
+        #print(data)
         await self.my_socket.send(json.dumps(data))
 
 

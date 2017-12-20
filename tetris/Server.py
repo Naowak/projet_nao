@@ -98,7 +98,7 @@ class Server:
         mess = await self.my_sockets["players"][game.actual_turn % game.nb_players][1].recv()
         mess = json.loads(mess)
         #print("receive")
-        print(mess)
+        #print(mess)
         await game.set_action(mess["action"])
 
     # async def ask_user_piece_choose(self, pieces_kind) :
