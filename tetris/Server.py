@@ -25,9 +25,12 @@ class Server:
        # asyncio.ensure_future(self.run_game(
         #    self.my_sockets["players"], self.my_sockets["viewers"]))
 
-    async def run_game(self, players, viewers, nb_player):
+    async def run_game(self, players, viewers,\
+                       nb_players=gp.NOMBRE_DE_JOUEUR,\
+                       nb_turn=gp.NOMBRE_DE_TOUR,\
+                       nb_choices=gp.NOMBRE_DE_CHOIX):
         gid = self.next_games_id
-        game = self.games[gid] = Game.Game(gid, self, nb_player)
+        game = self.games[gid] = Game.Game(gid, self,nb_players, nb_turn, nb_choices)
         self.next_games_id += 1
         for viewer in viewers:
             game.bind_viewer(viewer)
@@ -36,7 +39,7 @@ class Server:
         await self.actualise_server_info()
         await game.init_turn()
         while not game.is_finished:
-            await self.receive_command(game)
+            await asyncio.sleep(0)
         game.quit()
         del self.games[game.gid]
 
@@ -50,6 +53,7 @@ class Server:
 
     async def new_game(self,players, observers, IAs):
         #donner les ids in game et l'envoye dans le data_init_game
+
         pass
 
     async def create_IA(self,level):
