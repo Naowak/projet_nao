@@ -11,7 +11,7 @@ def Point(x, y): return np.array([[x, y]]).T
 
 
 class Piece:
-    kinds = {'O': [Point(-1 / 2, -1 / 2), Point(1 / 2, -1 / 2), \
+    kinds = {'O': [Point(-1 / 2, -1 / 2), Point(1 / 2, -1 / 2),
                    Point(-1 / 2, 1 / 2), Point(1 / 2, 1 / 2)], \
              # Violet
              'I': [Point(-3 / 2, 1 / 2), Point(-1 / 2, 1 / 2), \

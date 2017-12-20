@@ -1,11 +1,9 @@
-#!/usr/bin/python3
-
-import Server
-import IAClient
-import GlobalParameters as gp
 import asyncio
 #import os
 import webbrowser
+
+import GlobalParameters as gp
+import Server
 
 
 async def javascript_run():
@@ -19,6 +17,4 @@ SERVER = Server.Server()
 loop = asyncio.get_event_loop()
 loop.run_until_complete(SERVER.accept_connections(gp.PORT))
 asyncio.ensure_future(javascript_run())
-asyncio.ensure_future(SERVER.run_server())
-asyncio.ensure_future(IAClient.run())
 loop.run_forever()

@@ -40,6 +40,15 @@ class Server:
         game.quit()
         del self.games[game.gid]
 
+    async def unlink_game(self,player):
+        pass
+
+    async def link_game(self,player, gid):
+        pass
+
+    async def new_game(self,players, observers, IAs):
+        pass
+
     async def connect(self, sock, path):
         mess = await sock.recv()
         mess = json.loads(mess)
@@ -56,7 +65,7 @@ class Server:
         data = {}
         data["step"] = "menu"
         data["clients"] = [str(i) for i in self.my_clients.values()]
-        data["games"] = [str(i.gid) + " : " + str(i.clients)\
+        data["games"] = [str(i.gid) + " : " + str(i.clients)
                          for i in self.games]
         return data
 

@@ -46,11 +46,11 @@ class IAClient:
             self.nid = data["pid"]
         elif data["step"] == "game" or data["step"] == "suggest":
             if data["turn"] != self.last_turn\
-             and(\
-                (data["actual_player"] == self.nid and\
-                data["step"] == "game")\
-             or (data["step"] == "suggest" and\
-                 data["actual_player"] != self.nid)):
+                and(
+                (data["actual_player"] == self.nid and
+                 data["step"] == "game")
+                or (data["step"] == "suggest" and
+                    data["actual_player"] != self.nid)):
 
                 dec = self.my_ia.play(data)
                 self.last_turn = data["turn"]
