@@ -12,8 +12,9 @@ class IA:
     def play(self, state):
         return self.strategy(state)
 
+
 def random_ia(state):
     piece = random.choice(state["pieces"])
     rotat = random.randrange(1, 4, 1)
-    hor_move = random.randrange(0, 9, 1)-5
-    return {"hor_move":hor_move, "rotate":rotat, "choose":piece}
+    hor_move = random.randrange(0, 9, 1) - 5
+    return {"hor_move": hor_move, "rotate": rotat, "choose": piece}

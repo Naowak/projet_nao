@@ -1,5 +1,7 @@
 #coding : utf-8
 import Client
+
+
 class Subject:
     def __init__(self, gid, server):
         self.gid = gid
@@ -8,26 +10,26 @@ class Subject:
 
     def bind_player(self, client):
         client.state = Client.State.PLAY
-        self.clients["players"][client.id]=client
+        self.clients["players"][client.id] = client
         print(viewer.name + "play the game " + gid)
 
     def unbind_client(self, client):
         client.state = Client.State.FREE
         print(client.name + "leave the game " + gid)
-        if self.clients["players"][client.id] :
+        if self.clients["players"][client.id]:
             del self.clients["players"][client.id]
             return True
-        elif self.clients["observers"][client.id] :
+        elif self.clients["observers"][client.id]:
             del self.clients["observers"][client.id]
         return False
 
     def bind_viewer(self, viewer):
         client.state = Client.State.PLAY
-        self.clients["viewers"][viewer.id]=viewer
+        self.clients["viewers"][viewer.id] = viewer
         print(viewer.name + "observe the game " + gid)
 
     async def notify_all_observers(self):
-        mess = self.get_etat()    
+        mess = self.get_etat()
         for clients in self.observers["players"]:
             await self.server.send_message(player.ws, mess)
         for viewers in self.observers["viewers"]:
@@ -42,7 +44,7 @@ class Subject:
         mess = self.get_etat()
         for viewers in self.observers["viewers"]:
             await self.server.send_message(viewers.ws, mess)
-    
+
     def quit(self, client):
         for client in self.clients:
             unbind_client(client)

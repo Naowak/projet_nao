@@ -18,7 +18,7 @@ class IAClient:
         self.my_ia = IA.IA(IA.random_ia)
         self.name = name
         self.nid = None
-        self.last_turn=-1
+        self.last_turn = -1
 
     async def connect(self, uri=URI):
         self.my_socket = await websockets.connect(uri)
@@ -33,8 +33,8 @@ class IAClient:
 
     async def receive_message(self):
         data = await self.my_socket.recv()
-        #print("receive")
-        #print(data)
+        # print("receive")
+        # print(data)
         return json.loads(data)
 
     async def action(self):
@@ -45,11 +45,15 @@ class IAClient:
         elif data["step"] == "connect":
             self.nid = data["pid"]
         elif data["step"] == "game" or data["step"] == "suggest":
-            if (data["actual_player"] == self.nid and data["step"] == "game" and data["turn"]!=self.last_turn ) or\
-             (data["step"] == "suggest" and data["actual_player"] != self.nid and data["turn"]!=self.last_turn ):
+            if data["turn"] != self.last_turn\
+             and(\
+                (data["actual_player"] == self.nid and\
+                data["step"] == "game")\
+             or (data["step"] == "suggest" and\
+                 data["actual_player"] != self.nid)):
 
                 dec = self.my_ia.play(data)
-                self.last_turn=data["turn"]
+                self.last_turn = data["turn"]
                 await self.send_message({"action": ["choose", dec.pop("choose")]})
                 for (key, value) in dec.items():
                     await self.send_message({"action": [key, value]})
@@ -58,10 +62,9 @@ class IAClient:
         return data
 
     async def send_message(self, data):
-        #print("send")
-        #print(data)
+        # print("send")
+        # print(data)
         await self.my_socket.send(json.dumps(data))
-
 
 
 async def run():
@@ -73,4 +76,4 @@ async def run():
         await my_client.action()
         await asyncio.sleep(0)
 
-#asyncio.get_event_loop().run_until_complete(main())
+# asyncio.get_event_loop().run_until_complete(main())
