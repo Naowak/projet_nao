@@ -17,14 +17,6 @@ class Server:
         self.next_games_id = 0
         self.next_connect_id = 0
 
-    # async def run_server(self):
-        # await self.accept_connections(gp.PORT)
-     #   print("Serveur running on")
-      #  while not len(self.my_sockets["players"]) == gp.NOMBRE_DE_JOUEUR:
-       #     await asyncio.sleep(0)
-       # asyncio.ensure_future(self.run_game(
-        #    self.my_sockets["players"], self.my_sockets["viewers"]))
-
     async def run_game(self, players, viewers,\
                        nb_players=gp.NOMBRE_DE_JOUEUR,\
                        nb_turn=gp.NOMBRE_DE_TOUR,\
@@ -53,11 +45,13 @@ class Server:
 
     async def new_game(self,players, observers, IAs):
         #donner les ids in game et l'envoye dans le data_init_game
-
+        for IA in IAs:
+            self.create_IA(IA)
+        await self.run_game(players,observers)
         pass
 
     async def create_IA(self,level):
-        pass
+        return Client
 
     async def connect(self, sock, path):
         mess = await sock.recv()
