@@ -129,6 +129,6 @@ class Server:
     #             self.disconnect_viewer(websocket, data["name"])
 
 
-SERVER = Server()
-asyncio.ensure_future(SERVER.run_server())
-asyncio.get_event_loop().run_forever()
+#SERVER = Server()
+#asyncio.ensure_future(SERVER.run_server())
+#asyncio.get_event_loop().run_forever()

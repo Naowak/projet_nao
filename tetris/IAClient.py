@@ -66,7 +66,7 @@ class IAClient:
 
 
 
-async def main():
+async def run_IAClient():
     my_client = IAClient("Bernard")
     my_client.make_connection_to_server()
     while my_client.my_socket is None:
@@ -75,4 +75,4 @@ async def main():
         await my_client.action()
         await asyncio.sleep(0)
 
-asyncio.get_event_loop().run_until_complete(main())
+#asyncio.get_event_loop().run_until_complete(main())
