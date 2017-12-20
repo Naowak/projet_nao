@@ -5,6 +5,7 @@ import json
 import Game
 import asyncio
 import websockets
+import Client
 
 import GlobalParameters as gp
 import Piece
@@ -43,25 +44,27 @@ class Server:
     async def connect(self, sock, path):
         mess = await sock.recv()
         mess = json.loads(mess)
-        self.my_clients[self.next_connect_id].append(Client.Client(mess["name"],sock,next_connect_id,mess["active"]))
-        print(Client +" is connect (id:"+self.next_connect_id+")")
-        send_message(sock, data_connect)     
+        self.my_clients[self.next_connect_id] = client = Client.Client(mess["name"],sock,self.next_connect_id,mess["active"])
+        print(client ," is connect (id:",self.next_connect_id,")")
+        await self.send_message(sock, self.data_connect())     
         self.next_connect_id += 1
-        await actualise_server_info()
-        await asyncio.ensure_future(self.my_client[self.next_connect_id].request())
-        await self.disconnect_client(self.my_clients[self.next_connect_id])
+        await self.actualise_server_info()
+        await asyncio.ensure_future(client.request())
+        await self.disconnect_client(client)
         
     
     def data_menu(self):
         data={}
         data["step"]="menu"
-        data["clients"]=[str(i) for i in my_clients] 
-        data["games"]=[str(i.gid) + " : "  + str(i.clients) for i in games] 
+        data["clients"]=[str(i) for i in self.my_clients.values()] 
+        data["games"]=[str(i.gid) + " : "  + str(i.clients) for i in self.games] 
         return data
     
-    def data_connect(self):  
+    def data_connect(self):
+        data ={}  
         data["step"]="connect"
         data["pid"]=self.next_connect_id  
+        return data
 
     def data_init_game(self):
         data = {}
@@ -91,14 +94,14 @@ class Server:
         print(Client +" is unconnect") 
         await actualise_server_info()
        
-    async def actualise_server_info():
-        for client in self.my_clients:
-            await self.send_message(sock,data_menu)
+    async def actualise_server_info(self):
+        for client in self.my_clients.values():
+            await self.send_message(client.ws,self.data_menu())
         
 
     async def send_message(self, websocket, mess):
         #print("send")
-        #print(mess)
+        print(mess)
         await websocket.send(json.dumps(mess))
 
     async def receive_command(self, game):

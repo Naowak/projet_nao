@@ -174,11 +174,12 @@
                 var data = JSON.parse(event.data);
                 console.log(data);
                 switch(data.step){
+                    case "connect" :
+                        id = data.pid;
                     case "init" :
                         console.log(this);
                         kinds = data.kinds;
                         color = data.color;
-                        id = data.nid;
                         nb_player = data.nb_player;
                         nb_choose = data.nb_choose;
                         drawGame();
