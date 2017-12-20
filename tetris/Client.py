@@ -67,7 +67,7 @@ class Client:
                         "(" + str(self.id) + "): already in game/observation", mess)
 
     async def request_action(self, mess):
-        if self.state == Client.State.PLAY and self.game.actual_turn % self.game.nb_players == self.id_in_game:
+        if self.state == Client.State.PLAY and self.game.actual_player == self.id_in_game:
             await self.game.set_action(mess["action"])
         else:
             if self.state == Client.State.PLAY:

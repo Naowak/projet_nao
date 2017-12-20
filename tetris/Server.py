@@ -41,12 +41,18 @@ class Server:
         del self.games[game.gid]
 
     async def unlink_game(self,player):
+        player.game.unbind_client(player)
         pass
 
     async def link_game(self,player, gid):
+        player.game.bind_client(player)
         pass
 
     async def new_game(self,players, observers, IAs):
+        #donner les ids in game et l'envoye dans le data_init_game
+        pass
+
+    async def create_IA(self,level):
         pass
 
     async def connect(self, sock, path):
@@ -65,8 +71,8 @@ class Server:
         data = {}
         data["step"] = "menu"
         data["clients"] = [str(i) for i in self.my_clients.values()]
-        data["games"] = [str(i.gid) + " : " + str(i.clients)
-                         for i in self.games]
+        data["games"] = [str(i.gid) + " : " + str(i.clients)\
+                        for i in self.games]
         return data
 
     def data_connect(self):
@@ -75,12 +81,12 @@ class Server:
         data["pid"] = self.next_connect_id
         return data
 
-    def data_init_game(self):
+    def data_init_game(self,game,id_in_game):
         data = {}
-        data["nb_choose"] = gp.NOMBRE_DE_CHOIX
+        data["nb_choose"] = game.nb_choose
         data["step"] = "init_game"
-        data["gid"] = self.next_connect_id
-        data["nb_player"] = gp.NOMBRE_DE_JOUEUR
+        data["gid"] = self.next_games_id
+        data["nb_player"] = game.nb_players
         data["kinds"] = {}
         for (key, blocks) in Piece.Piece.kinds.items():
             data["kinds"][key] = []
@@ -90,6 +96,7 @@ class Server:
         data["color"] = {}
         for (key, color) in Piece.Piece.colors.items():
             data["color"][key] = color.value
+        data["id_in_game"] = id_in_game
         return data
 
     def accept_connections(self, port):
