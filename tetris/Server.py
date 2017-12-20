@@ -18,7 +18,7 @@ class Server:
         self.next_connect_id = 0
 
     async def run_server(self):
-        await self.accept_connections(gp.PORT)
+        #await self.accept_connections(gp.PORT)
         print("Serveur running on")
         while not len(self.my_sockets["players"]) == gp.NOMBRE_DE_JOUEUR:
             await asyncio.sleep(0)
@@ -129,6 +129,3 @@ class Server:
     #             self.disconnect_viewer(websocket, data["name"])
 
 
-SERVER = Server()
-asyncio.ensure_future(SERVER.run_server())
-asyncio.get_event_loop().run_forever()
