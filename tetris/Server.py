@@ -69,7 +69,7 @@ class Server:
     def data_init_game(self):
         data = {}
         data["nb_choose"] = gp.NOMBRE_DE_CHOIX
-        data["step"] = "init"
+        data["step"] = "init_game"
         data["gid"] = self.next_connect_id
         data["nb_player"] = gp.NOMBRE_DE_JOUEUR
         data["kinds"] = {}
@@ -112,8 +112,8 @@ class Server:
         #print(mess)
         await game.set_action(mess["action"])
 
-SERVER = Server()
-loop = asyncio.get_event_loop()
-loop.run_until_complete(SERVER.accept_connections(gp.PORT))
-loop.run_forever()
+#SERVER = Server()
+#loop = asyncio.get_event_loop()
+#loop.run_until_complete(SERVER.accept_connections(gp.PORT))
+#loop.run_forever()
 

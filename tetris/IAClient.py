@@ -22,7 +22,7 @@ class IAClient:
 
     async def connect(self, uri=URI):
         self.my_socket = await websockets.connect(uri)
-        await self.send_message({"user": "player", "name": self.name})
+        await self.send_message({"user": "player", "name": self.name, "active": False})
         data = await self.receive_message()
         self.nid = data["nid"]
         while self.keep_connection:
@@ -39,9 +39,11 @@ class IAClient:
 
     async def action(self):
         data = await self.receive_message()
-        if data["step"] == "init":
+        if data["step"] == "init_game":
             print("Succesfull server connection")
             self.keep_connection = True
+        elif data["step"] == "connect":
+            self.nid = data["pid"]
         elif data["step"] == "game" or data["step"] == "suggest":
             if (data["actual_player"] == self.nid and data["step"] == "game" and data["turn"]!=self.last_turn ) or\
              (data["step"] == "suggest" and data["actual_player"] != self.nid and data["turn"]!=self.last_turn ):
