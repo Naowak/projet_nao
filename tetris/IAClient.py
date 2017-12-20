@@ -71,4 +71,8 @@ async def run():
         await my_client.action()
         await asyncio.sleep(0)
 
+<<<<<<< HEAD
 #asyncio.get_event_loop().run_until_complete(main())
+=======
+#asyncio.get_event_loop().run_until_complete(run())
+>>>>>>> bdbb923b240c2a21a7069c707306b71d88638b9c

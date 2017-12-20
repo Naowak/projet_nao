@@ -72,7 +72,13 @@ class Piece:
     def rotate(self) :
         new_blocks = []
         coef = np.array([[0, 1], [-1, 0]])
+        test = True
         for b in self.blocks :
           new_blocks.append(np.dot(coef, b))
-        self.blocks = new_blocks
-        self.block_control = np.dot(coef, self.block_control)
+        for b in new_blocks :
+            if (b[0] + self.center[0]) > 9 or (b[0] + self.center[0]) < 0 :
+              #print("ad :", b[0])
+              test = False
+        if test :
+          self.blocks = new_blocks
+          self.block_control = np.dot(coef, self.block_control)

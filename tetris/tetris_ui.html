@@ -54,19 +54,20 @@
         var observer_type = "player"; 
 
         function onkeypress(event) {
+            //console.log(event);
             if (in_game){
                 switch(event.key){
-                    case "ArrowDown":
+                    case "ArrowDown": case "s":
                         ws.send(JSON.stringify({'action': ['rotate', 1]}));
                     break; 
-                    case "ArrowRight":
+                    case "ArrowRight": case "d":
                         ws.send(JSON.stringify({'action': ['hor_move', 1]}));
                     break; 
-                    case "ArrowUp":
+                    case "ArrowUp": case "z":
                         ind_piece_select = (ind_piece_select+1)%nb_choose;
                         ws.send(JSON.stringify({'action': ['choose',game.choices[ind_piece_select]]}));
                     break; 
-                    case "ArrowLeft":
+                    case "ArrowLeft": case "q":
                         ws.send(JSON.stringify({'action': ['hor_move', -1]}));
                     break; 
                     case "Enter":
@@ -210,8 +211,8 @@
             }
             root.addChild(grid_lines);
 
-            for(var i=0; i<grid.columns; i++)
-                drawColumnNumber(i);
+            //for(var i=0; i<grid.columns; i++)
+              //  drawColumnNumber(i);
 
             var choices_box = new createjs.Shape();
             choices_box.graphics
