@@ -9,14 +9,13 @@ class Client:
         PLAY = "Play"
         OBSERVE = "Observe"
 
-    def __init__(self, server, name, ws, cid, active):
+    def __init__(self, server, name, ws, cid):
         self.server = server
         self.ws = ws
         self.name = name
         self.id = cid
         self.id_in_game = []
         self.state = Client.State.FREE
-        self.active = active
         self.connect = True
         self.game = None
 
@@ -45,7 +44,7 @@ class Client:
                 print("Error message receive : step unknown")
 
     async def request_unlink(self, mess):
-        if self.state == Client.State.OBSERVE and game.gid == mess["gid"]:
+        if self.state == Client.State.OBSERVE and self.game.gid == mess["gid"]:
             await self.server.unlink_game(self)
         else:
             print_error("Error message receive :" + self.name +

@@ -12,7 +12,7 @@ URI = gp.ADRESSE + str(gp.PORT)
 
 class IAClient:
 
-    def __init__(self, name, active,my_ia):
+    def __init__(self, name,my_ia):
         self.my_socket = None
         self.keep_connection = True
         self.my_ia = my_ia
@@ -20,11 +20,10 @@ class IAClient:
         self.nid = None
         self.id_in_game = None # different {gid1:[id1,id2...],gid2:[id1,id2...]}
         self.last_turn = None
-        self.active = active
 
     async def connect(self, uri=URI):
         self.my_socket = await websockets.connect(uri)
-        await self.send_message({"name": self.name, "active": self.active})
+        await self.send_message({"name": self.name})
         data = await self.receive_message()
         self.nid = data["nid"]
         while self.keep_connection:
@@ -59,8 +58,6 @@ class IAClient:
     def finished(self,data):
         self.last_turn = None
         self.id_in_game = None
-        if not self.active:
-            self.keep_connection = False
 
     def init_game(self, data):
         self.keep_connection = True
@@ -93,8 +90,8 @@ class IAClient:
         await self.my_socket.send(json.dumps(data))
 
 
-async def run(name="IA", active=False):
-    my_client = IAClient(name, active, IA.IA(IA.random_ia))
+async def run(name="IA"):
+    my_client = IAClient(name,IA.IA(IA.random_ia))
     my_client.make_connection_to_server()
     while my_client.my_socket is None:
         await asyncio.sleep(0)

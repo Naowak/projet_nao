@@ -166,7 +166,6 @@
             ws.onopen = function (event) {
                 var msg = {
                     name: "nao",
-                    active: true,
                     type: "human"
                 };
                 ws.send(JSON.stringify(msg));
