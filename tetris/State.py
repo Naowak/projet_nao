@@ -3,19 +3,21 @@ import Block
 
 import GlobalParameters as gp
 
+
 class State:
     def __init__(self):
-        self.grid = [[Block.Block.Empty]*gp.TAILLE_Y for i in range(gp.TAILLE_X)]
-        self.score = [0]*gp.NOMBRE_DE_JOUEUR
+        self.grid = [[Block.Block.Empty] *
+                     gp.TAILLE_Y for i in range(gp.TAILLE_X)]
+        self.score = [0] * gp.NOMBRE_DE_JOUEUR
 
     def drop_piece(self, piece, player):
         self.clear_rotation_vue()
         while not self.is_piece_blocked(piece):
             piece.center[1] -= 1
-        #if self.is_piece_accepted_ordonne(piece):
+        # if self.is_piece_accepted_ordonne(piece):
         for block in piece.blocks:
-            self.grid[int(piece.center[0] + block[0])]\
-			[int(piece.center[1] + block[1])] = piece.color
+            self.grid[int(piece.center[0] + block[0])
+                      ][int(piece.center[1] + block[1])] = piece.color
         if not is_piece_accepted_ordonne(piece):
             return False
         nb_ligne_delete = self.line_complete()
@@ -29,15 +31,16 @@ class State:
 
     def piece_show(self, piece):
         self.clear_rotation_vue()
-        for block in piece.blocks: 
-                self.grid[int(block[0] + piece.center[0])]\
-				[int(block[1] + piece.center[1])] = piece.color
+        for block in piece.blocks:
+            self.grid[int(block[0] + piece.center[0])
+                      ][int(block[1] + piece.center[1])] = piece.color
 
     def show_abscisse(self, piece, abscisse):
         if is_piece_accepted_abscisse(piece, abscisse):
             self.clear_rotation_vue()
             for block in piece.blocks:
-                self.grid[int(abscisse + block[0] - piece.block_control[0])][int(block[1] + piece.center[1])] = piece.color
+                self.grid[int(abscisse + block[0] - piece.block_control[0])
+                          ][int(block[1] + piece.center[1])] = piece.color
 
     def maj_score(self, nb_ligne_delete, player):
         if nb_ligne_delete == 1:
@@ -51,12 +54,11 @@ class State:
 
     def is_piece_blocked(self, piece):
         for block in piece.blocks:
-            #Arrive en bas de la grille
+            # Arrive en bas de la grille
             if piece.center[1] + block[1] == 0:
                 return True
-            #La case en dessous n'est pas vide
-            if self.grid[int(piece.center[0] + block[0])]\
-			[int(piece.center[1] + block[1] - 1)] != Block.Block.Empty:
+            # La case en dessous n'est pas vide
+            if self.grid[int(piece.center[0] + block[0])][int(piece.center[1] + block[1] - 1)] != Block.Block.Empty:
                 return True
         return False
 
@@ -67,24 +69,23 @@ class State:
             test = True
             for i in range(gp.TAILLE_X):
                 if self.grid[i][j] == Block.Block.Empty:
-                    #ligne pas complète
+                    # ligne pas complète
                     test = False
             if test:
-                #ligne numero j complète
+                # ligne numero j complète
                 compteur += 1
-                for k in range(j+1, gp.TAILLE_Y_LIMITE - 1):
+                for k in range(j + 1, gp.TAILLE_Y_LIMITE - 1):
                     for i in range(gp.TAILLE_X):
-                        #On descend tout ce qui est au dessus de j
-                        self.grid[i][k-1] = self.grid[i][k]
+                        # On descend tout ce qui est au dessus de j
+                        self.grid[i][k - 1] = self.grid[i][k]
                 for i in range(gp.TAILLE_X):
-                    #on a tout descendu, donc la ligne du dessus est propre.
-                    self.grid[i][gp.TAILLE_Y_LIMITE-1] = Block.Block.Empty
+                    # on a tout descendu, donc la ligne du dessus est propre.
+                    self.grid[i][gp.TAILLE_Y_LIMITE - 1] = Block.Block.Empty
             else:
-                #si l'on a supprimé la ligne j, \
-				# pas besoin d'augmenter d'ordonnee (ce serait une erreur)
+                # si l'on a supprimé la ligne j, \
+                                # pas besoin d'augmenter d'ordonnee (ce serait une erreur)
                 j += 1
         return compteur
-
 
     def __str__(self):
         string = ""
@@ -115,7 +116,8 @@ class State:
         return string
 
     def encode_to_json(self):
-        serialize = {"score":self.score, "grid":[[j.value for j in i] for i in self.grid]}
+        serialize = {"score": self.score, "grid": [
+            [j.value for j in i] for i in self.grid]}
         return serialize
 
 
