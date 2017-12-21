@@ -81,7 +81,7 @@
         var ind_piece_select=0;
         var color;
         var nb_player;
-        var nb_choose;
+        var nb_choices;
         var id;
         var ws;
         var in_game= false;
@@ -187,7 +187,7 @@
                         ws.send(JSON.stringify({'mess_type':'action' ,'action': ['hor_move', 1]}));
                     break; 
                     case "ArrowUp": case "z":
-                        ind_piece_select = (ind_piece_select+1)%nb_choose;
+                        ind_piece_select = (ind_piece_select+1)%nb_choices;
                         ws.send(JSON.stringify({'mess_type':'action' ,'action': ['choose',game.choices[ind_piece_select]]}));
                     break; 
                     case "ArrowLeft": case "q":
@@ -234,9 +234,9 @@
                         kinds = data.kinds;
                         color = data.color;
                         nb_player = data.nb_player;
-                        nb_choose = data.nb_choose;
+                        nb_choices = data.nb_choices;
                         gid = data.gid;
-                        igid = data.id_in_game;
+                        igid = data.ids_in_game;
                         drawGame();
                         //mettre en place la taille de la grille
                         break;

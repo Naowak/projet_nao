@@ -49,7 +49,6 @@ class Game(Subject.Subject):
             self.actual_pieces.keys())[0]]
         self.current_abscisse = self.current_piece.center[0] + \
             self.current_piece.blocks[0][0]
-        await self.update()
         return
 
     def choose_piece(self, kinds):

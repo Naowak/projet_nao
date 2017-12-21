@@ -14,7 +14,7 @@ class Client:
         self.ws = ws
         self.name = name
         self.id = cid
-        self.id_in_game = []
+        self.ids_in_game = []
         self.state = Client.State.FREE
         self.connect = True
         self.game = None
@@ -26,8 +26,8 @@ class Client:
         while self.connect:
             try:
                 mess = await self.ws.recv()
-                # print("receive")
-                # print(mess)
+                print("receive from ",self.name)
+                print(mess)
             except websockets.exceptions.ConnectionClosed as e:
                 print("WebSocketException: client disconnect! ")
                 print(e)
@@ -66,7 +66,7 @@ class Client:
                         "(" + str(self.id) + "): already in game/observation", mess)
 
     async def request_action(self, mess):
-        if self.state == Client.State.PLAY and self.game.actual_player in self.id_in_game:
+        if self.state == Client.State.PLAY and self.game.actual_player in self.ids_in_game:
             await self.game.set_action(mess["action"])
         else:
             if self.state == Client.State.PLAY:

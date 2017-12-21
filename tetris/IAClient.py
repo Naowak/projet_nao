@@ -18,7 +18,7 @@ class IAClient:
         self.my_ia = my_ia
         self.name = name
         self.nid = None
-        self.id_in_game = None # different {gid1:[id1,id2...],gid2:[id1,id2...]}
+        self.ids_in_game = None # different {gid1:[id1,id2...],gid2:[id1,id2...]}
         self.last_turn = None
 
     async def connect(self, uri=URI):
@@ -45,10 +45,10 @@ class IAClient:
         elif data["step"] == "init_game":
             self.init_game(data)
         elif data["step"] == "game":
-            if data["actual_player"] == self.id_in_game:
+            if data["actual_player"] in self.ids_in_game:
                 await self.play(data)
         elif data["step"] == "suggest":
-            if data["actual_player"] in self.id_in_game:
+            if data["actual_player"] in self.ids_in_game:
                 await self.suggest(data)
         elif data["step"] == "finished":
             self.finished(data)
@@ -57,12 +57,12 @@ class IAClient:
             
     def finished(self,data):
         self.last_turn = None
-        self.id_in_game = None
+        self.ids_in_game = None
 
     def init_game(self, data):
         self.keep_connection = True
-        self.id_in_game[data["gid"]] = data["id_in_game"]
-        print("Succesfull game connection id_in_game:", str(self.id_in_game))
+        self.ids_in_game[data["gid"]] = data["ids_in_game"]
+        print("Succesfull game connection ids_in_game:", str(self.ids_in_game))
 
     def init_connect(self, data):
         self.nid = data["pid"]

@@ -11,7 +11,7 @@ class Subject:
     def bind_player(self, client):
         client.state = Client.Client.State.PLAY
         self.clients["players"][client.id] = client
-        print(client.name + "play the game " + self.gid)
+        print(client.name, "play the game ", self.gid)
 
     def unbind_client(self, client):
         client.state = Client.Client.State.FREE
@@ -27,18 +27,19 @@ class Subject:
     def bind_viewer(self, viewer):
         viewer.state = Client.Client.State.PLAY
         self.clients["viewers"][viewer.id] = viewer
-        print(viewer.name + "observe the game " +self.gid)
+        print(viewer.name, "observe the game ", self.gid)
 
     async def notify_all_observers(self):
         mess = self.get_etat()
-        for client in self.clients["players"]:
+        print("actual_player: ",mess["actual_player"])
+        for client in self.clients["players"].values():
             await self.server.send_message(client.ws, mess)
-        for viewer in self.clients["viewers"]:
+        for viewer in self.clients["viewers"].values():
             await self.server.send_message(viewer.ws, mess)
 
     async def notify_player(self):
         mess = self.get_etat()
-        for player in self.clients["players"]:
+        for player in self.clients["players"].values():
             await self.server.send_message(player.ws, mess)
 
     async def notify_view(self):
@@ -49,7 +50,7 @@ class Subject:
     def quit(self, client):
         for client in self.clients:
             self.unbind_client(client)
-        print("game " + self.gid + "close")
+        print("game ", self.gid, "close")
 
     async def set_action(self, command):
         pass

@@ -22,6 +22,7 @@ class Server:
     async def run_game(self, game):
         await self.actualise_server_info()
         await game.init_turn()
+        await game.update()
         while not game.is_finished:
             await asyncio.sleep(0)
         game.quit()
@@ -37,21 +38,21 @@ class Server:
     async def new_game(self, players_id, viewers, ias):
         #donner les ids in game et l'envoye dans le data_init_game
         players = []
-        next_id_in_game = 0
+        next_ids_in_game = 0
         for [pid, number] in players_id:
             #try:
-            for _ in number:
-                self.my_clients[pid].id_in_game.append(next_id_in_game)
-                next_id_in_game += 1
+            for _ in range(number):
+                self.my_clients[pid].ids_in_game.append(next_ids_in_game)
+                next_ids_in_game += 1
                 players.append(self.my_clients[pid])
             #except keyError as e:
             #    print("Game cancelled : Player ",pid," doesn't exist")
             #    print(e)
         for [level, number] in ias:
             #try:
-            for _ in number:
-                self.my_ias[level].id_in_game.append(next_id_in_game)
-                next_id_in_game += 1
+            for _ in range(number):
+                self.my_ias[level].ids_in_game.append(next_ids_in_game)
+                next_ids_in_game += 1
                 players.append(self.my_ias[level])
             #except keyError as e:
             #   print("Game cancelled : IA ", level, " doesn't exist")
@@ -100,7 +101,7 @@ class Server:
         data["step"] = "menu"
         data["clients"] = [str(i) for i in self.my_clients.values()]
         data["games"] = [str(i.gid) + " : " + str(i.clients)\
-                        for i in self.games]
+                        for i in self.games.values()]
         return data
 
     def data_connect(self):
@@ -111,10 +112,10 @@ class Server:
 
     def data_init_game(self, game, ids_in_game):
         data = {}
-        data["nb_choose"] = game.nb_choose
+        data["nb_choices"] = game.nb_choices
         data["step"] = "init_game"
         data["gid"] = self.next_games_id
-        data["id_in_game"] = ids_in_game
+        data["ids_in_game"] = ids_in_game
         data["nb_player"] = game.nb_players
         data["kinds"] = {}
         for (key, blocks) in Piece.Piece.kinds.items():
@@ -125,6 +126,7 @@ class Server:
         data["color"] = {}
         for (key, color) in Piece.Piece.colors.items():
             data["color"][key] = color.value
+        print(ids_in_game)
         return data
 
     def accept_connections(self, port):
@@ -145,7 +147,7 @@ class Server:
 
     async def send_message(self, websocket, mess):
         # print("send")
-        print(mess)
+        # print(mess)
         await websocket.send(json.dumps(mess))
 
     async def receive_command(self, game):
