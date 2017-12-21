@@ -9,25 +9,32 @@
             <canvas id="canvas"></canvas>
         </div>
         <div id="Droite" style="float:right;clear:right;margin-right:250px;">
-        <center>
-            <h1>Le Super Tetris 2 joueurs</h1>
-            <h2>Oserez-vous afronter le terrible NAO ?</h2>
+            <center>
+                <h1>Le Super Tetris 2 joueurs</h1>
+                <h2>Oserez-vous affronter le terrible NAO ?</h2>
+                <br><br>
+                <ul id="navigation">
+                    <li><a href="#" title="HH" onclick="fHH()">Human VS Human</a></li><br>
+                    <li><a href="#" title="HN" onclick="fHN()">Human VS NAO</a></li><br>
+                    <li><a href="#" title="NN" onclick="fNN()">NAO VS NAO</a></li><br>
+                    <li><a href="#" title="OP" onclick="fO()">Oberser une partie</a></li><br>
+                </ul>
+            </center>
+            Niveau du Nao :
+            <select id="levIA" onChange="nivIA()"> 
+                <option selected>0</option>
+                <!-- <option>1</option>
+                <option>2</option> 
+                <option>3</option>  -->
+            </select>
+            <h5>Joueur(s) connecté(s) :</h5>
+            <ol id='listJ'>
+            </ol>
             <br><br>
-            <ul id="navigation">
-                <li><a href="#" title="HH" onclick="fHH()">Human VS Human</a></li><br>
-                <li><a href="#" title="HN" onclick="fHN()">Human VS NAO</a></li><br>
-                <li><a href="#" title="NN" onclick="fNN()">NAO VS NAO</a></li><br>
-                <li><a href="#" title="OP" onclick="fO()">Oberser une partie</a></li><br>
-            </ul>
-        </center>
-        <h5>Joueur(s) connecté(s) :</h5>
-        <ol id='listJ'>
-        </ol>
-        <br><br>
-        <h5>Partie(s) en cour(s) :</h5>
-        <ol id='listP'>
-        </ol>
-        <br><br>
+            <h5>Partie(s) en cour(s) :</h5>
+            <ol id='listP'>
+            </ol>
+            <br><br>
         </div>
     </body>
 
@@ -66,7 +73,7 @@
 
         var stage, root;
 
-        var game = {score: [0], grid: [], choices: []};
+        var game = {score: [0], grid: [], choices: [], turn : 0};
 
         var piece_T = [[-1,0],[0,0],[0,1],[1,0]];
         var piece_I = [[-1.5,-0.5],[-0.5,-0.5],[0.5,-0.5],[1.5,-0.5]];
@@ -84,24 +91,57 @@
         var nom;
         var tabJ;
         var tabG;
-
+        var gid;
+        var igid;
+        var actual_player;
+        var IA_level;
+        
         function fHH(){
-            alert('Not Implemented yet !');
+            if(in_game){
+                var attention = 'Voulez-vous quitter la partie en cours ?';
+                if (confirm(attention)){
+                    ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
+                    in_game=false;
+                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 2]] , 'observers' : [] , 'IAs': []}));
+                } 
+            }else{
+                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 2]] , 'observers' : [] , 'IAs': []}));
+            }
         }
 
         function fHN(){
-            alert('Not Implemented yet !');
+            if(in_game){
+                var attention = 'Voulez-vous quitter la partie en cours ?';
+                if (confirm(attention)){
+                    ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
+                    in_game=false;
+                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'observers' : [] , 'IAs':[[IA_level,1]]}));
+                } 
+            }else{
+                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'observers' : [] , 'IAs':[[IA_level,1]]}));
+            }
         }
 
         function fNN(){
-            alert('Not Implemented yet !');
+            if(in_game){
+                var attention = 'Voulez-vous quitter la partie en cours ?';
+                if (confirm(attention)){
+                    ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
+                    in_game=false;
+                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'observers' : [] , 'IAs': [[IA_level,1], [IA_level,1]]}));
+                } 
+            }else{
+                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'observers' : [] , 'IAs': [[IA_level,1], [IA_level,1]]}));
+            }
         }
 
         function fO(){
-            alert('Not Implemented yet !');
+            var rejid = 0;
+            //TODO
+            ws.send(JSON.stringify({'mess_type':'link_game', rejid}));
         }
         
-        function afficheJ(){
+        function displayJ(){
             var ul = document.getElementById("listJ");
             var li = document.createElement("li");
             while (ul.firstChild) {
@@ -115,7 +155,7 @@
             }
         }
 
-        function afficheG(){
+        function displayG(){
             var ul = document.getElementById("listP");
             var li = document.createElement("li");
             while (ul.firstChild) {
@@ -128,31 +168,33 @@
                 ul.appendChild(li);
             }
         }
-        
-        function ajoutJ(){
-            
+
+        function nivIA(){
+            var select = document.getElementById("levIA" );
+            IA_level = select.options[select.selectedIndex].value;
         }
+        
         //------------------------------------------------------------------------------------------------------
 
         function onkeypress(event) {
             //console.log(event);
-            if (in_game){
+            if (in_game && actual_player == igid[0]){
                 switch(event.key){
                     case "ArrowDown": case "s":
-                        ws.send(JSON.stringify({'type':'action' , 'action': ['rotate', 1]}));
+                        ws.send(JSON.stringify({'mess_type':'action' , 'action': ['rotate', 1]}));
                     break; 
                     case "ArrowRight": case "d":
-                        ws.send(JSON.stringify({'type':'action' ,'action': ['hor_move', 1]}));
+                        ws.send(JSON.stringify({'mess_type':'action' ,'action': ['hor_move', 1]}));
                     break; 
                     case "ArrowUp": case "z":
                         ind_piece_select = (ind_piece_select+1)%nb_choose;
-                        ws.send(JSON.stringify({'type':'action' ,'action': ['choose',game.choices[ind_piece_select]]}));
+                        ws.send(JSON.stringify({'mess_type':'action' ,'action': ['choose',game.choices[ind_piece_select]]}));
                     break; 
                     case "ArrowLeft": case "q":
-                        ws.send(JSON.stringify({'type':'action' ,'action': ['hor_move', -1]}));
+                        ws.send(JSON.stringify({'mess_type':'action' ,'action': ['hor_move', -1]}));
                     break; 
                     case "Enter":
-                        ws.send(JSON.stringify({'type':'action' ,'action': ['valid']}));
+                        ws.send(JSON.stringify({'mess_type':'action' ,'action': ['valid']}));
                     break; 
                     default :
                        console.log("touches non allouées");
@@ -166,7 +208,8 @@
             ws.onopen = function (event) {
                 var msg = {
                     name: "nao",
-                    active: true
+                    active: true,
+                    type: "Human"
                 };
                 ws.send(JSON.stringify(msg));
             };
@@ -174,13 +217,26 @@
                 var data = JSON.parse(event.data);
                 console.log(data);
                 switch(data.step){
-                    case "init" :
+                    case "connect":
+                        id = data.pid;
+                    break;
+                    case "menu":
+                        tabJ = data.clients;
+                        tabG = data.games;
+                        //Il faut récupèrer les différents ID.
+                        //tabJID
+                        //tabGID
+                        displayJ();
+                        displayG();
+                        break;
+                    case "init_game" :
                         console.log(this);
                         kinds = data.kinds;
                         color = data.color;
-                        id = data.nid;
                         nb_player = data.nb_player;
                         nb_choose = data.nb_choose;
+                        gid = data.gid;
+                        igid = data.id_in_game;
                         drawGame();
                         //mettre en place la taille de la grille
                         break;
@@ -189,19 +245,17 @@
                         game.grid = data.grid;
                         game.score = data.score;
                         game.choices = data.pieces;
+                        game.turn = data.turn;
+                        actual_player = data.actual_player;
                         drawGame();
-                        break;
-                    case "menu":
-                        tabJ = data.clients;
-                        tabG = data.games;
-                        //tabJID
-                        //tabGID
-                        afficheJ();
-                        afficheG();
                         break;
                     case "finished" :
                         in_game=false;
                         game.grid = data.grid;
+                        game.score = data.score;
+                        game.choices = data.pieces;
+                        game.turn = data.turn;
+                        actual_player = data.actual_player;
                         drawGame();
           
                     default :
@@ -334,7 +388,11 @@
     
                 root.addChild(score);
             });
+            var disp_turn = new createjs.Text("Tour :" + game.turn, "20px Arial", "black");
+            disp_turn.x = screen.left + 20;
+            disp_turn.y = screen.top + 20 + 20*(nb_player+1);
             
+            root.addChild(disp_turn);
             update();
         }
 
