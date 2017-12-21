@@ -51,7 +51,7 @@ class Subject:
             self.unbind_client(client)
         print("game " + self.gid + "close")
 
-    async def set_action(self, command, value):
+    async def set_action(self, command):
         pass
 
     def get_etat(self):
