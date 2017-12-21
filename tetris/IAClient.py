@@ -12,13 +12,13 @@ URI = gp.ADRESSE + str(gp.PORT)
 
 class IAClient:
 
-    def __init__(self, name, active):
+    def __init__(self, name, active,my_ia):
         self.my_socket = None
         self.keep_connection = True
-        self.my_ia = IA.IA(IA.random_ia)
+        self.my_ia = my_ia
         self.name = name
         self.nid = None
-        self.id_in_game = None
+        self.id_in_game = None # different {gid1:[id1,id2...],gid2:[id1,id2...]}
         self.last_turn = None
         self.active = active
 
@@ -49,7 +49,7 @@ class IAClient:
             if data["actual_player"] == self.id_in_game:
                 await self.play(data)
         elif data["step"] == "suggest":
-            if data["actual_player"] == self.id_in_game:
+            if data["actual_player"] in self.id_in_game:
                 await self.suggest(data)
         elif data["step"] == "finished":
             self.finished(data)
@@ -64,7 +64,7 @@ class IAClient:
 
     def init_game(self, data):
         self.keep_connection = True
-        self.id_in_game = data["id_in_game"]
+        self.id_in_game[data["gid"]] = data["id_in_game"]
         print("Succesfull game connection id_in_game:", str(self.id_in_game))
 
     def init_connect(self, data):
@@ -94,7 +94,7 @@ class IAClient:
 
 
 async def run(name="IA", active=False):
-    my_client = IAClient(name, active)
+    my_client = IAClient(name, active, IA.IA(IA.random_ia))
     my_client.make_connection_to_server()
     while my_client.my_socket is None:
         await asyncio.sleep(0)

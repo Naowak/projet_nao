@@ -14,7 +14,7 @@ class Client:
         self.ws = ws
         self.name = name
         self.id = cid
-        self.id_in_game = None
+        self.id_in_game = []
         self.state = Client.State.FREE
         self.active = active
         self.connect = True
@@ -45,7 +45,7 @@ class Client:
                 print("Error message receive : step unknown")
 
     async def request_unlink(self, mess):
-        if self.state == Client.State.OBSERVE and mess["gid"]:
+        if self.state == Client.State.OBSERVE and game.gid == mess["gid"]:
             await self.server.unlink_game(self)
         else:
             print_error("Error message receive :" + self.name +
@@ -54,7 +54,7 @@ class Client:
     async def request_new_game(self, mess):
         if self.state == Client.State.FREE:
             await self.server.new_game(
-                mess["players"], mess["observers"], mess["IA"])
+                mess["players"], mess["observers"], mess["IAs"])
         else:
             print_error("Error message receive :" + self.name +
                         "(" + str(self.id) + "): already in game/observation", mess)
@@ -67,7 +67,7 @@ class Client:
                         "(" + str(self.id) + "): already in game/observation", mess)
 
     async def request_action(self, mess):
-        if self.state == Client.State.PLAY and self.game.actual_player == self.id_in_game:
+        if self.state == Client.State.PLAY and self.game.actual_player in self.id_in_game:
             await self.game.set_action(mess["action"])
         else:
             if self.state == Client.State.PLAY:

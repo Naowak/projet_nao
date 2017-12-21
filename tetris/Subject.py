@@ -15,6 +15,7 @@ class Subject:
 
     def unbind_client(self, client):
         client.state = Client.Client.State.FREE
+        client.game = None
         print(client.name + "leave the game " + self.gid)
         if self.clients["players"][client.id]:
             del self.clients["players"][client.id]
