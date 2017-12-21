@@ -75,8 +75,8 @@ class Server:
 
 
     async def init_ia(self):
-        for level in gp.LEVELS:
-            asyncio.ensure_future(IAClient.run(name="IA"+level))
+        for level,levelname in enumerate(gp.LEVELS):
+            asyncio.ensure_future(IAClient.create_ia("IA_SERVER_LVL"+levelname,level))
             
 
 
@@ -85,7 +85,8 @@ class Server:
         mess = json.loads(mess)
         client = Client.Client(
             self, mess["name"], sock, self.next_connect_id)
-        if mess["type"] == "IA_play":
+        if "level" in mess:
+            print(self.my_ias)
             self.my_ias[mess["level"]] = client
         else:
             self.my_clients[client.id] = client                
@@ -100,7 +101,7 @@ class Server:
         data = {}
         data["step"] = "menu"
         data["clients"] = [str(i) for i in self.my_clients.values()]
-        data["games"] = [str(i.gid) + " : " + str(i.clients)\
+        data["games"] = [str(i.gid) + " : " + str(i.clients.values())\
                         for i in self.games.values()]
         return data
 
@@ -161,4 +162,5 @@ class Server:
 SERVER = Server()
 server_loop = asyncio.get_event_loop()
 server_loop.run_until_complete(SERVER.accept_connections(gp.PORT))
+asyncio.ensure_future(SERVER.init_ia())
 server_loop.run_forever()

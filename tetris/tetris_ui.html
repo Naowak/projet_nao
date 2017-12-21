@@ -94,7 +94,7 @@
         var gid;
         var igid;
         var actual_player;
-        var IA_level;
+        var IA_level=0;
         
         function fHH(){
             if(in_game){
@@ -128,10 +128,10 @@
                 if (confirm(attention)){
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
-                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'observers' : [] , 'IAs': [[IA_level,1], [IA_level,1]]}));
-                } 
+                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'observers' : [] , 'IAs': [[IA_level,2]]}));
+                }
             }else{
-                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'observers' : [] , 'IAs': [[IA_level,1], [IA_level,1]]}));
+                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'observers' : [] , 'IAs': [[IA_level,2]]}));
             }
         }
 
@@ -178,7 +178,7 @@
 
         function onkeypress(event) {
             //console.log(event);
-            if (in_game && actual_player == igid[0]){
+            if (in_game /*&& actual_player == igid[0]*/){
                 switch(event.key){
                     case "ArrowDown": case "s":
                         ws.send(JSON.stringify({'mess_type':'action' , 'action': ['rotate', 1]}));
@@ -197,19 +197,18 @@
                         ws.send(JSON.stringify({'mess_type':'action' ,'action': ['valid']}));
                     break; 
                     default :
-                       console.log("touches non allouées");
+                        console.log("touches non allouées");
                     break; 
                 }
             }
             return true;
         }
         function connexion() {
-             ws = new WebSocket("ws://127.0.0.1:9687");
+            ws = new WebSocket("ws://127.0.0.1:9687");
             ws.onopen = function (event) {
                 var msg = {
                     name: "nao",
-                    active: true,
-                    type: "Human"
+                    active: true
                 };
                 ws.send(JSON.stringify(msg));
             };

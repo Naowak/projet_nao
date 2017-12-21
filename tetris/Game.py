@@ -70,7 +70,7 @@ class Game(Subject.Subject):
 
     async def valid(self):
         valid = self.grid.drop_piece(
-            self.current_piece, self.actual_turn % gp.NOMBRE_DE_JOUEUR)
+            self.current_piece, self.actual_turn % self.nb_players)
         if not valid:
             self.is_finished = True
             self.grid.score[self.actual_player] = gp.SCORE_DEPASSEMENT
@@ -78,7 +78,7 @@ class Game(Subject.Subject):
             self.is_finished = True
         else:
             self.actual_turn += 1  # Le tour commence à 1
-            self.actual_player += 1 % self.nb_players
+            self.actual_player = (self.actual_player + 1) % self.nb_players                
             await self.init_turn()
 
     async def set_action(self, command):

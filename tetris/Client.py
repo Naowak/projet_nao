@@ -69,7 +69,7 @@ class Client:
         if self.state == Client.State.PLAY and self.game.actual_player in self.ids_in_game:
             await self.game.set_action(mess["action"])
         else:
-            if self.state == Client.State.PLAY:
+            if self.state != Client.State.PLAY:
                 print_error("Error message receive :" + self.name +
                             "(" + str(self.id) + "): not in game", mess)
             else:
