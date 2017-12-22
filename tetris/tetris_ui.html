@@ -95,10 +95,10 @@
         var igid;
         var actual_player;
         var IA_level=0;
+        var attention = 'Voulez-vous quitter la partie en cours ?';
         
         function fHH(){
             if(in_game){
-                var attention = 'Voulez-vous quitter la partie en cours ?';
                 if (confirm(attention)){
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
@@ -111,7 +111,6 @@
 
         function fHN(){
             if(in_game){
-                var attention = 'Voulez-vous quitter la partie en cours ?';
                 if (confirm(attention)){
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
@@ -124,7 +123,6 @@
 
         function fNN(){
             if(in_game){
-                var attention = 'Voulez-vous quitter la partie en cours ?';
                 if (confirm(attention)){
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
@@ -138,17 +136,25 @@
         function fO(){
             var rejid = 0;
             //TODO
-            ws.send(JSON.stringify({'mess_type':'link_game', rejid}));
+            //ws.send(JSON.stringify({'mess_type':'link_game', rejid}));
         }
         
         function displayJ(){
+            var indexp;
+            var idnom;
             var ul = document.getElementById("listJ");
-            var li = document.createElement("li");
+            var li;
             while (ul.firstChild) {
                 ul.removeChild(ul.firstChild);
             }
             for (var i = 0, c = tabJ.length; i < c; i++) {
+                li = document.createElement("li");
                 nom = tabJ[i];
+                indexp = nom.indexOf(':');
+                nom = nom.substring(0,indexp);
+                idnom = nom.substring(nom.indexOf('(') + 1 , nom.indexOf(')'));
+                nom = nom.substring(0,nom.indexOf('('));
+                nom = "Nom : "+nom+", ID :"+idnom;
                 li.appendChild(document.createTextNode(nom));
                 //li.setAttribute("id", nom);
                 ul.appendChild(li);
@@ -157,12 +163,15 @@
 
         function displayG(){
             var ul = document.getElementById("listP");
-            var li = document.createElement("li");
+            var li ;
             while (ul.firstChild) {
                 ul.removeChild(ul.firstChild);
             }
             for (var i = 0, c = tabG.length; i < c; i++) {
+                li = document.createElement("li");
                 nom = tabG[i];
+                nom = nom.charAt(0);
+                nom = "La partie numero :"+nom;
                 li.appendChild(document.createTextNode(nom));
                 //li.setAttribute("id", nom);
                 ul.appendChild(li);
@@ -193,7 +202,7 @@
                     case "ArrowLeft": case "q":
                         ws.send(JSON.stringify({'mess_type':'action' ,'action': ['hor_move', -1]}));
                     break; 
-                    case "Enter":
+                    case " ":
                         ws.send(JSON.stringify({'mess_type':'action' ,'action': ['valid']}));
                     break; 
                     default :
@@ -207,7 +216,7 @@
             ws = new WebSocket("ws://127.0.0.1:9687");
             ws.onopen = function (event) {
                 var msg = {
-                    name: "nao",
+                    name: "Rambo",
                     active: true
                 };
                 ws.send(JSON.stringify(msg));
