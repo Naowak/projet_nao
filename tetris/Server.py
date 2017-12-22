@@ -115,7 +115,7 @@ class Server:
         data = {}
         data["nb_choices"] = game.nb_choices
         data["step"] = "init_game"
-        data["gid"] = self.next_games_id
+        data["gid"] = game.gid
         data["ids_in_game"] = ids_in_game
         data["nb_player"] = game.nb_players
         data["kinds"] = {}
