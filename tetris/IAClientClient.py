@@ -10,7 +10,7 @@ import GlobalParameters as gp
 URI = gp.ADRESSE + str(gp.PORT)
 
 
-class IAClient:
+class IAClientClient:
 
     def __init__(self, name,my_ia,level=None):
         self.my_socket = None
@@ -19,8 +19,8 @@ class IAClient:
         self.name = name
         self.level = level
         self.pid = None
-        self.ids_in_game = {} # different {gid1:[id1,id2...],gid2:[id1,id2...]}
-        self.last_turn = None
+        self.ids_in_games = {} # different {gid1:[id1,id2...],gid2:[id1,id2...]}
+        self.last_turn = {}
 
     async def connect(self, uri=URI):
         self.my_socket = await websockets.connect(uri)
@@ -44,50 +44,64 @@ class IAClient:
 
     async def receive_msg(self):
         data = await self.receive_message()
-        print(data["step"])
+        #print(data["step"])
+        if data["step"] == "update":
+            self.update(data)
         if data["step"] == "connect":
             self.init_connect(data)
         elif data["step"] == "init_game":
             self.init_game(data)
         elif data["step"] == "game":
-            if data["actual_player"] in self.ids_in_game[data["gid"]]:
+            if data["actual_player"] in self.ids_in_games[data["gid"]] and\
+            data["actual_turn"]!= self.last_turn[data["gid"]]:
                 await self.play(data)
         elif data["step"] == "suggest":
-            if data["actual_player"] in self.ids_in_game[data["gid"]]:
+            if data["actual_player"] in self.ids_in_games[data["gid"]] and\
+            data["actual_turn"] != self.last_turn[data["gid"]]:
                 await self.suggest(data)
         elif data["step"] == "finished":
             self.finished(data)
         else:
             print("Error message receive : step unknown")
+    
+    def update(self,data):
+        gid_removed =[]
+        for key in self.ids_in_games.keys():
+            if not data["games"][key]:
+                gid_removed.append(key)
+        for gid in gid_removed:
+            del self.ids_in_games
+[gid]
             
-    def finished(self,data):
-        self.last_turn = None
-        self.ids_in_game = None
 
+    def finished(self,data):
+        del self.last_turn[data["gid"]]
+        del self.ids_in_games[data["gid"]]
+        
     def init_game(self, data):
         self.keep_connection = True
-        self.ids_in_game[data["gid"]] = data["ids_in_game"]
-        print("Succesfull game connection ids_in_game:", str(self.ids_in_game))
+        self.ids_in_games[data["gid"]] = data["ids_in_games"]
+        print("Succesfull game connection ids_in_games:", str(self.ids_in_games))
 
     def init_connect(self, data):
-        self.nid = data["pid"]
-        print("Succesfull server connection id:", str(self.nid))
+        self.pid = data["pid"]
+        print("Succesfull server connection id:", str(self.pid))
 
     async def play(self, data):
         dec = self.my_ia.play(data)
-        self.last_turn = data["turn"]
-        await self.send_message({"mess_type":"action","action": ["choose", dec.pop("choose")]})
+        self.last_turn[data["gid"]] = data["turn"]
+        await self.send_message({"gid": data["gid"], "mess_type": "action", "action": ["choose", dec.pop("choose")]})
         for (key, value) in dec.items():
-            await self.send_message({"mess_type":"action","action": [key, value]})
-        await self.send_message({"mess_type":"action","action": ["valid"]})
+            await self.send_message({"gid": data["gid"], "mess_type": "action", "action": [key, value]})
+        await self.send_message({"gid": data["gid"], "mess_type": "action", "action": ["valid"]})
         return data
 
     async def suggest(self, data):
         dec = self.my_ia.play(data)
-        self.last_turn = data["turn"]
-        await self.send_message({"mess_type":"action","action": ["choose", dec.pop("choose")]})
+        self.last_turn[data["gid"]] = data["turn"]
+        await self.send_message({"gid": data["gid"],"mess_type": "action", "action": ["choose", dec.pop("choose")]})
         for (key, value) in dec.items():
-            await self.send_message({"mess_type":"action","action": [key, value]})
+            await self.send_message({"gid": data["gid"], "mess_type": "action", "action": [key, value]})
 
     async def send_message(self, data):
         # print("send")
@@ -96,7 +110,7 @@ class IAClient:
 
 
 async def run(name):
-    my_client = IAClient(name,IA.IA(IA.random_ia))
+    my_client = IAClientClient(name,IA.IA(IA.random_ia))
     my_client.make_connection_to_server()
     while my_client.my_socket is None:
         await asyncio.sleep(0)
@@ -106,7 +120,7 @@ async def run(name):
 
 
 async def create_ia(name,level):
-    my_client = IAClient(name, IA.IA(IA.random_ia),level )
+    my_client = IAClientClient(name, IA.IA(IA.random_ia),level )
     my_client.make_connection_to_server()
     while my_client.my_socket is None:
         await asyncio.sleep(0)

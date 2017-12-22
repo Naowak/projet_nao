@@ -1,6 +1,4 @@
 #coding : utf-8
-import Client
-import copy
 
 class Subject:
     def __init__(self, gid, server):
@@ -9,29 +7,27 @@ class Subject:
         self.server = server
 
     def bind_player(self, client):
-        client.state = Client.Client.State.PLAY
+        #client.on_begin_game() deja appele par le serveur
         self.clients["players"][client.id] = client
         print(client.name, "play the game ", self.gid)
 
     def unbind_client(self, client):
-        client.state = Client.Client.State.FREE
-        client.game = None
+        client.on_quit_game(self)
         print(client.name, "leave the game ", self.gid)
         if self.clients["players"][client.id]:
-            del self.clients["players"][client.id]
-            return True
+            print("game cancelled")
+            self.quit()
         elif self.clients["observers"][client.id]:
             del self.clients["observers"][client.id]
-        return False
 
     def bind_viewer(self, viewer):
-        viewer.state = Client.Client.State.PLAY
+        viewer.on_view_game()
         self.clients["viewers"][viewer.id] = viewer
         print(viewer.name, "observe the game ", self.gid)
 
     async def notify_all_observers(self):
         mess = self.get_etat()
-        print("actual_player: ",mess["actual_player"])
+        print("actual_player: ", mess["actual_player"])
         for client in self.clients["players"].values():
             await self.server.send_message(client.ws, mess)
         for viewer in self.clients["viewers"].values():
@@ -48,7 +44,7 @@ class Subject:
             await self.server.send_message(viewers.ws, mess)
 
     def quit(self):
-        clients=[]
+        clients = []
         for client in self.clients["players"].values():
             clients.append(client)
         for client in self.clients["viewers"].values():
