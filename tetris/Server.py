@@ -27,6 +27,7 @@ class Server:
             await asyncio.sleep(0)
         game.quit()
         del self.games[game.gid]
+        self.actualise_server_info()
 
     async def unlink_game(self, client):
         client.game.unbind_client(client)

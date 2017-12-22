@@ -50,10 +50,10 @@ class IAClient:
         elif data["step"] == "init_game":
             self.init_game(data)
         elif data["step"] == "game":
-            if data["actual_player"] in self.ids_in_game:
+            if data["actual_player"] in self.ids_in_game[data["gid"]]:
                 await self.play(data)
         elif data["step"] == "suggest":
-            if data["actual_player"] in self.ids_in_game:
+            if data["actual_player"] in self.ids_in_game[data["gid"]]:
                 await self.suggest(data)
         elif data["step"] == "finished":
             self.finished(data)
@@ -114,6 +114,5 @@ async def create_ia(name,level):
         await my_client.receive_msg()
         await asyncio.sleep(0)
     print("end")
-    input()
 #
 # asyncio.get_event_loop().run_until_complete(main())

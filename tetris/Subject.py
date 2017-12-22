@@ -1,6 +1,6 @@
 #coding : utf-8
 import Client
-
+import copy
 
 class Subject:
     def __init__(self, gid, server):
@@ -16,7 +16,7 @@ class Subject:
     def unbind_client(self, client):
         client.state = Client.Client.State.FREE
         client.game = None
-        print(client.name + "leave the game " + self.gid)
+        print(client.name, "leave the game ", self.gid)
         if self.clients["players"][client.id]:
             del self.clients["players"][client.id]
             return True
@@ -47,8 +47,13 @@ class Subject:
         for viewers in self.clients["viewers"]:
             await self.server.send_message(viewers.ws, mess)
 
-    def quit(self, client):
-        for client in self.clients:
+    def quit(self):
+        clients=[]
+        for client in self.clients["players"].values():
+            clients.append(client)
+        for client in self.clients["viewers"].values():
+            clients.append(client)
+        for client in clients:
             self.unbind_client(client)
         print("game ", self.gid, "close")
 

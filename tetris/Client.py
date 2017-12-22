@@ -75,6 +75,8 @@ class Client:
             else:
                 print_error("Error message receive :" + self.name +
                             "(" + str(self.id) + "): not his/her/its turn", mess)
+                print(self.game.gid)
+                print(self.ids_in_game)
 
 
 def print_error(error, mess):
