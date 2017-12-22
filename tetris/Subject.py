@@ -1,10 +1,9 @@
 #coding : utf-8
 
 class Subject:
-    def __init__(self, gid, server):
+    def __init__(self, gid):
         self.gid = gid
         self.clients = {"players": {}, "viewers": {}}
-        self.server = server
 
     def bind_player(self, client):
         #client.on_begin_game() deja appele par le serveur
@@ -29,19 +28,19 @@ class Subject:
         mess = self.get_etat()
         print("actual_player: ", mess["actual_player"])
         for client in self.clients["players"].values():
-            await self.server.send_message(client.ws, mess)
+            await client.send_message(mess)
         for viewer in self.clients["viewers"].values():
-            await self.server.send_message(viewer.ws, mess)
+            await viewer.send_message(mess)
 
     async def notify_player(self):
         mess = self.get_etat()
         for player in self.clients["players"].values():
-            await self.server.send_message(player.ws, mess)
+            await player.send_message(mess)
 
     async def notify_view(self):
         mess = self.get_etat()
-        for viewers in self.clients["viewers"]:
-            await self.server.send_message(viewers.ws, mess)
+        for viewer in self.clients["viewers"]:
+            await viewer.send_message(mess)
 
     def quit(self):
         clients = []
@@ -58,3 +57,13 @@ class Subject:
 
     def get_etat(self):
         pass
+
+    def __str__(self):
+        string_ret = "players: {"
+        for player in self.clients["players"].values():
+            string_ret += str(player)+" "
+        string_ret += "}; observers: {"
+        for obs in self.clients["viewers"].values():
+            string_ret += str(obs)+" "
+        string_ret += "}"
+        return string_ret

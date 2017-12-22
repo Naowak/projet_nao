@@ -38,16 +38,15 @@ class IAClientClient:
 
     async def receive_message(self):
         data = await self.my_socket.recv()
-        # print("receive")
-        # print(data)
+        print("receive on iaserver")
+        #print(data)
         return json.loads(data)
 
     async def receive_msg(self):
         data = await self.receive_message()
-        #print(data["step"])
         if data["step"] == "update":
             self.update(data)
-        if data["step"] == "connect":
+        elif data["step"] == "connect":
             self.init_connect(data)
         elif data["step"] == "init_game":
             self.init_game(data)
@@ -62,19 +61,17 @@ class IAClientClient:
         elif data["step"] == "finished":
             self.finished(data)
         else:
-            print("Error message receive : step unknown")
-    
+            print("Error Client message receive : step unknown")
+
     def update(self,data):
         gid_removed =[]
-        for key in self.ids_in_games.keys():
-            if not data["games"][key]:
+        for key in self.ids_in_games:
+            if not key in data["games"]:
                 gid_removed.append(key)
         for gid in gid_removed:
-            del self.ids_in_games
-[gid]
-            
+            del self.ids_in_games[gid]
 
-    def finished(self,data):
+    def finished(self, data):
         del self.last_turn[data["gid"]]
         del self.ids_in_games[data["gid"]]
         

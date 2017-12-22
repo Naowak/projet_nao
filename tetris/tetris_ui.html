@@ -42,23 +42,23 @@
         var PORT = 9687;
 
         var screen = {width: 0,
-                      height: 0,
-                      margin: 5,
-                      inner_width: 0,
-                      inner_height: 0,
-                      top: 0,
-                      left: 0,
-                      bottom: 0,
-                      right: 0};
+                    height: 0,
+                    margin: 5,
+                    inner_width: 0,
+                    inner_height: 0,
+                    top: 0,
+                    left: 0,
+                    bottom: 0,
+                    right: 0};
 
         var sidebar = {width: 0,
-                       columns: 6,
-                       right: 0,
-                       choices: {lines: 10,
-                                 height: 0,
-                                 left: 0,
-                                 bottom: 0},
-                       }
+                        columns: 6,
+                        right: 0,
+                        choices: {lines: 10,
+                                height: 0,
+                                left: 0,
+                                bottom: 0},
+                        }
 
         var grid = {columns: 10,
                     lines: 22,
@@ -115,7 +115,7 @@
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
                     ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'observers' : [] , 'IAs':[[IA_level,1]]}));
-                } 
+                }
             }else{
                 ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'observers' : [] , 'IAs':[[IA_level,1]]}));
             }
@@ -147,14 +147,14 @@
             while (ul.firstChild) {
                 ul.removeChild(ul.firstChild);
             }
-            for (var i = 0, c = tabJ.length; i < c; i++) {
+            for (var i in tabJ) {
                 li = document.createElement("li");
-                nom = tabJ[i];
-                indexp = nom.indexOf(':');
-                nom = nom.substring(0,indexp);
-                idnom = nom.substring(nom.indexOf('(') + 1 , nom.indexOf(')'));
-                nom = nom.substring(0,nom.indexOf('('));
-                nom = "Nom : "+nom+", ID :"+idnom;
+                //nom = tabJ.i;
+                //indexp = nom.indexOf(':');
+                //nom = nom.substring(0,indexp);
+                //idnom = nom.substring(nom.indexOf('(') + 1 , nom.indexOf(')'));
+                //nom = nom.substring(0,nom.indexOf('('));
+                nom = "Nom : "+tabJ.i+", ID :"+i;
                 li.appendChild(document.createTextNode(nom));
                 //li.setAttribute("id", nom);
                 ul.appendChild(li);
@@ -167,7 +167,7 @@
             while (ul.firstChild) {
                 ul.removeChild(ul.firstChild);
             }
-            for (var i = 0, c = tabG.length; i < c; i++) {
+            for (var i in tabG) {
                 li = document.createElement("li");
                 nom = tabG[i];
                 nom = nom.charAt(0);
@@ -186,8 +186,8 @@
         //------------------------------------------------------------------------------------------------------
 
         function onkeypress(event) {
-            //console.log(event);
             if (in_game /*&& actual_player == igid[0]*/){
+                console.log(event);
                 switch(event.key){
                     case "ArrowDown": case "s":
                         ws.send(JSON.stringify({'mess_type':'action' , 'action': ['rotate', 1]}));
@@ -210,16 +210,24 @@
                     break; 
                 }
             }
+            else{
+                console.log("Not in game!")
+            }
             return true;
         }
         function connexion() {
             ws = new WebSocket("ws://127.0.0.1:9687");
             ws.onopen = function (event) {
                 var msg = {
-                    name: "Rambo",
-                    active: true
+                    name: "Rambo"
                 };
-                ws.send(JSON.stringify(msg));
+                ws.send(JSON.stringify(msg))
+            };
+            ws.onerror = function (event) {
+                console.log(event);
+            };
+            ws.onclose = function (event) {
+                console.log(event);
             };
             ws.onmessage = (event) => {
                 var data = JSON.parse(event.data);
@@ -265,7 +273,7 @@
                         game.turn = data.turn;
                         actual_player = data.actual_player;
                         drawGame();
-          
+                        break;
                     default :
                         console.log("message non reconnu");
                         break;
@@ -333,11 +341,11 @@
         function drawBackground() {
             var boundary = new createjs.Shape();
             boundary.graphics
-                     .setStrokeStyle(1)
-                     .beginStroke("black")
-                     .drawRect(screen.left, screen.top, screen.inner_width, screen.inner_height)
-                     .moveTo(grid.left, grid.top)
-                     .lineTo(grid.left, grid.bottom);
+                    .setStrokeStyle(1)
+                    .beginStroke("black")
+                    .drawRect(screen.left, screen.top, screen.inner_width, screen.inner_height)
+                    .moveTo(grid.left, grid.top)
+                    .lineTo(grid.left, grid.bottom);
             root.addChild(boundary);
 
             var grid_lines = new createjs.Shape();
@@ -364,7 +372,7 @@
             root.addChild(grid_lines);
 
             //for(var i=0; i<grid.columns; i++)
-              //  drawColumnNumber(i);
+            //  drawColumnNumber(i);
 
             var choices_box = new createjs.Shape();
             choices_box.graphics
@@ -421,10 +429,10 @@
             var left = ref.left + x*grid.block_size;
             var top = ref.bottom - (y+1)*grid.block_size;
             block.graphics
-                 .beginFill(color)
-                 .drawRect(left, top, grid.block_size, grid.block_size)
-                 .endFill().beginStroke("black")
-                 .drawRect(left, top, grid.block_size, grid.block_size);
+                .beginFill(color)
+                .drawRect(left, top, grid.block_size, grid.block_size)
+                .endFill().beginStroke("black")
+                .drawRect(left, top, grid.block_size, grid.block_size);
 
             root.addChild(block);
         }
@@ -453,8 +461,7 @@
             drawInfo();
             drawChoices();
             drawGrid();
-
             update();
         }
-      </script>
+    </script>
 </html>

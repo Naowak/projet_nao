@@ -10,8 +10,8 @@ class ClientServer(Client.Client):
         PLAY = "Play"
         OBSERVE = "Observe"
 
-    def __init__(self, server, name, ws, cid):
-        super().__init__(server, name, ws, cid)
+    def __init__(self, server, name, socket, cid):
+        super().__init__(server, name, socket, cid)
         self.ids_in_game = []
         self.state = ClientServer.State.FREE
         self.game = None
@@ -44,8 +44,6 @@ class ClientServer(Client.Client):
         else:
             super.print_error("Error message receive IA_Server :" + self.name +\
                                 "(" + str(self.id) + "): not his/her/its turn", mess)
-            print(self.game.gid)
-            print(self.ids_in_game)
 
     def on_quit_game(self, game):
         self.ids_in_game = []
@@ -56,6 +54,12 @@ class ClientServer(Client.Client):
         self.ids_in_game = ids_in_game
         self.state = ClientServer.State.PLAY
         self.game = game
+
+    def on_disconnect(self):
+        if self.state == ClientServer.State.PLAY or\
+            self.state == ClientServer.State.OBSERVE:
+            self.on_quit_game(self.game)
+        super().on_disconnect()        
 
     def on_view_game(self, game):
         self.ids_in_game = []

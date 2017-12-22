@@ -32,5 +32,10 @@ class IAClientServer(Client.Client):
         self.games[game.gid] = game
         self.ids_in_games[game.id] = ids_in_game
 
+    def on_disconnect(self):
+        print("Houston nous avons un probleme!")
+        super().on_disconnect()
+        assert(False)
+
     def on_view_game(self, game):
         print("IA doesn't view game")

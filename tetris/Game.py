@@ -13,9 +13,9 @@ import copy
 
 class Game(Subject.Subject):
 
-    def __init__(self, gid, server,\
+    def __init__(self, gid, \
         nb_players, nb_turn, nb_choices):
-        super().__init__(gid, server)
+        super().__init__(gid)
         self.grid = State.State()
         self.is_finished = False
         self.actual_turn = 0
