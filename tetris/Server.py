@@ -27,7 +27,7 @@ class Server:
             await asyncio.sleep(0)
         game.quit()
         del self.games[game.gid]
-        self.actualise_server_info()
+        await self.actualise_server_info()
 
     async def unlink_game(self, client):
         client.game.unbind_client(client)
@@ -87,7 +87,6 @@ class Server:
         client = Client.Client(
             self, mess["name"], sock, self.next_connect_id)
         if "level" in mess:
-            print(self.my_ias)
             self.my_ias[mess["level"]] = client
         else:
             self.my_clients[client.id] = client                
@@ -128,7 +127,7 @@ class Server:
         data["color"] = {}
         for (key, color) in Piece.Piece.colors.items():
             data["color"][key] = color.value
-        print(ids_in_game)
+        #print(ids_in_game)
         return data
 
     def accept_connections(self, port):
