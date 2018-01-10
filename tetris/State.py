@@ -15,7 +15,6 @@ class State:
         self.clear_rotation_vue()
         while not self.is_piece_blocked(piece):
             piece.center[1] -= 1
-            print(piece.center)
         for block in piece.blocks:
             self.grid[int(piece.center[0] + block[0])]\
 			[int(piece.center[1] + block[1])] = piece.color
@@ -56,13 +55,10 @@ class State:
         for block in piece.blocks:
             #Arrive en bas de la grille
             if piece.center[1] + block[1] == 0:
-                print("Arret 0")
                 return True
             #La case en dessous n'est pas vide
             if self.grid[int(piece.center[0] + block[0])][int(piece.center[1] + block[1] - 1)] != Block.Block.Empty\
             and self.grid[int(piece.center[0] + block[0])][int(piece.center[1] + block[1] - 1)] != "White" :
-                print("Arret 1")
-                print(self.grid[int(piece.center[0] + block[0])][int(piece.center[1] + block[1] - 1)])
                 return True
         return False
 
