@@ -24,7 +24,6 @@ def random_ia(state):
     return {"hor_move":hor_move, "rotate":rotat, "choose":piece}
 
 def basic_smart_ia(state) :
-	print("Début réflexion")
 	pieces = copy.copy(state["pieces"])
 	scores = []
 	compteur = 0
@@ -33,7 +32,6 @@ def basic_smart_ia(state) :
 		for rotation in range(0,4,1) :
 			for move in range(-5,7,1) :
 				play = {"choose":kind, "rotate":rotation, "hor_move":move}
-				print(play)
 				grid_tmp = State.State(copy_grid(state["grid"]))
 				p = Piece.Piece.factory(kind, copy.copy(Piece.Piece.centers_init[kind]))
 				for _ in range(rotation) :
@@ -41,9 +39,8 @@ def basic_smart_ia(state) :
 				if(State.is_piece_accepted_abscisse(p, p.center[0] + p.block_control[0] + move)) :
 					p.center[0] += move
 					r = grid_tmp.drop_piece(p, 0)
+					print(grid_tmp)
 					scores += [[play, grid_tmp.score[0]]]
-					if kind == "O" :
-						print(play, grid_tmp)
 
 	scores.sort(key=lambda x : x[1], reverse=True)
 	best = scores[0][1]
@@ -51,7 +48,8 @@ def basic_smart_ia(state) :
 	for s in scores :
 		if s[1] >= best :
 			best_plays += [s]
-	#print(best_plays)
+	if best > 0 :
+		print(best_plays)
 	play_send = random.choice(best_plays)[0]
 	print(play_send)
 	return play_send

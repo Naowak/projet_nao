@@ -74,7 +74,7 @@ class Server:
                 data["kinds"][key] += [[float(block[0][0]), float(block[1][0])]]
         data["color"] = {}
         for (key, color) in Piece.Piece.colors.items():
-            data["color"][key] = color.value
+            data["color"][key] = color
         return data
 
     def accept_connections(self, port):
@@ -129,3 +129,9 @@ class Server:
     #             self.disconnect_viewer(websocket, data["name"])
 
 
+if __name__ == "__main__" :
+    SERVER = Server()
+    SERVER_LOOP = asyncio.get_event_loop()
+    SERVER_LOOP.run_until_complete(SERVER.accept_connections(gp.PORT))
+    asyncio.ensure_future(SERVER.run_server())
+    SERVER_LOOP.run_forever()

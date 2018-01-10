@@ -7,7 +7,9 @@ import websockets
 
 import IA
 import GlobalParameters as gp
+
 URI = gp.ADRESSE + str(gp.PORT)
+IA_STRATEGIE = IA.basic_smart_ia
 
 
 class IAClient:
@@ -15,7 +17,7 @@ class IAClient:
     def __init__(self, name):
         self.my_socket = None
         self.keep_connection = True
-        self.my_ia = IA.IA(IA.basic_smart_ia)
+        self.my_ia = IA.IA(IA_STRATEGIE)
         self.name = name
         self.nid = None
         self.last_turn=-1
@@ -75,4 +77,5 @@ async def run():
         await my_client.action()
         await asyncio.sleep(0)
 
-#asyncio.get_event_loop().run_until_complete(run())
+if __name__ == "__main__" :
+    asyncio.get_event_loop().run_until_complete(run())

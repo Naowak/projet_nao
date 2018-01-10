@@ -14,6 +14,7 @@ class State:
     def drop_piece(self, piece, player):
         self.clear_rotation_vue()
         while not self.is_piece_blocked(piece):
+            print("On descend")
             piece.center[1] -= 1
         for block in piece.blocks:
             self.grid[int(piece.center[0] + block[0])]\
@@ -55,44 +56,39 @@ class State:
         for block in piece.blocks:
             #Arrive en bas de la grille
             if piece.center[1] + block[1] == 0:
+                print("coucou")
                 return True
             #La case en dessous n'est pas vide
-            if self.grid[int(piece.center[0] + block[0])][int(piece.center[1] + block[1] - 1)] != Block.Block.Empty\
-            and self.grid[int(piece.center[0] + block[0])][int(piece.center[1] + block[1] - 1)] != "White" :
+            print(self.grid[int(piece.center[0] + block[0])][int(piece.center[1] + block[1] - 1)])
+            if self.grid[int(piece.center[0] + block[0])][int(piece.center[1] + block[1] - 1)] != Block.Block.Empty :
+                print("coucou2")
                 return True
         return False
 
     def line_complete(self):
-        print("1")
         j = 0
         compteur = 0
         while j < gp.TAILLE_Y_LIMITE:
-            print("2")
             test = True
             for i in range(gp.TAILLE_X):
-                print("Ligne : ", self.grid[i][j], Block.Block.Empty)
-                if self.grid[i][j] == Block.Block.Empty:
-                    #ligne pas complète
+                a = Block.Block.Empty
+                if(Block.Block.Empty == self.grid[i][j]):
                     test = False
-            print("3")
             if test:
                 #ligne numero j complète
                 compteur += 1
-                print('4')
                 for k in range(j+1, gp.TAILLE_Y_LIMITE - 1):
                     for i in range(gp.TAILLE_X):
                         #On descend tout ce qui est au dessus de j
                         self.grid[i][k-1] = self.grid[i][k]
-                print('5')
                 for i in range(gp.TAILLE_X):
+                    #print("coucou")
                     #on a tout descendu, donc la ligne du dessus est propre.
                     self.grid[i][gp.TAILLE_Y_LIMITE-1] = Block.Block.Empty
             else:
-                print("10")
                 #si l'on a supprimé la ligne j, \
 				# pas besoin d'augmenter d'ordonnee (ce serait une erreur)
                 j += 1
-        print("11")
         return compteur
 
 
@@ -106,7 +102,7 @@ class State:
         string += "\n"
         for j in reversed(range(gp.TAILLE_Y_LIMITE, gp.TAILLE_Y)):
             for i in range(gp.TAILLE_X):
-                color = self.grid[i][j]
+                color = self.grid[i][j][0]
                 if color == 'W':
                     color = '_'
                 string += str(color) + " "
@@ -116,8 +112,8 @@ class State:
         string += "\n"
         for j in reversed(range(gp.TAILLE_Y_LIMITE)):
             for i in range(gp.TAILLE_X):
-                color = self.grid[i][j]
-                if color == 'White':
+                color = self.grid[i][j][0]
+                if color == 'W':
                     color = '_'
                 string += str(color) + " "
             string += "\n"
@@ -125,7 +121,7 @@ class State:
         return string
 
     def encode_to_json(self):
-        serialize = {"score":self.score, "grid":[[j.value for j in i] for i in self.grid]}
+        serialize = {"score":self.score, "grid":[[j for j in i] for i in self.grid]}
         return serialize
 
 
