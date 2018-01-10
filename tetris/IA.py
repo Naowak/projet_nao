@@ -39,7 +39,6 @@ def basic_smart_ia(state) :
 				if(State.is_piece_accepted_abscisse(p, p.center[0] + p.block_control[0] + move)) :
 					p.center[0] += move
 					r = grid_tmp.drop_piece(p, 0)
-					print(grid_tmp)
 					scores += [[play, grid_tmp.score[0]]]
 
 	scores.sort(key=lambda x : x[1], reverse=True)
@@ -48,10 +47,7 @@ def basic_smart_ia(state) :
 	for s in scores :
 		if s[1] >= best :
 			best_plays += [s]
-	if best > 0 :
-		print(best_plays)
 	play_send = random.choice(best_plays)[0]
-	print(play_send)
 	return play_send
 
 

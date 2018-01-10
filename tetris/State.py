@@ -14,7 +14,7 @@ class State:
     def drop_piece(self, piece, player):
         self.clear_rotation_vue()
         while not self.is_piece_blocked(piece):
-            print("On descend")
+
             piece.center[1] -= 1
         for block in piece.blocks:
             self.grid[int(piece.center[0] + block[0])]\
@@ -56,12 +56,9 @@ class State:
         for block in piece.blocks:
             #Arrive en bas de la grille
             if piece.center[1] + block[1] == 0:
-                print("coucou")
                 return True
             #La case en dessous n'est pas vide
-            print(self.grid[int(piece.center[0] + block[0])][int(piece.center[1] + block[1] - 1)])
             if self.grid[int(piece.center[0] + block[0])][int(piece.center[1] + block[1] - 1)] != Block.Block.Empty :
-                print("coucou2")
                 return True
         return False
 
@@ -82,7 +79,6 @@ class State:
                         #On descend tout ce qui est au dessus de j
                         self.grid[i][k-1] = self.grid[i][k]
                 for i in range(gp.TAILLE_X):
-                    #print("coucou")
                     #on a tout descendu, donc la ligne du dessus est propre.
                     self.grid[i][gp.TAILLE_Y_LIMITE-1] = Block.Block.Empty
             else:
