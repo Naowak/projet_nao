@@ -31,11 +31,13 @@ class Client:
                     await self.request_link(mess)
                 else:
                     print("Error Server message receive : step unknown")
-                break
             except websockets.exceptions.ConnectionClosed:
                 print("WebSocketException: client disconnect! ")
                 self.connect = False
                 await self.server.disconnect_client(self)
+            except Exception as e:
+                print(e)
+                raise e
 
     async def request_unlink(self, mess):
         pass
@@ -64,7 +66,8 @@ class Client:
     async def send_message(self, mess):
         try:
             print("address to ", self.name)
-            print(mess)
+            if not (mess["step"] == "game") :
+                print(mess)
             await self.socket.send(json.dumps(mess))
         except websockets.exceptions.ConnectionClosed:
             print("WebSocketException: client disconnect! ")

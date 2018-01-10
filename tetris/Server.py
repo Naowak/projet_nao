@@ -25,6 +25,7 @@ class Server:
         await game.init_turn()
         await game.update()
         while not game.is_finished:
+            #print("sleep")
             await asyncio.sleep(0)
         game.quit()
         del self.games[game.gid]
@@ -39,23 +40,39 @@ class Server:
         #donner les ids in game et l'envoye dans le data_init_game
         players = {}
         next_ids_in_game = 0
-        for [pid, number] in players_id + ias:
-            #try:
-            for _ in range(number):
-                if self.my_clients[pid] in players:
-                    players[self.my_clients[pid]] += [next_ids_in_game]
-                else:
-                    players[self.my_clients[pid]] = [next_ids_in_game]
-                next_ids_in_game += 1
-            #except keyError as e:
-            #    print("Game cancelled : Player ",pid," doesn't exist")
-            #    print(e)
+        for [pid, number] in players_id:
+            try:
+                for _ in range(number):
+                    if self.my_clients[pid] in players:
+                        players[self.my_clients[pid]] += [next_ids_in_game]
+                    else:
+                        players[self.my_clients[pid]] = [next_ids_in_game]
+                    next_ids_in_game += 1
+            except KeyError as e:
+                print("Game cancelled : Player ",pid," doesn't exist")
+                print(e)
+                return
+
+        for [level, number] in ias:
+            try:
+                for _ in range(number):
+                    if self.my_ias[level] in players:
+                        players[self.my_ias[level]] += [next_ids_in_game]
+                    else:
+                        players[self.my_ias[level]] = [next_ids_in_game]
+                    next_ids_in_game += 1
+            except KeyError as e:
+                print("Game cancelled : IA level:",level," doesn't exist")
+                print(e)
+                return
+
         game = self.games[self.next_games_id] = \
                 Game.Game(self.next_games_id,\
                         nb_players=gp.NOMBRE_DE_JOUEUR,\
                         nb_turn=gp.NOMBRE_DE_TOUR,\
                         nb_choices=gp.NOMBRE_DE_CHOIX)
         self.next_games_id += 1
+        print(players)
         for player, ids_in_game in players.items():
             player.on_begin_game(game, ids_in_game)
             data = Server.data_init_game(game, ids_in_game)
@@ -65,7 +82,7 @@ class Server:
         for vid in viewers_id:
             self.my_clients[vid].on_view_game()
             game.bind_viewer(self.my_clients[vid])
-        asyncio.ensure_future(self.run_game(game)) 
+        asyncio.ensure_future(self.run_game(self.games[self.next_games_id-1]))
 
     async def init_ia(self):
         for [level, levelname] in enumerate(gp.LEVELS):
@@ -134,9 +151,11 @@ class Server:
 
     async def actualise_server_info(self):
         data = self.data_update()
-        for client in self.my_clients.values():
+        clients = self.my_clients.values()
+        ias = self.my_ias.values()
+        for client in clients:
             await client.send_message(data)
-        for ia_client in self.my_ias.values():
+        for ia_client in ias:
             await ia_client.send_message(data)
 
 SERVER = Server()

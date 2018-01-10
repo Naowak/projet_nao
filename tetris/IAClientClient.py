@@ -52,11 +52,11 @@ class IAClientClient:
             self.init_game(data)
         elif data["step"] == "game":
             if data["actual_player"] in self.ids_in_games[data["gid"]] and\
-            data["actual_turn"]!= self.last_turn[data["gid"]]:
+            data["turn"]!= self.last_turn[data["gid"]]:
                 await self.play(data)
         elif data["step"] == "suggest":
             if data["actual_player"] in self.ids_in_games[data["gid"]] and\
-            data["actual_turn"] != self.last_turn[data["gid"]]:
+            data["turn"] != self.last_turn[data["gid"]]:
                 await self.suggest(data)
         elif data["step"] == "finished":
             self.finished(data)
@@ -65,9 +65,11 @@ class IAClientClient:
 
     def update(self,data):
         gid_removed =[]
+        print(data["games"])
         for key in self.ids_in_games:
-            if not key in data["games"]:
+            if not str(key) in data["games"]:
                 gid_removed.append(key)
+        print("mon update ", gid_removed) 
         for gid in gid_removed:
             del self.ids_in_games[gid]
 
@@ -77,7 +79,8 @@ class IAClientClient:
         
     def init_game(self, data):
         self.keep_connection = True
-        self.ids_in_games[data["gid"]] = data["ids_in_games"]
+        self.ids_in_games[data["gid"]] = data["ids_in_game"]
+        self.last_turn[data["gid"]] = None
         print("Succesfull game connection ids_in_games:", str(self.ids_in_games))
 
     def init_connect(self, data):

@@ -30,7 +30,7 @@ class IAClientServer(Client.Client):
 
     def on_begin_game(self, game, ids_in_game):
         self.games[game.gid] = game
-        self.ids_in_games[game.id] = ids_in_game
+        self.ids_in_games[game.gid] = ids_in_game
 
     def on_disconnect(self):
         print("Houston nous avons un probleme!")

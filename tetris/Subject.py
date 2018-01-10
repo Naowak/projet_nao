@@ -49,7 +49,7 @@ class Subject:
         for client in self.clients["viewers"].values():
             clients.append(client)
         for client in clients:
-            self.unbind_client(client)
+            client.on_quit_game(self)
         print("game ", self.gid, "close")
 
     async def set_action(self, command):
