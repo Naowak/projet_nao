@@ -4,12 +4,12 @@ import Server
 import IAClient
 import GlobalParameters as gp
 import asyncio
-#import os
+import os
 import webbrowser
 
 async def javascript_run():
-    #os.system("gnome-open tetris_ui.html")
-    webbrowser.open("tetris_ui.html")
+    os.system("gnome-open tetris_ui.html")
+    #webbrowser.open("tetris_ui.html")
     #pass
 
 

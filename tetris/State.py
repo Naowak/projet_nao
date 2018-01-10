@@ -63,28 +63,36 @@ class State:
         return False
 
     def line_complete(self):
+        print("1")
         j = 0
         compteur = 0
         while j < gp.TAILLE_Y_LIMITE:
+            print("2")
             test = True
             for i in range(gp.TAILLE_X):
+                print("Ligne : ", self.grid[i][j], Block.Block.Empty)
                 if self.grid[i][j] == Block.Block.Empty:
                     #ligne pas complète
                     test = False
+            print("3")
             if test:
                 #ligne numero j complète
                 compteur += 1
+                print('4')
                 for k in range(j+1, gp.TAILLE_Y_LIMITE - 1):
                     for i in range(gp.TAILLE_X):
                         #On descend tout ce qui est au dessus de j
                         self.grid[i][k-1] = self.grid[i][k]
+                print('5')
                 for i in range(gp.TAILLE_X):
                     #on a tout descendu, donc la ligne du dessus est propre.
                     self.grid[i][gp.TAILLE_Y_LIMITE-1] = Block.Block.Empty
             else:
+                print("10")
                 #si l'on a supprimé la ligne j, \
 				# pas besoin d'augmenter d'ordonnee (ce serait une erreur)
                 j += 1
+        print("11")
         return compteur
 
 
