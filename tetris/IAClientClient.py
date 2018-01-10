@@ -50,7 +50,7 @@ class IAClientClient:
             self.init_connect(data)
         elif data["step"] == "init_game":
             self.init_game(data)
-        elif data["step"] == "game":
+        elif data["step"] == "game":r
             if data["actual_player"] in self.ids_in_games[data["gid"]] and\
             data["turn"]!= self.last_turn[data["gid"]]:
                 await self.play(data)
