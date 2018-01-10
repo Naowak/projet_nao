@@ -1,18 +1,21 @@
 # coding: utf-8
 import Block
+import copy
 
 import GlobalParameters as gp
 
 class State:
-    def __init__(self):
-        self.grid = [[Block.Block.Empty]*gp.TAILLE_Y for i in range(gp.TAILLE_X)]
+    grid_init = [[Block.Block.Empty]*gp.TAILLE_Y for i in range(gp.TAILLE_X)]
+
+    def __init__(self, grid = grid_init):
+        self.grid = copy.copy(grid)
         self.score = [0]*gp.NOMBRE_DE_JOUEUR
 
     def drop_piece(self, piece, player):
         self.clear_rotation_vue()
         while not self.is_piece_blocked(piece):
             piece.center[1] -= 1
-        #if self.is_piece_accepted_ordonne(piece):
+            print(piece.center)
         for block in piece.blocks:
             self.grid[int(piece.center[0] + block[0])]\
 			[int(piece.center[1] + block[1])] = piece.color
@@ -53,10 +56,13 @@ class State:
         for block in piece.blocks:
             #Arrive en bas de la grille
             if piece.center[1] + block[1] == 0:
+                print("Arret 0")
                 return True
             #La case en dessous n'est pas vide
-            if self.grid[int(piece.center[0] + block[0])]\
-			[int(piece.center[1] + block[1] - 1)] != Block.Block.Empty:
+            if self.grid[int(piece.center[0] + block[0])][int(piece.center[1] + block[1] - 1)] != Block.Block.Empty\
+            and self.grid[int(piece.center[0] + block[0])][int(piece.center[1] + block[1] - 1)] != "White" :
+                print("Arret 1")
+                print(self.grid[int(piece.center[0] + block[0])][int(piece.center[1] + block[1] - 1)])
                 return True
         return False
 
@@ -96,20 +102,20 @@ class State:
         string += "\n"
         for j in reversed(range(gp.TAILLE_Y_LIMITE, gp.TAILLE_Y)):
             for i in range(gp.TAILLE_X):
-                color = self.grid[i][j].value[0]
+                color = self.grid[i][j]
                 if color == 'W':
                     color = '_'
-                string += color + " "
+                string += str(color) + " "
             string += "\n"
         for i in range(gp.TAILLE_X):
             string += "--"
         string += "\n"
         for j in reversed(range(gp.TAILLE_Y_LIMITE)):
             for i in range(gp.TAILLE_X):
-                color = self.grid[i][j].value[0]
-                if color == 'W':
+                color = self.grid[i][j]
+                if color == 'White':
                     color = '_'
-                string += color + " "
+                string += str(color) + " "
             string += "\n"
         string += "SCORE:: " + str(self.score) + "\n"
         return string

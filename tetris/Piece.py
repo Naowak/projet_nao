@@ -82,3 +82,10 @@ class Piece:
         if test :
           self.blocks = new_blocks
           self.block_control = np.dot(coef, self.block_control)
+
+    def __str__(self) :
+      string = "[Kinds : " + self.kind
+      string += ", Blocks : " + str(self.blocks)
+      string += ", Center : " + str(self.center)
+      string += "]"
+      return string

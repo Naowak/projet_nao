@@ -15,7 +15,7 @@ class IAClient:
     def __init__(self, name):
         self.my_socket = None
         self.keep_connection = True
-        self.my_ia = IA.IA(IA.random_ia)
+        self.my_ia = IA.IA(IA.basic_smart_ia)
         self.name = name
         self.nid = None
         self.last_turn=-1
