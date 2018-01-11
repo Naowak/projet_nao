@@ -5,11 +5,20 @@ import copy
 import GlobalParameters as gp
 
 
+def copy_grid(grid) :
+        size = (len(grid), len(grid[0]))
+        new_grid = list()
+        for i in range(size[0]) :
+            new_grid += [list()]
+            for j in range(size[1]) :
+                new_grid[i] += [grid[i][j]]
+        return new_grid
+
 class State:
     grid_init = [[Block.Block.Empty]*gp.TAILLE_Y for i in range(gp.TAILLE_X)]
 
     def __init__(self, grid = grid_init):
-        self.grid = copy.copy(grid)
+        self.grid = copy_grid(grid)
         self.score = [0]*gp.NOMBRE_DE_JOUEUR
 
     def drop_piece(self, piece, player):
@@ -118,6 +127,8 @@ class State:
     def encode_to_json(self):
         serialize = {"score":self.score, "grid":[[j for j in i] for i in self.grid]}
         return serialize
+
+    
 
 
 def is_piece_accepted_ordonne(piece):

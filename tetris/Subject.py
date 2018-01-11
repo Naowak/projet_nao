@@ -3,6 +3,7 @@
 class Subject:
     def __init__(self, gid):
         self.gid = gid
+        self.is_finished = False
         self.clients = {"players": {}, "viewers": {}}
 
     def bind_player(self, client):
@@ -15,12 +16,12 @@ class Subject:
         print(client.name, "leave the game ", self.gid)
         if self.clients["players"][client.id]:
             print("game cancelled")
-            self.quit()
+            self.finished = True
         elif self.clients["observers"][client.id]:
             del self.clients["observers"][client.id]
 
     def bind_viewer(self, viewer):
-        viewer.on_view_game()
+        viewer.on_view_game(self)
         self.clients["viewers"][viewer.id] = viewer
         print(viewer.name, "observe the game ", self.gid)
 
@@ -51,6 +52,7 @@ class Subject:
         for client in clients:
             client.on_quit_game(self)
         print("game ", self.gid, "close")
+
 
     async def set_action(self, command):
         pass
