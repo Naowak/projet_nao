@@ -77,12 +77,19 @@ class Piece:
         new_blocks = []
         coef = np.array([[0, 1], [-1, 0]])
         test = True
-        for block in self.blocks:
-            new_blocks.append(np.dot(coef, block))
-        for block in new_blocks:
-            if (block[0] + self.center[0]) > 9 or (block[0] + self.center[0]) < 0:
-                #print("ad :", b[0])
-                test = False
-        if test:
-            self.blocks = new_blocks
-            self.block_control = np.dot(coef, self.block_control)
+        for b in self.blocks :
+          new_blocks.append(np.dot(coef, b))
+        for b in new_blocks :
+            if (b[0] + self.center[0]) > 9 or (b[0] + self.center[0]) < 0 :
+              #print("ad :", b[0])
+              test = False
+        if test :
+          self.blocks = new_blocks
+          self.block_control = np.dot(coef, self.block_control)
+
+    def __str__(self) :
+      string = "[Kinds : " + self.kind
+      string += ", Blocks : " + str(self.blocks)
+      string += ", Center : " + str(self.center)
+      string += "]"
+      return string

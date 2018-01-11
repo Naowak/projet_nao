@@ -2,7 +2,7 @@
 import enum
 
 
-class Block(enum.Enum):
+class Block():
     Empty = "White"
     Red = "Red"
     Blue = "Blue"

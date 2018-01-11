@@ -1,20 +1,21 @@
 # coding: utf-8
 import Block
+import copy
 
 import GlobalParameters as gp
 
 
 class State:
-    def __init__(self):
-        self.grid = [[Block.Block.Empty] *
-                     gp.TAILLE_Y for i in range(gp.TAILLE_X)]
-        self.score = [0] * gp.NOMBRE_DE_JOUEUR
+    grid_init = [[Block.Block.Empty]*gp.TAILLE_Y for i in range(gp.TAILLE_X)]
+
+    def __init__(self, grid = grid_init):
+        self.grid = copy.copy(grid)
+        self.score = [0]*gp.NOMBRE_DE_JOUEUR
 
     def drop_piece(self, piece, player):
         self.clear_rotation_vue()
         while not self.is_piece_blocked(piece):
             piece.center[1] -= 1
-        # if self.is_piece_accepted_ordonne(piece):
         for block in piece.blocks:
             self.grid[int(piece.center[0] + block[0])
                       ][int(piece.center[1] + block[1])] = piece.color
@@ -57,8 +58,8 @@ class State:
             # Arrive en bas de la grille
             if piece.center[1] + block[1] == 0:
                 return True
-            # La case en dessous n'est pas vide
-            if self.grid[int(piece.center[0] + block[0])][int(piece.center[1] + block[1] - 1)] != Block.Block.Empty:
+            #La case en dessous n'est pas vide
+            if self.grid[int(piece.center[0] + block[0])][int(piece.center[1] + block[1] - 1)] != Block.Block.Empty :
                 return True
         return False
 
@@ -68,8 +69,7 @@ class State:
         while j < gp.TAILLE_Y_LIMITE:
             test = True
             for i in range(gp.TAILLE_X):
-                if self.grid[i][j] == Block.Block.Empty:
-                    # ligne pas complète
+                if(Block.Block.Empty == self.grid[i][j]):
                     test = False
             if test:
                 # ligne numero j complète
@@ -97,27 +97,26 @@ class State:
         string += "\n"
         for j in reversed(range(gp.TAILLE_Y_LIMITE, gp.TAILLE_Y)):
             for i in range(gp.TAILLE_X):
-                color = self.grid[i][j].value[0]
+                color = self.grid[i][j][0]
                 if color == 'W':
                     color = '_'
-                string += color + " "
+                string += str(color) + " "
             string += "\n"
         for i in range(gp.TAILLE_X):
             string += "--"
         string += "\n"
         for j in reversed(range(gp.TAILLE_Y_LIMITE)):
             for i in range(gp.TAILLE_X):
-                color = self.grid[i][j].value[0]
+                color = self.grid[i][j][0]
                 if color == 'W':
                     color = '_'
-                string += color + " "
+                string += str(color) + " "
             string += "\n"
         string += "SCORE:: " + str(self.score) + "\n"
         return string
 
     def encode_to_json(self):
-        serialize = {"score": self.score, "grid": [
-            [j.value for j in i] for i in self.grid]}
+        serialize = {"score":self.score, "grid":[[j for j in i] for i in self.grid]}
         return serialize
 
 

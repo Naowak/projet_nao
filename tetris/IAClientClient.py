@@ -50,7 +50,7 @@ class IAClientClient:
             self.init_connect(data)
         elif data["step"] == "init_game":
             self.init_game(data)
-        elif data["step"] == "game":r
+        elif data["step"] == "game":
             if data["actual_player"] in self.ids_in_games[data["gid"]] and\
             data["turn"]!= self.last_turn[data["gid"]]:
                 await self.play(data)
@@ -120,7 +120,13 @@ async def run(name):
 
 
 async def create_ia(name,level):
-    my_client = IAClientClient(name, IA.IA(IA.random_ia),level )
+    IA_STRATEGIE = None
+    if level == 0 :
+        IA_STRATEGIE = IA.random_ia
+    elif level == 1 :
+        IA_STRATEGIE = IA.basic_smart_ia
+
+    my_client = IAClientClient(name, IA.IA(IA_STRATEGIE), level )
     my_client.make_connection_to_server()
     while my_client.my_socket is None:
         await asyncio.sleep(0)

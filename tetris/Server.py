@@ -135,12 +135,10 @@ class Server:
                                         float(block[1][0])]]
         data["color"] = {}
         for (key, color) in Piece.Piece.colors.items():
-            data["color"][key] = color.value
-        #print(ids_in_game)
+            data["color"][key] = color
         return data
 
     def accept_connections(self, port):
-        # , timeout=100
         return websockets.serve(self.connect, 'localhost', port)
 
     async def disconnect_client(self, client):
@@ -158,8 +156,9 @@ class Server:
         for ia_client in ias:
             await ia_client.send_message(data)
 
-SERVER = Server()
-SERVER_LOOP = asyncio.get_event_loop()
-SERVER_LOOP.run_until_complete(SERVER.accept_connections(gp.PORT))
-asyncio.ensure_future(SERVER.init_ia())
-SERVER_LOOP.run_forever()
+if __name__ == "__main__" :
+    SERVER = Server()
+    SERVER_LOOP = asyncio.get_event_loop()
+    SERVER_LOOP.run_until_complete(SERVER.accept_connections(gp.PORT))
+    asyncio.ensure_future(SERVER.init_ia())
+    SERVER_LOOP.run_forever()
