@@ -17,7 +17,6 @@ class Game(Subject.Subject):
         nb_players, nb_turn, nb_choices):
         super().__init__(gid)
         self.grid = State.State()
-        self.is_finished = False
         self.actual_turn = 0
         self.actual_player = 0
         self.actual_pieces = list()
@@ -72,10 +71,10 @@ class Game(Subject.Subject):
         valid = self.grid.drop_piece(
             self.current_piece, self.actual_turn % self.nb_players)
         if not valid:
-            self.is_finished = True
             self.grid.score[self.actual_player] = gp.SCORE_DEPASSEMENT
+            self.on_finish()
         elif self.actual_turn == self.nb_turn:
-            self.is_finished = True
+            self.on_finish()
         else:
             self.actual_turn += 1  # Le tour commence à 1
             self.actual_player = (self.actual_player + 1) % self.nb_players                
@@ -108,6 +107,9 @@ class Game(Subject.Subject):
         else:
             dico["step"] = "game"
         return dico
+
+    def on_finish(self) :
+        self.is_finished = True
 
 
 def ask_user_piece_choose(pieces_kind):
