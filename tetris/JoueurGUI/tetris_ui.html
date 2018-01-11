@@ -20,11 +20,15 @@
                     <li><a href="#" title="OP" onmousedown="fO()">Oberser une partie</a></li><br>
                 </ul>
             </center>
-            Niveau du Nao :
+            Niveau du Nao principal:
             <select id="levIA" onChange="nivIA()"> 
                 <option selected>0</option>
-            </select>
-            <h5>Joueur(s) connecté(s) :</h5>
+            </select><br>
+            Niveau du 2ème Nao :
+            <select id="levIA2" onChange="nivIA2()"> 
+                <option selected>0</option>
+            </select><br>
+            <h5>Joueur(s) connect&eacute(s) :</h5>
             <ol id='listJ' style="list-style-type:none;">
             </ol>
             <br><br>
@@ -93,6 +97,7 @@
         var igid;
         var actual_player;
         var IA_level=0;
+        var IA_level2=0;
         var attention = 'Voulez-vous quitter la partie en cours ?';
         
         function fHH(){
@@ -124,10 +129,10 @@
                 if (confirm(attention)){
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
-                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'observers' : [id] , 'IAs': [[parseInt(IA_level),2]]}));
+                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'observers' : [id] , 'IAs': [[parseInt(IA_level),1], [parseInt(IA_level2),1]]}));
                 }
             }else{
-                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'observers' : [id] , 'IAs': [[parseInt(IA_level),2]]}));
+                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'observers' : [id] , 'IAs': [[parseInt(IA_level),1], [parseInt(IA_level2),1]]}));
             }
         }
 
@@ -178,9 +183,13 @@
 
         function displayLevel(){
             var ul = document.getElementById("levIA");
+            var ul2 = document.getElementById("levIA2");
             var li ;
             while (ul.firstChild) {
                 ul.removeChild(ul.firstChild);
+            }
+            while (ul2.firstChild) {
+                ul2.removeChild(ul2.firstChild);
             }
 
             for (var i = 0, c = levels.length; i < c; i++) {
@@ -188,12 +197,22 @@
                 li = new Option (nom, parseInt(i));
                 ul.options.add(li);
             }
+            for (var i = 0, c = levels.length; i < c; i++) {
+                nom = levels[i];
+                li = new Option (nom, parseInt(i));
+                ul2.options.add(li);
+            }
 
         }
 
         function nivIA(){
             var select = document.getElementById("levIA" );
             IA_level = select.options[select.selectedIndex].value;
+        }
+
+        function nivIA2(){
+            var select = document.getElementById("levIA2" );
+            IA_level2 = select.options[select.selectedIndex].value;
         }
         
         //------------------------------------------------------------------------------------------------------
@@ -438,7 +457,7 @@
                     }
                 });
                 if(equality){
-                    var disp_win = new createjs.Text("EGALITÉ", "bold 20px Arial", "black");
+                    var disp_win = new createjs.Text("\351galit\351", "bold 20px Arial", "black");
                 }else{
                     var disp_win = new createjs.Text("Gagnant : J" +winner, "bold 20px Arial", "black");
                 }
