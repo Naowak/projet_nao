@@ -8,12 +8,12 @@
         <div id="Gauche" style="float:left">
             <canvas id="canvas"></canvas>
         </div>
-        <div id="Droite" style="float:right;clear:right;margin-right:20%;">
+        <div id="Droite" style="float:center;clear:right;">
             <center>
                 <h1>Le Super Tetris 2 joueurs</h1>
                 <h2>Oserez-vous affronter le terrible NAO ?</h2>
                 <br><br>
-                <ul id="navigation">
+                <ul id="navigation" style="list-style-type:none;">
                     <li><a href="#" title="HH" onclick="fHH()">Human VS Human</a></li><br>
                     <li><a href="#" title="HN" onclick="fHN()">Human VS NAO</a></li><br>
                     <li><a href="#" title="NN" onclick="fNN()">NAO VS NAO</a></li><br>
@@ -23,16 +23,13 @@
             Niveau du Nao :
             <select id="levIA" onChange="nivIA()"> 
                 <option selected>0</option>
-                <!-- <option>1</option>
-                <option>2</option> 
-                <option>3</option>  -->
             </select>
             <h5>Joueur(s) connecté(s) :</h5>
-            <ol id='listJ'>
+            <ol id='listJ' style="list-style-type:none;">
             </ol>
             <br><br>
             <h5>Partie(s) en cour(s) :</h5>
-            <ol id='listP'>
+            <ol id='listP' style="list-style-type:none;">
             </ol>
             <br><br>
         </div>
@@ -115,10 +112,10 @@
                 if (confirm(attention)){
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
-                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'observers' : [] , 'IAs':[[IA_level,1]]}));
+                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'observers' : [] , 'IAs':[[parseInt(IA_level),1]]}));
                 } 
             }else{
-                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'observers' : [] , 'IAs':[[IA_level,1]]}));
+                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'observers' : [] , 'IAs':[[parseInt(IA_level),1]]}));
             }
         }
 
@@ -127,10 +124,10 @@
                 if (confirm(attention)){
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
-                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'observers' : [id] , 'IAs': [[IA_level,2]]}));
+                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'observers' : [id] , 'IAs': [[parseInt(IA_level),2]]}));
                 }
             }else{
-                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'observers' : [id] , 'IAs': [[IA_level,2]]}));
+                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'observers' : [id] , 'IAs': [[parseInt(IA_level),2]]}));
             }
         }
 
@@ -188,7 +185,7 @@
 
             for (var i = 0, c = levels.length; i < c; i++) {
                 nom = levels[i];
-                li = new Option (nom, "v");
+                li = new Option (nom, parseInt(i));
                 ul.options.add(li);
             }
 
