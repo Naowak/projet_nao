@@ -14,10 +14,10 @@
                 <h2>Oserez-vous affronter le terrible NAO ?</h2>
                 <br><br>
                 <ul id="navigation" style="list-style-type:none;">
-                    <li><a href="#" title="HH" onclick="fHH()">Human VS Human</a></li><br>
-                    <li><a href="#" title="HN" onclick="fHN()">Human VS NAO</a></li><br>
-                    <li><a href="#" title="NN" onclick="fNN()">NAO VS NAO</a></li><br>
-                    <li><a href="#" title="OP" onclick="fO()">Oberser une partie</a></li><br>
+                    <li><a href="#" title="HH" onmousedown="fHH()">Human VS Human</a></li><br>
+                    <li><a href="#" title="HN" onmousedown="fHN()">Human VS NAO</a></li><br>
+                    <li><a href="#" title="NN" onmousedown="fNN()">NAO VS NAO</a></li><br>
+                    <li><a href="#" title="OP" onmousedown="fO()">Oberser une partie</a></li><br>
                 </ul>
             </center>
             Niveau du Nao :
@@ -199,6 +199,7 @@
         //------------------------------------------------------------------------------------------------------
 
         function onkeypress(event) {
+            event.preventDefault();
             console.log(event);
             if (in_game /*&& actual_player == igid[0]*/){
                 console.log("send messages");
