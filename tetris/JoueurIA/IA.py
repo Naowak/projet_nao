@@ -1,11 +1,13 @@
 # coding: utf-8
+import sys
+sys.path.append('../')
 import random
-import GlobalParameters as gp
-import State
-import Piece
 import copy
-import random
-import Block
+
+import GlobalParameters as gp
+from Jeu import State
+from Jeu import Piece
+from Jeu import Block
 
 URI = gp.ADRESSE + str(gp.PORT)
 

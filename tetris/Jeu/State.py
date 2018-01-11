@@ -1,9 +1,10 @@
 # coding: utf-8
-import Block
+import sys
+sys.path.append('../')
 import copy
 
 import GlobalParameters as gp
-
+from Jeu import Block
 
 def copy_grid(grid) :
         size = (len(grid), len(grid[0]))

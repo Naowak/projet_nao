@@ -1,4 +1,4 @@
-import Client
+from Serveur import Client
 
 class IAClientServer(Client.Client):
     def __init__(self, server, name, ws, cid):

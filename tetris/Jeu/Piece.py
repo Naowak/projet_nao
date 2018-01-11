@@ -1,9 +1,11 @@
 # coding: utf-8
+import sys
+sys.path.append('../')
 import copy
 
 import numpy as np
 
-import Block
+from Jeu import Block
 import GlobalParameters as gp
 
 

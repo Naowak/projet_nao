@@ -1,6 +1,6 @@
 import enum
 
-import Client
+from Serveur import Client
 
 
 class ClientServer(Client.Client):

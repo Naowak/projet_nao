@@ -1,14 +1,13 @@
 # coding : utf-8
-
+import sys
+sys.path.append('../')
 import random
-
-import GlobalParameters as gp
-import Piece
-import State
-import Subject
 import copy
 
-# absi = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+import GlobalParameters as gp
+from Jeu import Piece
+from Jeu import State
+from Jeu import Subject
 
 
 class Game(Subject.Subject):

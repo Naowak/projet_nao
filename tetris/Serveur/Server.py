@@ -1,15 +1,16 @@
 # coding : utf-8
-
+import sys
+sys.path.append('../')
 import asyncio
 import json
 import websockets
 
-import Game
+from Jeu import Game
 import GlobalParameters as gp
-import Piece
-import IAClientClient
-import IAClientServer
-import ClientServer
+from Jeu import Piece
+from JoueurIA import IAClientClient
+from Serveur import IAClientServer
+from Serveur import ClientServer
 
 
 class Server:
@@ -117,6 +118,7 @@ class Server:
         data = {}
         data["step"] = "connect"
         data["pid"] = client.id
+        data["levels"] = gp.LEVELS
         return data
 
     @classmethod

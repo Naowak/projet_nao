@@ -1,11 +1,12 @@
 # coding: utf-8
-
+import sys
+sys.path.append('../')
 import asyncio
 import json
 
 import websockets
 
-import IA
+from JoueurIA import IA
 import GlobalParameters as gp
 URI = gp.ADRESSE + str(gp.PORT)
 
