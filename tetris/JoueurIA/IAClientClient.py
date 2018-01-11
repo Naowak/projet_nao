@@ -39,7 +39,6 @@ class IAClientClient:
 
     async def receive_message(self):
         data = await self.my_socket.recv()
-        print("receive on iaserver")
         #print(data)
         return json.loads(data)
 
@@ -66,11 +65,9 @@ class IAClientClient:
 
     def update(self,data):
         gid_removed =[]
-        print(data["games"])
         for key in self.ids_in_games:
             if not str(key) in data["games"]:
                 gid_removed.append(key)
-        print("mon update ", gid_removed) 
         for gid in gid_removed:
             del self.ids_in_games[gid]
 
@@ -134,6 +131,5 @@ async def create_ia(name,level):
     while my_client.keep_connection:
         await my_client.receive_msg()
         await asyncio.sleep(0)
-    print("end")
 #
 # asyncio.get_event_loop().run_until_complete(main())

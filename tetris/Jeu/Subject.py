@@ -1,5 +1,5 @@
 #coding : utf-8
-
+import asyncio
 class Subject:
     def __init__(self, gid):
         self.gid = gid
@@ -7,27 +7,23 @@ class Subject:
         self.clients = {"players": {}, "viewers": {}}
 
     def bind_player(self, client):
-        #client.on_begin_game() deja appele par le serveur
         self.clients["players"][client.id] = client
-        print(client.name, "play the game ", self.gid)
+        print(client.name, "playerbind to the game ", self.gid)
 
     def unbind_client(self, client):
-        client.on_quit_game(self)
-        print(client.name, "leave the game ", self.gid)
         if self.clients["players"][client.id]:
             print("game cancelled")
-            self.finished = True
+            self.is_finished = True
         elif self.clients["observers"][client.id]:
+            client.on_quit_game(self)
             del self.clients["observers"][client.id]
 
     def bind_viewer(self, viewer):
-        viewer.on_view_game(self)
         self.clients["viewers"][viewer.id] = viewer
-        print(viewer.name, "observe the game ", self.gid)
+        print(viewer.name, "observebind to the game ", self.gid)
 
     async def notify_all_observers(self):
         mess = self.get_etat()
-        print("actual_player: ", mess["actual_player"])
         for client in self.clients["players"].values():
             await client.send_message(mess)
         for viewer in self.clients["viewers"].values():
@@ -51,7 +47,7 @@ class Subject:
             clients.append(client)
         for client in clients:
             client.on_quit_game(self)
-        print("game ", self.gid, "close")
+        print("Game ", self.gid, "close")
 
 
     async def set_action(self, command):

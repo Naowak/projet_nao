@@ -28,8 +28,9 @@ class Server:
         while not game.is_finished:
             #print("sleep")
             await asyncio.sleep(0)
-        game.quit()
         del self.games[game.gid]
+        game.quit()
+        print("Game ",game.gid," finished")
         await self.actualise_server_info()
 
     async def unlink_game(self, client, game):
@@ -73,7 +74,6 @@ class Server:
                         nb_turn=gp.NOMBRE_DE_TOUR,\
                         nb_choices=gp.NOMBRE_DE_CHOIX)
         self.next_games_id += 1
-        print(players)
         for player, ids_in_game in players.items():
             player.on_begin_game(game, ids_in_game)
             data = Server.data_init_game(game, ids_in_game)
@@ -83,7 +83,7 @@ class Server:
         for vid in viewers_id:
             self.my_clients[vid].on_view_game(game)
             game.bind_viewer(self.my_clients[vid])
-        asyncio.ensure_future(self.run_game(self.games[self.next_games_id-1]))
+        asyncio.ensure_future(self.run_game(game))
 
     async def init_ia(self):
         for [level, levelname] in enumerate(gp.LEVELS):

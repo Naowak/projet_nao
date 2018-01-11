@@ -1,4 +1,5 @@
 import enum
+import asyncio
 
 from Serveur import Client
 
@@ -15,15 +16,19 @@ class ClientServer(Client.Client):
         self.ids_in_game = []
         self.state = ClientServer.State.FREE
         self.game = None
+        self.unlink_request = False
 
     async def request_unlink(self, mess):
         if (self.state == ClientServer.State.OBSERVE or self.state == ClientServer.State.PLAY) and self.game.gid == mess["gid"]:
+            self.unlink_request = True
             await self.server.unlink_game(self,self.game)
         else:
             super().print_error("Error message receive :" + self.name +\
                         "(" + str(self.id) + "): not observe/play this game", mess)
 
     async def request_new_game(self, mess):
+        while self.unlink_request == True :
+            await asyncio.sleep(0)
         if self.state == ClientServer.State.FREE:
             await self.server.new_game(
                 mess["players"], mess["observers"], mess["IAs"])
@@ -46,14 +51,17 @@ class ClientServer(Client.Client):
                                 "(" + str(self.id) + "): not his/her/its turn", mess)
 
     def on_quit_game(self, game):
+        super().on_quit_game(game)
         self.ids_in_game = []
+        self.game = None        
         self.state = ClientServer.State.FREE
-        self.game = None
+        self.unlink_request = False
 
     def on_begin_game(self, game, ids_in_game):
+        super().on_begin_game(game,ids_in_game)
         self.ids_in_game = ids_in_game
-        self.state = ClientServer.State.PLAY
         self.game = game
+        self.state = ClientServer.State.PLAY
 
     def on_disconnect(self):
         if self.state == ClientServer.State.PLAY or\
@@ -62,6 +70,6 @@ class ClientServer(Client.Client):
         super().on_disconnect()        
 
     def on_view_game(self, game):
-        self.ids_in_game = []
+        super().on_view_game(game)
         self.state = ClientServer.State.OBSERVE
-        self.game = None
+        self.game = game

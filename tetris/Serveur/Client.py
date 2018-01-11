@@ -18,8 +18,8 @@ class Client:
         while self.connect:
             try:
                 mess = await self.socket.recv()
-                print("receive from ", self.name)
-                print(mess)
+                #print("receive from ", self.name)
+                #print(mess)
                 mess = json.loads(mess)
                 if mess["mess_type"] == "action":
                     await self.request_action(mess)
@@ -52,10 +52,10 @@ class Client:
         pass
 
     def on_quit_game(self, game):
-        pass
+        print(self.name," quit the game :",game.gid)
 
     def on_begin_game(self, game, ids_in_game):
-        pass
+        print(self.name," begin the game :",game.gid)
 
     def on_view_game(self, game):
         pass
@@ -65,9 +65,9 @@ class Client:
 
     async def send_message(self, mess):
         try:
-            print("address to ", self.name)
-            if not (mess["step"] == "game") :
-                print(mess)
+            #print("address to ", self.name)
+            #if not (mess["step"] == "game") :
+             #   print(mess)
             await self.socket.send(json.dumps(mess))
         except websockets.exceptions.ConnectionClosed:
             print("WebSocketException: client disconnect! ")
