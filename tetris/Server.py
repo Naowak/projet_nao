@@ -80,7 +80,7 @@ class Server:
             game.bind_player(player)
 
         for vid in viewers_id:
-            self.my_clients[vid].on_view_game()
+            self.my_clients[vid].on_view_game(game)
             game.bind_viewer(self.my_clients[vid])
         asyncio.ensure_future(self.run_game(self.games[self.next_games_id-1]))
 

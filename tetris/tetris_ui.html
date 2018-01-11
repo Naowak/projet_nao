@@ -8,7 +8,7 @@
         <div id="Gauche" style="float:left">
             <canvas id="canvas"></canvas>
         </div>
-        <div id="Droite" style="float:right;clear:right;margin-right:250px;">
+        <div id="Droite" style="float:right;clear:right;margin-right:20%;">
             <center>
                 <h1>Le Super Tetris 2 joueurs</h1>
                 <h2>Oserez-vous affronter le terrible NAO ?</h2>
@@ -91,6 +91,7 @@
         var nom;
         var tabJ;
         var tabG;
+        var levels;
         var gid;
         var igid;
         var actual_player;
@@ -147,14 +148,11 @@
             while (ul.firstChild) {
                 ul.removeChild(ul.firstChild);
             }
-            for (var i = 0, c = tabJ.length; i < c; i++) {
+            var clients = Object.keys(tabJ);
+            for (var i = 0, c = clients.length; i < c; i++) {
                 li = document.createElement("li");
-                nom = tabJ[i];
-                indexp = nom.indexOf(':');
-                nom = nom.substring(0,indexp);
-                idnom = nom.substring(nom.indexOf('(') + 1 , nom.indexOf(')'));
-                nom = nom.substring(0,nom.indexOf('('));
-                nom = "Nom : "+nom+", ID :"+idnom;
+                nom = clients[i];
+                nom = "Nom : "+tabJ[nom]+", ID :"+nom;
                 li.appendChild(document.createTextNode(nom));
                 //li.setAttribute("id", nom);
                 ul.appendChild(li);
@@ -167,15 +165,33 @@
             while (ul.firstChild) {
                 ul.removeChild(ul.firstChild);
             }
-            for (var i = 0, c = tabG.length; i < c; i++) {
+            var games = Object.keys(tabG);
+            var pls;
+            for (var i = 0, c = games.length; i < c; i++) {
+
                 li = document.createElement("li");
-                nom = tabG[i];
-                nom = nom.charAt(0);
-                nom = "La partie numero :"+nom;
+                nom = games[i];
+                pls = tabG[nom];
+                nom = "Partie numero : "+nom+", "+pls;
                 li.appendChild(document.createTextNode(nom));
                 //li.setAttribute("id", nom);
                 ul.appendChild(li);
             }
+        }
+
+        function displayLevel(){
+            var ul = document.getElementById("levIA");
+            var li ;
+            while (ul.firstChild) {
+                ul.removeChild(ul.firstChild);
+            }
+
+            for (var i = 0, c = levels.length; i < c; i++) {
+                nom = levels[i];
+                li = new Option (nom, "v");
+                ul.options.add(li);
+            }
+
         }
 
         function nivIA(){
@@ -204,7 +220,7 @@
                     case "ArrowLeft": case "q":
                         ws.send(JSON.stringify({'mess_type':'action' ,'action': ['hor_move', -1]}));
                     break; 
-                    case " ":
+                    case " ": case "Enter":
                         ws.send(JSON.stringify({'mess_type':'action' ,'action': ['valid']}));
                     break; 
                     default :
@@ -235,15 +251,14 @@
                 switch(data.step){
                     case "connect":
                         id = data.pid;
+                        levels = data.levels;
+                        displayLevel();
                     break;
                     case "update":
                         tabJ = data.clients;
                         tabG = data.games;
-                        //Il faut récupèrer les différents ID.
-                        //tabJID
-                        //tabGID
-                        //displayJ();
-                        //displayG();
+                        displayJ();
+                        displayG();
                         break;
                     case "init_game" :
                         console.log(this);

@@ -20,7 +20,7 @@ class Subject:
             del self.clients["observers"][client.id]
 
     def bind_viewer(self, viewer):
-        viewer.on_view_game()
+        viewer.on_view_game(self)
         self.clients["viewers"][viewer.id] = viewer
         print(viewer.name, "observe the game ", self.gid)
 
