@@ -88,7 +88,7 @@
         var in_game= false;
         var observer_type = "player"; 
 
-        //LA MERDE DE JIM ------------------------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------------
         var nom;
         var tabJ;
         var tabG;
@@ -257,7 +257,7 @@
                 ws.send(JSON.stringify(msg));
             };
             ws.onclose = function (event) {
-              console.log("WTF");              
+              console.log("La WebSocket s'est fermée");              
             };
             ws.onerror = function (event) {
               console.log("Error");              
