@@ -83,6 +83,8 @@ class Server:
         for vid in viewers_id:
             self.my_clients[vid].on_view_game(game)
             game.bind_viewer(self.my_clients[vid])
+            data = Server.data_init_game(game, [])
+            await self.my_clients[vid].send_message(data)
         asyncio.ensure_future(self.run_game(game))
 
     async def init_ia(self):
@@ -144,7 +146,7 @@ class Server:
         return websockets.serve(self.connect, 'localhost', port)
 
     async def disconnect_client(self, client):
-        client.on_disconnect()
+        await client.on_disconnect()
         del self.my_clients[client.id]
         print(str(client), " is unconnect")
         await self.actualise_server_info()

@@ -63,11 +63,11 @@ class ClientServer(Client.Client):
         self.game = game
         self.state = ClientServer.State.PLAY
 
-    def on_disconnect(self):
+    async def on_disconnect(self):
         if self.state == ClientServer.State.PLAY or\
             self.state == ClientServer.State.OBSERVE:
-            self.on_quit_game(self.game)
-        super().on_disconnect()        
+            await self.server.unlink_game(self,self.game)
+        await super().on_disconnect()        
 
     def on_view_game(self, game):
         super().on_view_game(game)

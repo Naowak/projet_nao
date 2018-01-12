@@ -60,7 +60,7 @@ class Client:
     def on_view_game(self, game):
         pass
 
-    def on_disconnect(self):
+    async def on_disconnect(self):
         self.socket.close()
 
     async def send_message(self, mess):

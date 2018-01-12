@@ -35,7 +35,7 @@ class IAClientServer(Client.Client):
         self.ids_in_games[game.gid] = ids_in_game
 
     def on_disconnect(self):
-        print(self.name, " : IA disconnect")
+        print_error("Error :",self.name, " : IA disconnect")
         super().on_disconnect()
         assert(False)
 
