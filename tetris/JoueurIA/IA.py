@@ -16,8 +16,12 @@ class IA:
     def __init__(self, strategy):
         self.strategy = strategy
 
-    def play(self, state):
-        return self.strategy(state)
+	def play(self,state):
+    	return self.strategy(state)
+
+	def on_finished_game(self):
+	pass
+
 
 
 def random_ia(state):

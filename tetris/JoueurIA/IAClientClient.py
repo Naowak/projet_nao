@@ -72,6 +72,7 @@ class IAClientClient:
             del self.ids_in_games[gid]
 
     def finished(self, data):
+        self.my_ia.on_finished_game()
         del self.last_turn[data["gid"]]
         del self.ids_in_games[data["gid"]]
         
@@ -86,7 +87,7 @@ class IAClientClient:
         print("Succesfull server connection id:", str(self.pid))
 
     async def play(self, data):
-        dec = self.my_ia.play(data)
+        dec = self.my_ia.play(data
         self.last_turn[data["gid"]] = data["turn"]
         await self.send_message({"gid": data["gid"], "mess_type": "action", "action": ["choose", dec.pop("choose")]})
         for (key, value) in dec.items():
