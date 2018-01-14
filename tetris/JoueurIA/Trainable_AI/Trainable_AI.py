@@ -1,20 +1,31 @@
 # coding: utf-8
 import sys
 sys.path.append('../')
+import asyncio
 
 from JoueurIA import IA
 from JoueurIA import IAClientClient
 
 class TrainableIA(IA.IA):
-    def __init__(self,name, file):
+    def __init__(self,name, file ):
         self.state = None
         self.my_client = None
         self.name = name
         self.file = file
 
-    def init_train(self):
+    async def init_train(self):
         self.my_client = IAClientClient.IAClientClient(self.name, self)
         self.my_client.make_connection_to_server()
+        print("Wait for connection")
+        while self.my_client.my_socket is None or self.my_client.pid is None:
+            await asyncio.sleep(0)
+        print("Connect")
+        asyncio.ensure_future(self.message_loop())
+
+    async def message_loop(self):
+        while self.my_client.keep_connection:
+            await self.my_client.receive_msg()
+            await asyncio.sleep(0)
 
     def play(self, state):
         pass
@@ -25,12 +36,13 @@ class TrainableIA(IA.IA):
     def on_finished_game(self,data):
         pass
 
-    def new_game(self,opposite_level):
+    async def new_game(self,opposite_level):
+        print("hello!")
         mess = {'mess_type': 'new_game',\
                 'players': [[self.my_client.pid,1]],\
-                'observers': [],\
-                'IAs': [opposite_level,1]}
-        self.my_client.send_message(mess)
+                'observers': [2],\
+                'IAs': [[opposite_level,1]]}
+        await self.my_client.send_message(mess)
 
     def save(self):
         pass

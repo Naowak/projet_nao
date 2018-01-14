@@ -87,7 +87,7 @@ class IAClientClient:
         print("Succesfull server connection id:", str(self.pid))
 
     async def play(self, data):
-        dec = self.my_ia.play(data
+        dec = self.my_ia.play(data)
         self.last_turn[data["gid"]] = data["turn"]
         await self.send_message({"gid": data["gid"], "mess_type": "action", "action": ["choose", dec.pop("choose")]})
         for (key, value) in dec.items():
