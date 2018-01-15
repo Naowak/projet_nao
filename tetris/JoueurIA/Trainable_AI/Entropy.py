@@ -11,7 +11,7 @@ from JoueurIA.Trainable_AI import Heuristic as H
 from JoueurIA.Trainable_AI import Trainable_AI
 
 class Genetic_IA(Trainable_AI.TrainableIA):
-    def __init__(self, name, heuristic, weights = None, file=None, selection_size = 3, population_size = 10, evaluate_size = 5):
+    def __init__(self, name, heuristic, weights = None, file=None, selection_size = 5, population_size = 50, evaluate_size = 5):
         super().__init__(name,file)
         self.weights = weights
         self.population = None
@@ -45,12 +45,12 @@ class Genetic_IA(Trainable_AI.TrainableIA):
             self.population.append(np.dot(np.random.randn(len(self.heuristic)),var) + ave)
 
     async def evaluate(self):
+        self.score = [0 for i in range(len(self.population))]
         for i in range(len(self.population)):
-            self.score[i] = 0
             self.current_game_is_finish = False
             self.current_eval = i
             for _ in range(self.evaluate_size):
-                await super().new_game(1)
+                await super().new_game(0)
                 while not self.current_game_is_finish:
                     await asyncio.sleep(0)
                 self.current_game_is_finish = False
@@ -97,8 +97,8 @@ class Genetic_IA(Trainable_AI.TrainableIA):
             return H.best_move(self.heuristic,self.weights,state)
 
     def on_finished_game(self,data):
-        if self.my_client.ids_in_games[data["gid"]] == np.argmax(data["score"]):
-            self.score[self.current_eval] += 1
+        ind = self.my_client.ids_in_games[data["gid"]][0]
+        self.score[self.current_eval] += data["score"][ind] - data["score"][(ind+1)%2]
         self.current_game_is_finish = True
 
     def save(self):

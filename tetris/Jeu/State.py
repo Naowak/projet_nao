@@ -74,9 +74,6 @@ class State:
         return False
 
     def line_complete(self):
-        f = open("backlog", "w+")
-        f.write("entrée fonction")
-        f.close()
         j = 0
         compteur = 0
         while j < gp.TAILLE_Y_LIMITE:
@@ -87,7 +84,7 @@ class State:
             if test:
                 # ligne numero j complète
                 compteur += 1
-                for k in range(j + 1, gp.TAILLE_Y_LIMITE - 1):
+                for k in range(j + 1, gp.TAILLE_Y_LIMITE):
                     for i in range(gp.TAILLE_X):
                         # On descend tout ce qui est au dessus de j
                         self.grid[i][k - 1] = self.grid[i][k]
@@ -98,9 +95,6 @@ class State:
                 # si l'on a supprimé la ligne j, \
                                 # pas besoin d'augmenter d'ordonnee (ce serait une erreur)
                 j += 1
-        f = open("backlog", "w+")
-        f.write("sortie fonction")
-        f.close()
         return compteur
 
     def __str__(self):
