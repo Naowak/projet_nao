@@ -72,7 +72,7 @@ class IAClientClient:
             del self.ids_in_games[gid]
 
     def finished(self, data):
-        self.my_ia.on_finished_game()
+        self.my_ia.on_finished_game(data)
         del self.last_turn[data["gid"]]
         del self.ids_in_games[data["gid"]]
         

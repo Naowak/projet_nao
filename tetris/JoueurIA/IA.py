@@ -19,7 +19,7 @@ class IA:
     def play(self,state):
         return self.strategy(state)
     
-    def on_finished_game(self):
+    def on_finished_game(self, data):
         pass
 
 

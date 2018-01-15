@@ -37,7 +37,6 @@ class TrainableIA(IA.IA):
         pass
 
     async def new_game(self,opposite_level):
-        print("hello!")
         mess = {'mess_type': 'new_game',\
                 'players': [[self.my_client.pid,1]],\
                 'observers': [2],\

@@ -74,6 +74,9 @@ class State:
         return False
 
     def line_complete(self):
+        f = open("backlog", "w+")
+        f.write("entrée fonction")
+        f.close()
         j = 0
         compteur = 0
         while j < gp.TAILLE_Y_LIMITE:
@@ -95,6 +98,9 @@ class State:
                 # si l'on a supprimé la ligne j, \
                                 # pas besoin d'augmenter d'ordonnee (ce serait une erreur)
                 j += 1
+        f = open("backlog", "w+")
+        f.write("sortie fonction")
+        f.close()
         return compteur
 
     def __str__(self):

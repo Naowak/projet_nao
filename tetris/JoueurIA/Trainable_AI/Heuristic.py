@@ -1,4 +1,5 @@
 import copy
+import random
 
 import GlobalParameters as gp
 from Jeu import Block
@@ -65,8 +66,8 @@ def line_transition(g_prec, g_next, action):
     cpt = 0
     for j in range(gp.TAILLE_Y_LIMITE):
         for i in range(gp.TAILLE_X - 1) :
-            if(g_next[i][j] == Block.Block.Empty and g_next[i+1][j] != Block.Block.Empty) or\
-                (g_next[i][j] != Block.Block.Empty and g_next[i+1][j] == Block.Block.Empty) :
+            if(g_next.grid[i][j] == Block.Block.Empty and g_next.grid[i+1][j] != Block.Block.Empty) or\
+                (g_next.grid[i][j] != Block.Block.Empty and g_next.grid[i+1][j] == Block.Block.Empty) :
                 cpt += 1
     return cpt
 
@@ -75,8 +76,8 @@ def column_transition(g_prec, g_next, action):
     cpt = 0
     for i in range(gp.TAILLE_X) :
         for j in range(gp.TAILLE_Y_LIMITE-1) :
-            if(g_next[i][j] == Block.Block.Empty and g_next[i][j+1] != Block.Block.Empty) or\
-                (g_next[i][j] != Block.Block.Empty and g_next[i][j+1] == Block.Block.Empty) :
+            if(g_next.grid[i][j] == Block.Block.Empty and g_next.grid[i][j+1] != Block.Block.Empty) or\
+                (g_next.grid[i][j] != Block.Block.Empty and g_next.grid[i][j+1] == Block.Block.Empty) :
                 cpt += 1
     return cpt
 
@@ -85,25 +86,25 @@ def holes(g_prec, g_next, action):
     cpt = 0
     for i in range(gp.TAILLE_X) :
         for j in range(gp.TAILLE_Y_LIMITE) :
-            if(g_next[i][j] == Block.Block.Empty) :
+            if(g_next.grid[i][j] == Block.Block.Empty) :
                 is_hole = True
                 try :
-                    if(g_next[i][j+1] == Block.Block.Empty) :
+                    if(g_next.grid[i][j+1] == Block.Block.Empty) :
                         is_hole = False
                 except IndexError :
                     pass
                 try :
-                    if(g_next[i][j-1] == Block.Block.Empty) :
+                    if(g_next.grid[i][j-1] == Block.Block.Empty) :
                         is_hole = False
                 except IndexError :
                     pass
                 try :
-                    if(g_next[i+1][j] == Block.Block.Empty) :
+                    if(g_next.grid[i+1][j] == Block.Block.Empty) :
                         is_hole = False
                 except IndexError :
                     pass
                 try :
-                    if(g_next[i-1][j] == Block.Block.Empty) :
+                    if(g_next.grid[i-1][j] == Block.Block.Empty) :
                         is_hole = False
                 except IndexError :
                     pass
@@ -118,94 +119,88 @@ def wells(g_prec, g_next, action) :
     for i in range(1, gp.TAILLE_X-1) :
         for j in range(1, gp.TAILLE_Y_LIMITE) :
             #si on est à la source d'un puit
-            if( g_next[i][j] == Block.Block.Empty and\
-                g_next[i-1][j] != Block.Block.Empty and\
-                g_next[i+1][j] != Block.Block.Empty and\
-                g_next[i][j-1] != Block.Block.Empty and\
-                g_next[i-1][j-1] != Block.Block.Empty and\
-                g_next[i+1][j-1] != Block.Block.Empty) :
+            if( g_next.grid[i][j] == Block.Block.Empty and\
+                g_next.grid[i-1][j] != Block.Block.Empty and\
+                g_next.grid[i+1][j] != Block.Block.Empty and\
+                g_next.grid[i][j-1] != Block.Block.Empty and\
+                g_next.grid[i-1][j-1] != Block.Block.Empty and\
+                g_next.grid[i+1][j-1] != Block.Block.Empty) :
                 #On trouve un puit ! On compte une case
                 cpt += 1
                 #puis on compte toute les autre en remontant le puit
                 add = 2
                 for k in range(j+1, gp.TAILLE_Y_LIMITE) :
-                    if g_next[i][k] == Block.Block.Empty and\
-                        g_next[i-1][k] != Block.Block.Empty and\
-                        g_next[i+1][k] != Block.Block.Empty :
+                    if g_next.grid[i][k] == Block.Block.Empty and\
+                        g_next.grid[i-1][k] != Block.Block.Empty and\
+                        g_next.grid[i+1][k] != Block.Block.Empty :
                         cpt += add
                         add += 1
                     else :
                         break
-                print("Puit en " + str(i) + " rapporte " + str(cpt))
                 break
 
 
     #cas si le puit est tout à gauche
     for j in range(1, gp.TAILLE_Y_LIMITE) :
-        if(g_next[0][j] == Block.Block.Empty and\
-            g_next[0][j-1] != Block.Block.Empty and\
-            g_next[1][j] != Block.Block.Empty and\
-            g_next[1][j-1] != Block.Block.Empty) :
+        if(g_next.grid[0][j] == Block.Block.Empty and\
+            g_next.grid[0][j-1] != Block.Block.Empty and\
+            g_next.grid[1][j] != Block.Block.Empty and\
+            g_next.grid[1][j-1] != Block.Block.Empty) :
             #on détecte un puit, on compte un case
             cpt += 1
             #on remonte le puit
             add = 2
             for k in range(j+1, gp.TAILLE_Y_LIMITE) :
-                if g_next[0][k] == Block.Block.Empty and\
-                    g_next[1][k] != Block.Block.Empty :
+                if g_next.grid[0][k] == Block.Block.Empty and\
+                    g_next.grid[1][k] != Block.Block.Empty :
                     cpt += add
                     add += 1
                 else :
                     break
-            print("Puit en " + str(0) + " rapporte " + str(cpt))
             break
 
     #cas tout à droite
     for j in range(1, gp.TAILLE_Y_LIMITE) :
-        if(g_next[gp.TAILLE_X-1][j] == Block.Block.Empty and\
-            g_next[gp.TAILLE_X-1][j-1] != Block.Block.Empty and\
-            g_next[gp.TAILLE_X-2][j] != Block.Block.Empty and\
-            g_next[gp.TAILLE_X-2][j-1] != Block.Block.Empty) :
+        if(g_next.grid[gp.TAILLE_X-1][j] == Block.Block.Empty and\
+            g_next.grid[gp.TAILLE_X-1][j-1] != Block.Block.Empty and\
+            g_next.grid[gp.TAILLE_X-2][j] != Block.Block.Empty and\
+            g_next.grid[gp.TAILLE_X-2][j-1] != Block.Block.Empty) :
             #on détecte un puit, on compte un case
             cpt += 1
             #on remonte le puit
             add = 2
             for k in range(j+1, gp.TAILLE_Y_LIMITE) :
-                if g_next[gp.TAILLE_X-1][k] == Block.Block.Empty and\
-                    g_next[gp.TAILLE_X-2][k] != Block.Block.Empty :
+                if g_next.grid[gp.TAILLE_X-1][k] == Block.Block.Empty and\
+                    g_next.grid[gp.TAILLE_X-2][k] != Block.Block.Empty :
                     cpt += add
                     add += 1
                 else :
                     break
-            print("Puit en " + str(0) + " rapporte " + str(cpt))
             break
 
     #coin gauche bas
-    if g_next[0][0] == Block.Block.Empty and\
-        g_next[1][0] != Block.Block.Empty :
+    if g_next.grid[0][0] == Block.Block.Empty and\
+        g_next.grid[1][0] != Block.Block.Empty :
         cpt += 1
         add = 2
         for k in range(1, gp.TAILLE_Y_LIMITE) :
-            if g_next[0][k] == Block.Block.Empty and\
-                g_next[1][k] != Block.Block.Empty :
+            if g_next.grid[0][k] == Block.Block.Empty and\
+                g_next.grid[1][k] != Block.Block.Empty :
                     cpt += add
                     add += 2
             else :
                 break
-        print("Puit en " + str(0) + " rapporte " + str(cpt))
 
     #coin droite bas
-    if g_next[gp.TAILLE_X-1][0] == Block.Block.Empty and\
-        g_next[gp.TAILLE_X-2][0] != Block.Block.Empty :
+    if g_next.grid[gp.TAILLE_X-1][0] == Block.Block.Empty and\
+        g_next.grid[gp.TAILLE_X-2][0] != Block.Block.Empty :
         cpt += 1
         add = 2
         for k in range(1, gp.TAILLE_Y_LIMITE) :
-            if g_next[gp.TAILLE_X-1][k] == Block.Block.Empty and\
-                g_next[gp.TAILLE_X-2][k] != Block.Block.Empty :
+            if g_next.grid[gp.TAILLE_X-1][k] == Block.Block.Empty and\
+                g_next.grid[gp.TAILLE_X-2][k] != Block.Block.Empty :
                     cpt += add
                     add += 2
             else :
                 break
-        print("Puit en " + str(gp.TAILLE_X-1) + " rapporte " + str(cpt))
-
     return cpt
