@@ -11,7 +11,7 @@ from JoueurIA.Trainable_AI import Heuristic as H
 from JoueurIA.Trainable_AI import Trainable_AI
 
 class Genetic_IA(Trainable_AI.TrainableIA):
-    def __init__(self, name, heuristic, weights = None, file=None, selection_size = 1, population_size = 1, evaluate_size = 1):
+    def __init__(self, name, heuristic, weights = None, file=None, selection_size = 10, population_size = 100, evaluate_size = 10):
         super().__init__(name,file)
         self.weights = weights
         self.population = None
@@ -80,7 +80,7 @@ class Genetic_IA(Trainable_AI.TrainableIA):
         self.score = [0 for i in range(len(self.population))]
         begin = True
         #while np.mean(self.score)-np.mean(last_score) > 0.1 or begin:
-        for _ in range(1) :
+        for _ in range(10) :
             if not begin :
                 self.score = [0 for i in range(len(self.population))]
                 self.reproduction()
