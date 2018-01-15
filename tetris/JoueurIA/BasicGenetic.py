@@ -49,6 +49,35 @@ class GeneticAI() :
 
 	def play_one_game(self, game) :
 
+	def best_move(state) :
+		pieces = copy.copy(state["pieces"])
+		scores = []
+		compteur = 0
+
+		for kind in pieces :
+			for rotation in range(0,4,1) :
+				for move in range(-5,7,1) :
+					play = {"choose":kind, "rotate":rotation, "hor_move":move}
+					grid_tmp = State.State(copy_grid(state["grid"]))
+					grid_prec = State.State(copy_grid(state["grid"]))
+					p = Piece.Piece.factory(kind, copy.copy(Piece.Piece.centers_init[kind]))
+					for _ in range(rotation) :
+						p.rotate()
+					if(State.is_piece_accepted_abscisse(p, p.center[0] + p.block_control[0] + move)) :
+						p.center[0] += move
+						r = grid_tmp.drop_piece(p, 0)
+						scores += [[play, self.evaluate_play(grid_prec, grid_tmp, play)]]
+
+		scores.sort(key=lambda x : x[1], reverse=True)
+		best = scores[0][1]
+		best_plays = []
+		for s in scores :
+			if s[1] >= best :
+				best_plays += [s]
+		play_send = random.choice(best_plays)[0]
+		return play_send
+		
+
 
 
 class Heuristic :
