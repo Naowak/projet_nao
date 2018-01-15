@@ -1,13 +1,15 @@
 # coding: utf-8
 import sys
-sys.path.append('../')
+sys.path.append("../")
+sys.path.append("../../")
 import asyncio
 
-from JoueurIA import IA
+
 from JoueurIA import IAClientClient
+from JoueurIA import IA
 
 class TrainableIA(IA.IA):
-    def __init__(self,name, file ):
+    def __init__(self,name, file):
         self.state = None
         self.my_client = None
         self.name = name
@@ -39,7 +41,7 @@ class TrainableIA(IA.IA):
     async def new_game(self,opposite_level):
         mess = {'mess_type': 'new_game',\
                 'players': [[self.my_client.pid,1]],\
-                'observers': [2],\
+                'observers': [3],\
                 'IAs': [[opposite_level,1]]}
         await self.my_client.send_message(mess)
 
