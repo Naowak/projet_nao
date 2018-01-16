@@ -25,7 +25,7 @@ def best_move(heuristic, weights, state):
 
         for kind in pieces:
             for rotation in range(0, 4, 1):
-                for move in range(-5, 7, 1):
+                for move in range(-5, 5, 1):
                     play = {"choose": kind,
                             "rotate": rotation, "hor_move": move}
                     grid_tmp = State.State(copy_grid(state["grid"]))

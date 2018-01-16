@@ -1,5 +1,6 @@
 # coding: utf-8
 import sys
+import os
 sys.path.append("../")
 sys.path.append("../../")
 import copy
@@ -11,36 +12,71 @@ from JoueurIA.Trainable_AI import Heuristic as H
 from JoueurIA.Trainable_AI import Trainable_AI
 
 class Genetic_IA(Trainable_AI.TrainableIA):
-    def __init__(self, name, heuristic, weights = None, file=None, selection_size = 5, population_size = 50, evaluate_size = 3):
+    def __init__(self, name, heuristic = [], file = None, selection_size = 1, population_size = 1, evaluate_size = 1, nb_generation = 1):
         super().__init__(name,file)
-        self.weights = weights
-        self.population = None
+        self.weights = list()
+        self.population = list()
         self.evaluate_size = evaluate_size
         self.selection_size = selection_size
         self.population_size = population_size
-        self.score = None
-        self.heuristic = heuristic
+        self.score = list()
         self.current_eval = None
         self.current_game_is_finish = None
+        self.nb_generation = nb_generation
+        self.heuristic = {}
+
+        if file != None :
+            #si on charge une IA
+            print("mon print : ", file)
+            self.load()
+        elif len(heuristic) > 0 :
+            #IA non existante, on doit en créer une nouvelle aléatoire
+            self.define_heuristic(heuristic)
+        else :
+            #pas d'ia chargé et aucune heuristic donné : erreur
+            raise Exception("ERROR : Aucun fichier n'a été passé en paramètre pour charger une IA et aucune heuristique n'a été définie, l'IA ne peut se créer.")
+
+    def define_heuristic(self, heuristic_list) :
+        for h in heuristic_list : 
+            if h == "line_transition" :
+                self.heuristic[h] = H.line_transition
+            elif h == "column_transition" :
+                self.heuristic[h] = H.column_transition
+            elif h == "holes" : 
+                self.heuristic[h] = H.holes
+            elif h == "wells" :
+                self.heuristic[h] = H.wells
+            elif h == "score" :
+                self.heuristic[h] = H.score
+            elif h == "height" :
+                self.heuristic[h] = H.height
+            elif h == "hidden_empty_cells" :
+                self.heuristic[h] = H.hidden_empty_cells
+            else :
+                raise NameError("L'heuristic ", h, " is not defined")
+        
 
     def generate_population(self):
+        #si l'IA est déjà définie
         if self.weights is None:
             self.population = [np.random.randn(len(self.heuristic)) for _ in  range(self.population_size)]
+        #Sinon elle est définie aléatoirement 
         else:
             self.population = []
             for _ in range(self.population_size):
-                self.population.append(np.random.randn(len(self.heuristic)) + self.weights)
+                self.population.append(np.random.randn(len(self.heuristic)))
     
     def make_selection(self):
         population = []
-        score = copy.copy(self.score)
+        score = []
         for _ in range(self.selection_size):
-            ind = np.argmax(score)
+            ind = np.argmax(self.score)
             population.append(self.population[ind])
+            score.append(self.score[ind])
             del self.population[ind]
-            del score[ind]
+            del self.score[ind]
         self.population = population
-        #print(self.population)
+        self.score = score
 
     def reproduction(self):
         ave = np.average(self.population,axis=0)
@@ -76,31 +112,28 @@ class Genetic_IA(Trainable_AI.TrainableIA):
         await super().init_train()
         print("Train begin!")
         self.generate_population()
-        last_score = [0 for i in range(len(self.population))]
         self.score = [0 for i in range(len(self.population))]
         begin = True
         #while np.mean(self.score)-np.mean(last_score) > 0.1 or begin:
-        for _ in range(10) :
+        for _ in range(self.nb_generation) :
             if not begin :
                 self.score = [0 for i in range(len(self.population))]
                 self.reproduction()
                 self.mutation()
                 print("\nReproduction + mutation: ", self.population)
             begin = False
-            last_score = self.score
             print("\nEvaluation : ", self.population)
             await self.evaluate()
             print("\nPopulation : ", self.population)
-            print(self.score)
             self.make_selection()
             print("\nSélection : ", self.population)
         self.save()
 
     def play(self, state):
         if not self.my_client is None :
-            return H.best_move(self.heuristic,self.population[self.current_eval],state)
+            return H.best_move(list(self.heuristic.values()),self.population[self.current_eval],state)
         else :
-            return H.best_move(self.heuristic,self.weights,state)
+            return H.best_move(list(self.heuristic.values()),self.weights,state)
 
     def on_finished_game(self,data):
         if not self.my_client is None:
@@ -109,18 +142,51 @@ class Genetic_IA(Trainable_AI.TrainableIA):
             self.current_game_is_finish = True
 
     def save(self):
-        print(self.score)
         self.weights = self.population[np.argmax(self.score)]
         print("\nMeilleur vecteur final :", self.weights)
-        if self.file is not None:
-            pass
+        path = "backup/"
+        name = "entropy_"
+        extension = ".save"
+        f = None
 
-    def load(self,file):
-        if self.file is not None:
-            pass
-            # on recpupere dans un fichier
+        #open a file
+        if self.file == None :
+            for i in range(10000) :
+                file_name = path + name + str(i) + extension
+                if not os.path.isfile(file_name) :
+                    f = open(file_name, "w+")
+                    break
+            #si tout est pris on écrase
+            if f == None :
+                f = open(file_name, "w+")
+        else :
+            f = open(self.file, "w+")
+
+        #on enregistre dedans
+        for i in range(len(self.weights)) :
+            keys = list(self.heuristic.keys())
+            f.write(keys[i] + " " + str(self.weights[i]) + "\n")
+        f.close()
+        
+
+    def load(self):
+        #on vérifie que le fichier existe :
+        if os.path.isfile(self.file) :
+            f = open(self.file, "r")
+            cpt = 0
+            heuristic_list = list()
+            #on charge les heuristics demandées ainsi que leur poids
+            for line in f :
+                tab = line.split(" ")
+                heuristic_list.append(tab[0])
+                self.weights.append(float(tab[1]))
+            self.define_heuristic(heuristic_list)
+        #sinon erreur               
+        else :
+            raise FileNotFoundError(self.file + " doesn't exist.")            
+
 
 if __name__ == "__main__":
-    genetic_ia = Genetic_IA("genetic", [H.line_transition,H.column_transition,H.holes,H.wells, H.score, H.height])
+    genetic_ia = Genetic_IA("genetic", ["line_transition","column_transition","holes","wells", "score", "height", "hidden_empty_cells"])
     AI_LOOP = asyncio.get_event_loop()
     AI_LOOP.run_until_complete(genetic_ia.train())

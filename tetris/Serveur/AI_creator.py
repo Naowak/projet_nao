@@ -1,4 +1,5 @@
 import sys
+import os
 sys.path.append('../')
 import numpy as np
 import asyncio
@@ -20,8 +21,7 @@ async def create_ia(name,level):
         my_client = IAClientClient.IAClientClient(name,\
                                    Entropy.Genetic_IA(\
                                    name,\
-                                   [H.line_transition,H.column_transition,H.holes,H.wells],\
-                                   weights = np.array([-1.04341569,  0.19629992, -0.63325367, -1.0576598 ])),\
+                                   file = "./JoueurIA/Trainable_AI/backup/4_heuristic.save"),\
                                    level)
     my_client.make_connection_to_server()
     while my_client.my_socket is None:
