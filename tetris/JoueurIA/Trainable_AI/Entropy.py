@@ -11,7 +11,7 @@ from JoueurIA.Trainable_AI import Heuristic as H
 from JoueurIA.Trainable_AI import Trainable_AI
 
 class Genetic_IA(Trainable_AI.TrainableIA):
-    def __init__(self, name, heuristic, weights = None, file=None, selection_size = 10, population_size = 100, evaluate_size = 10):
+    def __init__(self, name, heuristic, weights = None, file=None, selection_size = 5, population_size = 50, evaluate_size = 3):
         super().__init__(name,file)
         self.weights = weights
         self.population = None
@@ -121,7 +121,6 @@ class Genetic_IA(Trainable_AI.TrainableIA):
             # on recpupere dans un fichier
 
 if __name__ == "__main__":
-    genetic_ia = Genetic_IA("genetic", [H.line_transition,H.column_transition,H.holes,H.wells],\
-                            weights = np.array([-1.04341569,  0.19629992, -0.63325367, -1.0576598]))
+    genetic_ia = Genetic_IA("genetic", [H.line_transition,H.column_transition,H.holes,H.wells, H.score, H.height])
     AI_LOOP = asyncio.get_event_loop()
     AI_LOOP.run_until_complete(genetic_ia.train())

@@ -62,14 +62,13 @@ def score(g_prec, g_next, action) :
     hor_move = action["hor_move"]
 
     p = Piece.Piece.factory(kind, copy.copy(Piece.Piece.centers_init[kind]))
-    etat = State.State(g_prec)
+    etat = State.State(g_prec.grid)
     for _ in range(rotation) :
         p.rotate()
 
     if State.is_piece_accepted_abscisse(p, p.center[0] + p.block_control[0] + hor_move) :
         p.center[0] += hor_move
         r = etat.drop_piece(p, 0)
-        print(etat)
         if r == False :
             etat.score[0] -= 1000
     return etat.score[0]
@@ -81,7 +80,7 @@ def height(g_prec, g_next, action) :
     hor_move = action["hor_move"]
 
     p = Piece.Piece.factory(kind, copy.copy(Piece.Piece.centers_init[kind]))
-    etat = State.State(g_prec)
+    etat = State.State(g_prec.grid)
     hauteur = 0
     for _ in range(rotation) :
         p.rotate()
@@ -89,7 +88,6 @@ def height(g_prec, g_next, action) :
     if(State.is_piece_accepted_abscisse(p, p.center[0] + p.block_control[0] + hor_move)):
         p.center[0] += hor_move
         r = etat.drop_piece(p, 0)
-        print(etat)
         for b in p.blocks : 
             h_tmp = p.center[1] + b[1]
             if h_tmp > hauteur :
