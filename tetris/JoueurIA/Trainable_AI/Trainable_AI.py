@@ -25,9 +25,13 @@ class TrainableIA(IA.IA):
         asyncio.ensure_future(self.message_loop())
 
     async def message_loop(self):
-        while self.my_client.keep_connection:
-            await self.my_client.receive_msg()
-            await asyncio.sleep(0)
+        try :
+            while self.my_client.keep_connection:
+                await self.my_client.receive_msg()
+                await asyncio.sleep(0)
+        except KeyboardInterrupt :
+            print("\nStop the program. Please press Ctrl+C once again to save & quit.")
+            return
 
     def play(self, state):
         pass

@@ -12,7 +12,7 @@ from JoueurIA.Trainable_AI import Heuristic as H
 from JoueurIA.Trainable_AI import Trainable_AI
 
 class Genetic_IA(Trainable_AI.TrainableIA):
-    def __init__(self, name, heuristic = [], file = None, selection_size = 1, population_size = 1, evaluate_size = 1, nb_generation = 1):
+    def __init__(self, name, heuristic = [], file = None, selection_size = 2, population_size = 15, evaluate_size = 2, nb_generation = 2):
         super().__init__(name,file)
         self.weights = list()
         self.population = list()
@@ -142,31 +142,37 @@ class Genetic_IA(Trainable_AI.TrainableIA):
             self.current_game_is_finish = True
 
     def save(self):
-        self.weights = self.population[np.argmax(self.score)]
-        print("\nMeilleur vecteur final :", self.weights)
-        path = "backup/"
-        name = "entropy_"
-        extension = ".save"
-        f = None
+        print("Would you like to save this current AI ? (Y/n)")
+        rep = input()
+        file_name = ""
+        if rep == "" or rep == "y" or  rep == "Y":
+            self.weights = self.population[np.argmax(self.score)]
+            print("\nMeilleur vecteur final :", self.weights)
+            path = "backup/"
+            name = "entropy_"
+            extension = ".save"
+            f = None
 
-        #open a file
-        if self.file == None :
-            for i in range(10000) :
-                file_name = path + name + str(i) + extension
-                if not os.path.isfile(file_name) :
+            #open a file
+            if self.file == None :
+                for i in range(10000) :
+                    file_name = path + name + str(i) + extension
+                    if not os.path.isfile(file_name) :
+                        f = open(file_name, "w+")
+                        break
+                #si tout est pris on écrase
+                if f == None :
                     f = open(file_name, "w+")
-                    break
-            #si tout est pris on écrase
-            if f == None :
-                f = open(file_name, "w+")
-        else :
-            f = open(self.file, "w+")
+            else :
+                file_name = self.file
+                f = open(self.file, "w+")
 
-        #on enregistre dedans
-        for i in range(len(self.weights)) :
-            keys = list(self.heuristic.keys())
-            f.write(keys[i] + " " + str(self.weights[i]) + "\n")
-        f.close()
+            #on enregistre dedans
+            for i in range(len(self.weights)) :
+                keys = list(self.heuristic.keys())
+                f.write(keys[i] + " " + str(self.weights[i]) + "\n")
+            f.close()
+            print("Current IA saved in : ", file_name)
         
 
     def load(self):
@@ -189,4 +195,11 @@ class Genetic_IA(Trainable_AI.TrainableIA):
 if __name__ == "__main__":
     genetic_ia = Genetic_IA("genetic", ["line_transition","column_transition","holes","wells", "score", "height", "hidden_empty_cells"])
     AI_LOOP = asyncio.get_event_loop()
-    AI_LOOP.run_until_complete(genetic_ia.train())
+    try :
+        AI_LOOP.run_until_complete(genetic_ia.train())
+    except KeyboardInterrupt :
+        print("\nEntrainement arrêté manuellement.")
+        genetic_ia.save()
+    finally :
+        #clean up    
+        sys.exit(0)
