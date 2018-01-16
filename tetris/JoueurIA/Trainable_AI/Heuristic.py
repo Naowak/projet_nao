@@ -60,33 +60,42 @@ def score(g_prec, g_next, action) :
     kind = action["choose"]
     rotation = action["rotate"]
     hor_move = action["hor_move"]
+
     p = Piece.Piece.factory(kind, copy.copy(Piece.Piece.centers_init[kind]))
+    etat = State.State(g_prec)
     for _ in range(rotation) :
         p.rotate()
-        if State.is_piece_accepted_abscisse(p, p.center[0] + p.block_control[0] + hor_move) :
-            p.center[0] += move
-            r = g_prec.drop_piece(p, 0)
-            if r == False :
-                g_prec.score[0] -= 1000
-    return g_prec.score[0]
+
+    if State.is_piece_accepted_abscisse(p, p.center[0] + p.block_control[0] + hor_move) :
+        p.center[0] += hor_move
+        r = etat.drop_piece(p, 0)
+        print(etat)
+        if r == False :
+            etat.score[0] -= 1000
+    return etat.score[0]
     
 #Return the latest action's height
 def height(g_prec, g_next, action) :
     kind = action["choose"]
     rotation = action["rotate"]
     hor_move = action["hor_move"]
+
     p = Piece.Piece.factory(kind, copy.copy(Piece.Piece.centers_init[kind]))
+    etat = State.State(g_prec)
+    hauteur = 0
     for _ in range(rotation) :
         p.rotate()
-        if(State.is_piece_accepted_abscisse(p, p.center[0] + p.block_control[0] + hor_move)):
-            p.center[0] += move
-            r = g_prec.drop_piece(p, 0)
-            hauteur = 0
-            for b in p.blocks : 
-                h_tmp = p.center[1] + b[1]
-                if h_tmp > hauteur :
-                    hauteur = h_tmp
-    return hauteur
+
+    if(State.is_piece_accepted_abscisse(p, p.center[0] + p.block_control[0] + hor_move)):
+        p.center[0] += hor_move
+        r = etat.drop_piece(p, 0)
+        print(etat)
+        for b in p.blocks : 
+            h_tmp = p.center[1] + b[1]
+            if h_tmp > hauteur :
+                hauteur = h_tmp
+        return hauteur
+    return gp.TAILLE_Y_LIMITE - 1
 
 #(number of line last action)*(number of cells eliminated from the last piece)
 def erosion(g_prec, g_next, action):
@@ -235,3 +244,20 @@ def wells(g_prec, g_next, action) :
             else :
                 break
     return cpt
+
+
+if __name__ == "__main__" :
+    my_grid = [[Block.Block.Red, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty], 
+    [Block.Block.Red, Block.Block.Red, Block.Block.Red, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty], 
+    [Block.Block.Red, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty], 
+    [Block.Block.Red, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty], 
+    [Block.Block.Red, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty], 
+    [Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty], 
+    [Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty], 
+    [Block.Block.Red, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty], 
+    [Block.Block.Red, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty], 
+    [Block.Block.Red, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty]]
+
+    action = {"hor_move" : 1, "choose" : 'L', "rotate" : 1}
+
+    print(score(my_grid, None, action))
