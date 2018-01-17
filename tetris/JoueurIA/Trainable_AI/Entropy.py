@@ -12,7 +12,7 @@ from JoueurIA.Trainable_AI import Heuristic as H
 from JoueurIA.Trainable_AI import Trainable_AI
 
 class Genetic_IA(Trainable_AI.TrainableIA):
-    def __init__(self, name, heuristic = [], file = None, selection_size = 2, population_size = 15, evaluate_size = 2, nb_generation = 2):
+    def __init__(self, name, heuristic = [], file = None, selection_size = 1, population_size = 2, evaluate_size = 1, nb_generation = 10):
         super().__init__(name,file)
         self.weights = list()
         self.population = list()
@@ -138,7 +138,12 @@ class Genetic_IA(Trainable_AI.TrainableIA):
     def on_finished_game(self,data):
         if not self.my_client is None:
             ind = self.my_client.ids_in_games[data["gid"]][0]
-            self.score[self.current_eval] += data["score"][ind] - data["score"][(ind+1)%2]
+            diff = data["score"][ind] - data["score"][(ind+1)%2]
+            diff_square = np.power(diff, 2)
+            if diff < 0 :
+                self.score[self.current_eval] -= diff_square
+            else :
+                self.score[self.current_eval] += diff_square
             self.current_game_is_finish = True
 
     def save(self):
@@ -193,7 +198,7 @@ class Genetic_IA(Trainable_AI.TrainableIA):
 
 
 if __name__ == "__main__":
-    genetic_ia = Genetic_IA("genetic", ["line_transition","column_transition","holes","wells", "score", "height", "hidden_empty_cells"])
+    genetic_ia = Genetic_IA("genetic", ["line_transition","column_transition","holes","wells", "score", "height"])
     AI_LOOP = asyncio.get_event_loop()
     try :
         AI_LOOP.run_until_complete(genetic_ia.train())
