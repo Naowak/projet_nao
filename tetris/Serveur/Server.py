@@ -8,7 +8,7 @@ import websockets
 from Jeu import Game
 import GlobalParameters as gp
 from Jeu import Piece
-from JoueurIA import IAClientClient
+from Serveur import AI_creator
 from Serveur import IAClientServer
 from Serveur import ClientServer
 
@@ -89,7 +89,7 @@ class Server:
 
     async def init_ia(self):
         for [level, levelname] in enumerate(gp.LEVELS):
-            asyncio.ensure_future(IAClientClient.create_ia("IA_SERVER_LVL"+levelname, level))
+            asyncio.ensure_future(AI_creator.create_ia("IA_SERVER_LVL"+levelname, level))
 
     async def connect(self, sock, path):
         mess = await sock.recv()

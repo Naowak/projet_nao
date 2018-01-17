@@ -1,12 +1,10 @@
 # coding: utf-8
 import sys
-sys.path.append('../')
+sys.path.append("../")
 import asyncio
 import json
-
 import websockets
-
-from JoueurIA import IA
+import numpy as np
 import GlobalParameters as gp
 URI = gp.ADRESSE + str(gp.PORT)
 
@@ -72,6 +70,7 @@ class IAClientClient:
             del self.ids_in_games[gid]
 
     def finished(self, data):
+        self.my_ia.on_finished_game(data)
         del self.last_turn[data["gid"]]
         del self.ids_in_games[data["gid"]]
         
@@ -117,19 +116,4 @@ async def run(name):
         await asyncio.sleep(0)
 
 
-async def create_ia(name,level):
-    IA_STRATEGIE = None
-    if level == 0 :
-        IA_STRATEGIE = IA.random_ia
-    elif level == 1 :
-        IA_STRATEGIE = IA.basic_smart_ia
-
-    my_client = IAClientClient(name, IA.IA(IA_STRATEGIE), level )
-    my_client.make_connection_to_server()
-    while my_client.my_socket is None:
-        await asyncio.sleep(0)
-    while my_client.keep_connection:
-        await my_client.receive_msg()
-        await asyncio.sleep(0)
-#
 # asyncio.get_event_loop().run_until_complete(main())

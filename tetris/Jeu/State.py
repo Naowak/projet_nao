@@ -84,7 +84,7 @@ class State:
             if test:
                 # ligne numero j complète
                 compteur += 1
-                for k in range(j + 1, gp.TAILLE_Y_LIMITE - 1):
+                for k in range(j + 1, gp.TAILLE_Y_LIMITE):
                     for i in range(gp.TAILLE_X):
                         # On descend tout ce qui est au dessus de j
                         self.grid[i][k - 1] = self.grid[i][k]
