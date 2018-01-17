@@ -20,7 +20,8 @@ def copy_grid(grid):
 
 def best_move(heuristic, weights, state):
         pieces = copy.copy(state["pieces"])
-        scores = []
+        scores_valid = []
+        scores_non_valid = []
         compteur = 0
 
         for kind in pieces:
@@ -37,8 +38,22 @@ def best_move(heuristic, weights, state):
                     if(State.is_piece_accepted_abscisse(p, p.center[0] + p.block_control[0] + move)):
                         p.center[0] += move
                         r = grid_tmp.drop_piece(p, 0)
-                        scores += [[play,
-                                    evaluate_play(grid_prec, grid_tmp, play, weights, heuristic)]]
+                        if r :
+                            #ne prends pas en compte les coups perdants
+                            scores_valid += [[play,
+                                        evaluate_play(grid_prec, grid_tmp, play, weights, heuristic)]]
+                        else :
+                            #prends tous les coups perdants
+                            scores_non_valid += [[play,
+                                        evaluate_play(grid_prec, grid_tmp, play, weights, heuristic)]]
+
+        scores = []
+        if len(scores_valid) > 0 :
+            #On ne veut choisir un play que parmis ceux qui ne font pas perdre
+            scores = scores_valid
+        else :
+            #s'il n'existe pas de play valid, alors on doit en choisir un parmis tous ceux qui font perdre
+            scores = scores_non_valid
 
         scores.sort(key=lambda x: x[1], reverse=True)
         best = scores[0][1]
