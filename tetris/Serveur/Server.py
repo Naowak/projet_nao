@@ -129,6 +129,7 @@ class Server:
         data["nb_choices"] = game.nb_choices
         data["step"] = "init_game"
         data["gid"] = game.gid
+        data["nb_turn_max"] = gp.NOMBRE_DE_TOUR
         data["ids_in_game"] = ids_in_game
         data["nb_player"] = game.nb_players
         data["kinds"] = {}
