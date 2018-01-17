@@ -12,7 +12,7 @@ from JoueurIA.Trainable_AI import Heuristic as H
 from JoueurIA.Trainable_AI import Trainable_AI
 
 class Genetic_IA(Trainable_AI.TrainableIA):
-    def __init__(self, name, heuristic = [], file = None, selection_size = 1, population_size = 2, evaluate_size = 1, nb_generation = 10):
+    def __init__(self, name, heuristic = [], file = None, selection_size = 5, population_size = 50, evaluate_size = 3, nb_generation = 5):
         super().__init__(name,file)
         self.weights = list()
         self.population = list()

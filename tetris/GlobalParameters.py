@@ -7,4 +7,4 @@ NOMBRE_DE_JOUEUR = 2
 NOMBRE_DE_CHOIX = 3
 SCORE_DEPASSEMENT = -1000
 NOMBRE_DE_TOUR = 200
-LEVELS = ["random", "smart1","entropy"]
+LEVELS = ["random", "smart1","4-heuristic", "6-heuristic"]
