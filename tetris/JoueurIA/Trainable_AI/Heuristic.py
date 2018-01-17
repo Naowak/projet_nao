@@ -68,21 +68,11 @@ def hidden_empty_cells(g_prec, g_next, action) :
 
 #Return the score won by the latest action
 def score(g_prec, g_next, action) :
-    kind = action["choose"]
-    rotation = action["rotate"]
-    hor_move = action["hor_move"]
-
-    p = Piece.Piece.factory(kind, copy.copy(Piece.Piece.centers_init[kind]))
-    etat = State.State(g_prec.grid)
-    for _ in range(rotation) :
-        p.rotate()
-
-    if State.is_piece_accepted_abscisse(p, p.center[0] + p.block_control[0] + hor_move) :
-        p.center[0] += hor_move
-        r = etat.drop_piece(p, 0)
-        if r == False :
-            etat.score[0] -= 1000
-    return etat.score[0]
+    a = g_next.score[0] - g_prec.score[0]
+    b = g_next.score[1] - g_prec.score[1]
+    if a != 0 :
+        return a
+    return b
     
 #Return the latest action's height
 def height(g_prec, g_next, action) :
@@ -269,5 +259,11 @@ if __name__ == "__main__" :
 
     action = {"hor_move" : 1, "choose" : 'L', "rotate" : 1}
     etat = State.State(my_grid)
+    etat.score[0] = 125
+    etat.score[1] = 168
     print(etat)
-    print(hidden_empty_cells(None, etat,None ))
+
+    etat2 = State.State(my_grid)
+    etat2.score[0] = 125
+    etat2.score[1] = 365
+    print(score(etat, etat2, None))
