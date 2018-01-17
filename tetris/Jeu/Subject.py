@@ -11,12 +11,14 @@ class Subject:
         print(client.name, "playerbind to the game ", self.gid)
 
     def unbind_client(self, client):
-        if self.clients["players"][client.id]:
+        if client.id in self.clients["players"]:
             print("game cancelled")
             self.is_finished = True
-        elif self.clients["observers"][client.id]:
+        elif client.id in self.clients["viewers"]:
             client.on_quit_game(self)
-            del self.clients["observers"][client.id]
+            del self.clients["viewers"][client.id]
+        else:
+            print("Error, client key not find .")
 
     def bind_viewer(self, viewer):
         self.clients["viewers"][viewer.id] = viewer
@@ -60,7 +62,7 @@ class Subject:
         string_ret = "players: {"
         for player in self.clients["players"].values():
             string_ret += str(player)+" "
-        string_ret += "}; observers: {"
+        string_ret += "}; viewers: {"
         for obs in self.clients["viewers"].values():
             string_ret += str(obs)+" "
         string_ret += "}"
