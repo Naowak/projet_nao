@@ -18,8 +18,14 @@ class Reinforcement_IA(TrainableIA):
         self.scores_list = []
         self.file_scores = open('scores.txt', 'w')
 
-        network_spec = [dict(type='dense', size=32, activation='relu'),
-                        dict(type='dense', size=32, activation='relu')]
+        network_spec = [dict(type='dense', size=64, activation='relu'),
+                        dict(type='dense', size=64, activation='relu'),
+                        dict(type='dense', size=64, activation='relu'),
+                        dict(type='dense', size=64, activation='relu'),
+                        dict(type='dense', size=64, activation='relu'),
+                        dict(type='dense', size=64, activation='relu'),
+                        dict(type='dense', size=64, activation='relu'),
+                        dict(type='dense', size=64, activation='relu')]
 
         nb_squares = nb_rows * nb_cols
         self.agent = DQNAgent(states_spec={'shape': (nb_squares+nb_pieces,), 'type': 'float'},
@@ -39,6 +45,7 @@ class Reinforcement_IA(TrainableIA):
         if self.first_game:  # at the first game and first call to function play, no action has been performed yet ->
             # nothing to observe
             self.first_game = False
+            self.agent.reset()
         else:
             # pass observation to the agent
             terminal = False
@@ -79,6 +86,7 @@ class Reinforcement_IA(TrainableIA):
 
         # save the scores in a file
         self.file_scores.write("%d, %d\n" % (self.score_self_new, self.score_other_new))
+        self.file_scores.flush()
 
     def update_scores(self, state):
         # update the old scores
@@ -145,5 +153,6 @@ class Reinforcement_IA(TrainableIA):
 
 if __name__ == '__main__':
     ia = Reinforcement_IA('reinforcement', 22, 10, 3)
+    ia.nb_games = 3000
     AI_LOOP = asyncio.get_event_loop()
     AI_LOOP.run_until_complete(ia.train())
