@@ -18,18 +18,18 @@ async def create_ia(name,level):
         IA_STRATEGIE = IA.IA(IA.basic_smart_ia)
     elif level == 2 :
         IA_STRATEGIE = Entropy.Genetic_IA(\
-        name = name,\
-        file = "./JoueurIA/Trainable_AI/backup/4_heuristic.save")
-
-    my_client = IAClientClient.IAClientClient(name,\
-        my_ia = IA_STRATEGIE, \
-        level = level)
-
+                                   name,\
+                                   load_file = "./JoueurIA/Trainable_AI/backup/4_heuristic.save")
+    elif level == 3 :
+        IA_STRATEGIE = Entropy.Genetic_IA(\
+                                   name,\
+                                   load_file = "./JoueurIA/Trainable_AI/backup/6_heuristic.save")
+    my_client = IAClientClient.IAClientClient(name, IA_STRATEGIE, level = level)
     my_client.make_connection_to_server()
     while my_client.my_socket is None:
         await asyncio.sleep(0)
-    print("socket")
+    #print("socket")
     while my_client.keep_connection:
-        await my_client.receive_msg()
+        await my_client.on_message()
         await asyncio.sleep(0)
     print("connexion lost")

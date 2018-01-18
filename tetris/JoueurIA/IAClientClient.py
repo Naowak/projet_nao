@@ -41,15 +41,13 @@ class IAClientClient:
         #print(data)
         return json.loads(data)
 
-    async def receive_msg(self):
+    async def on_message(self):
         data = await self.receive_message()
         if data["step"] == "update":
             self.update(data)
         elif data["step"] == "init_game":
             self.init_game(data)
         elif data["step"] == "game":
-            if self.pid == 4 :
-                print(self.pid)
             if data["actual_player"] in self.ids_in_games[data["gid"]] and\
             data["turn"]!= self.last_turn[data["gid"]]:
                 await self.play(data)
@@ -93,11 +91,10 @@ class IAClientClient:
     async def play(self, data):
         dec = self.my_ia.play(data)
         self.last_turn[data["gid"]] = data["turn"]
-        if self.active :
-            await self.send_message({"gid": data["gid"], "mess_type": "action", "action": ["choose", dec.pop("choose")]})
-            for (key, value) in dec.items():
-                await self.send_message({"gid": data["gid"], "mess_type": "action", "action": [key, value]})
-            await self.send_message({"gid": data["gid"], "mess_type": "action", "action": ["valid"]})
+        await self.send_message({"gid": data["gid"], "mess_type": "action", "action": ["choose", dec.pop("choose")]})
+        for (key, value) in dec.items():
+            await self.send_message({"gid": data["gid"], "mess_type": "action", "action": [key, value]})
+        await self.send_message({"gid": data["gid"], "mess_type": "action", "action": ["valid"]})
         return data
 
     async def suggest(self, data):
@@ -119,7 +116,7 @@ async def run(name):
     while my_client.my_socket is None:
         await asyncio.sleep(0)
     while my_client.keep_connection:
-        await my_client.receive_msg()
+        await my_client.on_message()
         await asyncio.sleep(0)
 
 

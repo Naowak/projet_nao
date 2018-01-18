@@ -16,7 +16,6 @@ class Stats(Trainable_AI.TrainableIA):
 
 
     def update_play(self, data):
-        print("on_play")
         player = data["actual_player"]
         nb_points_gagne = 0
         nb_lines = 0
@@ -43,24 +42,20 @@ class Stats(Trainable_AI.TrainableIA):
             self.stats_second.nb_line_current_game += nb_lines
 
     def play(data) :
-        print("Stats : we're in the play method.")
-
+        pass
 
     def on_init_game(self, data):
-        print("on_init")
         pass
 
     def on_finished_game(self,data):
-        print("on_finish")
-        self.is_finished = True
         self.score_last_turn = 0
 
         #On gère les scores et les wins
         score_player1 = data["score"][self.stats_first.id]
         score_player2 = data["score"][self.stats_second.id]
 
-        self.stats_first.score += [score_player1]
-        self.stats_second.score += [score_player2]
+        self.stats_first.scores += [score_player1]
+        self.stats_second.scores += [score_player2]
 
         if score_player1 == gp.SCORE_DEPASSEMENT :
             self.stats_first.loose_by_height += 1
@@ -83,33 +78,23 @@ class Stats(Trainable_AI.TrainableIA):
             self.stats_second.egalite += 1
 
         #on gère les lignes réalisées
-        self.scores += [self.nb_lines]
+        self.stats_first.scores += [self.stats_first.nb_lines]
+        self.stats_second.scores += [self.stats_second.nb_lines]
         self.nb_line_current_game = 0
 
 
-    async def new_game(self,level1,level2):
-        mess = {}
-        if level1 == level2 :
-            mess = {'mess_type': 'new_game',\
-                    'players': [],\
-                    'observers': [self.my_client.pid, 3],\
-                    'IAs': [[level1,2]]}
-        else :
-            mess = {'mess_type': 'new_game',\
-                    'players': [],\
-                    'observers': [self.my_client.pid, 3],\
-                    'IAs': [[level1,1], [level2, 1]]}
-
-        await self.my_client.send_message(mess)
 
     async def run(self, level1, level2, nb_games_to_observe = 10) :
-        await self.init_train()
+        await super().init_train()
         for _ in range(nb_games_to_observe) :
-            print("NOUVELLE TIPAR")
-            await self.new_game(level1, level2)
+            if level1==level2:
+                ias=[[level1,2]]
+            else:
+                ias=[[level1,1],[level2,1]]
+            await super().new_game(ias=ias,viewers=[4,self.my_client.pid])
             self.is_finished = False
             while not self.is_finished :
-                asyncio.sleep(0)
+                await asyncio.sleep(0)
 
 
 
@@ -153,4 +138,3 @@ if __name__ == "__main__":
     statistique = Stats()
     AI_LOOP = asyncio.get_event_loop()
     AI_LOOP.run_until_complete(statistique.run(2, 2))
-    print(statistique)

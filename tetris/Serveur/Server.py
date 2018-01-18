@@ -81,10 +81,13 @@ class Server:
             game.bind_player(player)
 
         for vid in viewers_id:
-            self.my_clients[vid].on_view_game(game)
-            game.bind_viewer(self.my_clients[vid])
-            data = Server.data_init_game(game, [])
-            await self.my_clients[vid].send_message(data)
+            try:
+                self.my_clients[vid].on_view_game(game)
+                game.bind_viewer(self.my_clients[vid])
+                data = Server.data_init_game(game, [])
+                await self.my_clients[vid].send_message(data)
+            except KeyError as e:
+                print("Viewer pid not found :",vid)
         asyncio.ensure_future(self.run_game(game))
 
     async def init_ia(self):

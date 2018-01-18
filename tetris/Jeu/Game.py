@@ -39,7 +39,7 @@ class Game(Subject.Subject):
     async def update(self):
         self.grid.show_abscisse(self.current_piece, self.current_abscisse)
         self.grid.piece_show(self.current_piece)
-        await self.notify_all_observers()
+        await self.notify_all_viewers()
 
     async def init_turn(self):
         self.actual_pieces = self.pieces_random(self.nb_choices)

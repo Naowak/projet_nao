@@ -105,10 +105,10 @@
                 if (confirm(attention)){
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
-                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 2]] , 'observers' : [] , 'IAs': []}));
+                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 2]] , 'viewers' : [] , 'IAs': []}));
                 } 
             }else{
-                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 2]] , 'observers' : [] , 'IAs': []}));
+                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 2]] , 'viewers' : [] , 'IAs': []}));
             }
         }
 
@@ -117,10 +117,10 @@
                 if (confirm(attention)){
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
-                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'observers' : [] , 'IAs':[[parseInt(IA_level),1]]}));
+                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'viewers' : [] , 'IAs':[[parseInt(IA_level),1]]}));
                 } 
             }else{
-                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'observers' : [] , 'IAs':[[parseInt(IA_level),1]]}));
+                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'viewers' : [] , 'IAs':[[parseInt(IA_level),1]]}));
             }
         }
 
@@ -129,10 +129,10 @@
                 if (confirm(attention)){
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
-                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'observers' : [id] , 'IAs': [[parseInt(IA_level),1], [parseInt(IA_level2),1]]}));
+                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'viewers' : [id] , 'IAs': [[parseInt(IA_level),1], [parseInt(IA_level2),1]]}));
                 }
             }else{
-                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'observers' : [id] , 'IAs': [[parseInt(IA_level),1], [parseInt(IA_level2),1]]}));
+                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'viewers' : [id] , 'IAs': [[parseInt(IA_level),1], [parseInt(IA_level2),1]]}));
             }
         }
 
@@ -523,4 +523,5 @@
             update();
         }
       </script>
+      <audio src="music/Music.mp3" autoplay="true" loop="true" preload="auto" id="audio">
 </html>
