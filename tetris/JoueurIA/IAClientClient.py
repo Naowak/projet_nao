@@ -43,6 +43,7 @@ class IAClientClient:
 
     async def on_message(self):
         data = await self.receive_message()
+        print(data)
         if data["step"] == "update":
             self.update(data)
         elif data["step"] == "init_game":

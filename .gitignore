@@ -1,2 +1,6 @@
 
 *.pyc
+
+\.idea/
+
+tetris/JoueurIA/Trainable_AI/scores\.txt

@@ -135,7 +135,7 @@ class Reinforcement_IA(TrainableIA):
         await super().init_train()
 
         for _ in range(self.nb_games):
-            await super().new_game(2)
+            await super().new_game(players=[[self.my_client.pid, 1]], viewers=[4], ias=[[2, 1]])
 
             self.current_game_is_finish = False
 
