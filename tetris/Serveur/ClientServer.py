@@ -31,7 +31,7 @@ class ClientServer(Client.Client):
             await asyncio.sleep(0)
         if self.state == ClientServer.State.FREE:
             await self.server.new_game(
-                mess["players"], mess["observers"], mess["IAs"])
+                mess["players"], mess["viewers"], mess["IAs"])
         else:
             super().print_error("Error message receive :" + self.name +\
                         "(" + str(self.id) + "): already in game/observation", mess)

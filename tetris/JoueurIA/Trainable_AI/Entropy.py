@@ -91,7 +91,10 @@ class Genetic_IA(Trainable_AI.TrainableIA):
             self.current_game_is_finish = False
             self.current_eval = i
             for _ in range(self.evaluate_size):
-                await super().new_game(3)
+                print("JE SUIS BLOQUE !")
+                print(self.current_game_is_finish)
+                print(super().new_game())
+                await super().new_game(players=[[self.my_client.pid,1]],ias=[[3,1]],viewers=[4])
                 while not self.current_game_is_finish:
                     await asyncio.sleep(0)
                 self.current_game_is_finish = False
@@ -202,9 +205,7 @@ if __name__ == "__main__":
     AI_LOOP = asyncio.get_event_loop()
     try :
         AI_LOOP.run_until_complete(genetic_ia.train())
+        print("fini")
     except KeyboardInterrupt :
         print("\nEntrainement arrêté manuellement.")
         genetic_ia.save()
-    finally :
-        #clean up    
-        sys.exit(0)

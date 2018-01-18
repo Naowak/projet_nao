@@ -24,7 +24,7 @@ class Subject:
         self.clients["viewers"][viewer.id] = viewer
         print(viewer.name, "observebind to the game ", self.gid)
 
-    async def notify_all_observers(self):
+    async def notify_all_viewers(self):
         mess = self.get_etat()
         for client in self.clients["players"].values():
             await client.send_message(mess)

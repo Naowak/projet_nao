@@ -65,7 +65,9 @@ class Client:
 
     async def send_message(self, mess):
         try:
-            #print("address to ", self.name)
+            # if self.id == 5 or self.id == 3:
+            #     print(mess)
+            #     print("address to ", self.name)
             #if not (mess["step"] == "game") :
              #   print(mess)
             await self.socket.send(json.dumps(mess))

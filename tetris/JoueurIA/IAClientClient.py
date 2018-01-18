@@ -11,7 +11,7 @@ URI = gp.ADRESSE + str(gp.PORT)
 
 class IAClientClient:
 
-    def __init__(self, name,my_ia,level=None):
+    def __init__(self, name,my_ia,active = True, level=None):
         self.my_socket = None
         self.keep_connection = True
         self.my_ia = my_ia
@@ -20,6 +20,7 @@ class IAClientClient:
         self.pid = None
         self.ids_in_games = {} # different {gid1:[id1,id2...],gid2:[id1,id2...]}
         self.last_turn = {}
+        self.active = active
 
     async def connect(self, uri=URI):
         self.my_socket = await websockets.connect(uri)
@@ -28,7 +29,7 @@ class IAClientClient:
             mess["level"]=self.level
         await self.send_message(mess)
         data = await self.receive_message()
-        self.pid = data["pid"]
+        self.init_connect(data)
         while self.keep_connection:
             await asyncio.sleep(0)
 
@@ -40,18 +41,17 @@ class IAClientClient:
         #print(data)
         return json.loads(data)
 
-    async def receive_msg(self):
+    async def on_message(self):
         data = await self.receive_message()
         if data["step"] == "update":
             self.update(data)
-        elif data["step"] == "connect":
-            self.init_connect(data)
         elif data["step"] == "init_game":
             self.init_game(data)
         elif data["step"] == "game":
             if data["actual_player"] in self.ids_in_games[data["gid"]] and\
             data["turn"]!= self.last_turn[data["gid"]]:
                 await self.play(data)
+            self.update_play(data)
         elif data["step"] == "suggest":
             if data["actual_player"] in self.ids_in_games[data["gid"]] and\
             data["turn"] != self.last_turn[data["gid"]]:
@@ -69,12 +69,16 @@ class IAClientClient:
         for gid in gid_removed:
             del self.ids_in_games[gid]
 
+    def update_play(self, data) :
+        self.my_ia.update_play(data)
+
     def finished(self, data):
         self.my_ia.on_finished_game(data)
         del self.last_turn[data["gid"]]
         del self.ids_in_games[data["gid"]]
         
     def init_game(self, data):
+        self.my_ia.on_init_game(data)
         self.keep_connection = True
         self.ids_in_games[data["gid"]] = data["ids_in_game"]
         self.last_turn[data["gid"]] = None
@@ -112,7 +116,7 @@ async def run(name):
     while my_client.my_socket is None:
         await asyncio.sleep(0)
     while my_client.keep_connection:
-        await my_client.receive_msg()
+        await my_client.on_message()
         await asyncio.sleep(0)
 
 
