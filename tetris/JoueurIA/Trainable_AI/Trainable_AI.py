@@ -8,15 +8,16 @@ import asyncio
 from JoueurIA import IAClientClient
 from JoueurIA import IA
 
-class TrainableIA(IA.IA):
-    def __init__(self,name, file):
+class TrainableIA:
+    def __init__(self,name, file, active = True):
         self.state = None
         self.my_client = None
         self.name = name
         self.file = file
+        self.active = active
 
     async def init_train(self):
-        self.my_client = IAClientClient.IAClientClient(self.name, self)
+        self.my_client = IAClientClient.IAClientClient(self.name, self, active=False)
         self.my_client.make_connection_to_server()
         print("Wait for connection")
         while self.my_client.my_socket is None or self.my_client.pid is None:
@@ -30,7 +31,7 @@ class TrainableIA(IA.IA):
                 await self.my_client.receive_msg()
                 await asyncio.sleep(0)
         except KeyboardInterrupt :
-            print("\nStop the program. Please press Ctrl+C once again to save & quit.")
+            print("\nStop the program. Please press [Ctrl+C] once again to save & quit.")
             return
 
     def play(self, state):
@@ -40,6 +41,9 @@ class TrainableIA(IA.IA):
         pass
 
     def on_finished_game(self,data):
+        pass
+
+    def update_play(self, data) :
         pass
 
     async def new_game(self,opposite_level):

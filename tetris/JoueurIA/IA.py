@@ -22,6 +22,9 @@ class IA:
     def on_finished_game(self, data):
         pass
 
+    def update_play(self, data) :
+        pass
+
 
 
 def random_ia(state):

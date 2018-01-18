@@ -97,6 +97,7 @@ class Server:
         if "level" in mess:
             client = IAClientServer.IAClientServer(\
                 self, mess["name"], sock, self.next_connect_id)
+            mess["level"]
             self.my_ias[mess["level"]] = client
         else:
             client = ClientServer.ClientServer(\
