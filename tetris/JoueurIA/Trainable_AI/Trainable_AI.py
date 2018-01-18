@@ -49,6 +49,13 @@ class TrainableIA(IA.IA):
                 'IAs': [[opposite_level,1]]}
         await self.my_client.send_message(mess)
 
+    async def observe_game(self,gid):
+        mess = {'mess_type': 'link_game',\
+                'players': [[self.my_client.pid,1]],\
+                'observers': [3],\
+                'IAs': [[opposite_level,1]]}
+        await self.my_client.send_message(mess)
+
     def save(self):
         pass
 
