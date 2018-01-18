@@ -12,8 +12,8 @@ from JoueurIA.Trainable_AI import Heuristic as H
 from JoueurIA.Trainable_AI import Trainable_AI
 
 class Genetic_IA(Trainable_AI.TrainableIA):
-    def __init__(self, name, heuristic = [], file = None, selection_size = 5, population_size = 50, evaluate_size = 3, nb_generation = 5):
-        super().__init__(name,file)
+    def __init__(self, name, heuristic = [], load_file = None, selection_size = 10, population_size = 50, evaluate_size = 5, nb_generation = 10):
+        super().__init__(name,load_file)
         self.weights = list()
         self.population = list()
         self.evaluate_size = evaluate_size
@@ -25,9 +25,9 @@ class Genetic_IA(Trainable_AI.TrainableIA):
         self.nb_generation = nb_generation
         self.heuristic = {}
 
-        if file != None :
+        if load_file != None :
             #si on charge une IA
-            print("mon print : ", file)
+            print("mon print : ", load_file)
             self.load()
         elif len(heuristic) > 0 :
             #IA non existante, on doit en créer une nouvelle aléatoire
@@ -79,7 +79,7 @@ class Genetic_IA(Trainable_AI.TrainableIA):
         self.score = score
 
     def reproduction(self):
-        ave = np.average(self.population,axis=0)
+        ave = np.average(self.population,axis=0,weights = self.score)
         var = np.cov(self.population,rowvar=False)
         self.population = []
         for _ in range(self.population_size):
@@ -91,7 +91,7 @@ class Genetic_IA(Trainable_AI.TrainableIA):
             self.current_game_is_finish = False
             self.current_eval = i
             for _ in range(self.evaluate_size):
-                await super().new_game(2)
+                await super().new_game(3)
                 while not self.current_game_is_finish:
                     await asyncio.sleep(0)
                 self.current_game_is_finish = False
@@ -117,7 +117,6 @@ class Genetic_IA(Trainable_AI.TrainableIA):
         #while np.mean(self.score)-np.mean(last_score) > 0.1 or begin:
         for _ in range(self.nb_generation) :
             if not begin :
-                self.score = [0 for i in range(len(self.population))]
                 self.reproduction()
                 self.mutation()
                 print("\nReproduction + mutation: ", self.population)
@@ -198,7 +197,8 @@ class Genetic_IA(Trainable_AI.TrainableIA):
 
 
 if __name__ == "__main__":
-    genetic_ia = Genetic_IA("genetic", ["line_transition","column_transition","holes","wells", "score", "height"])
+    genetic_ia = Genetic_IA("genetic", ["line_transition","column_transition","holes","wells", "score", "height"],\
+                            load_file = "./backup/6_heuristic.save")
     AI_LOOP = asyncio.get_event_loop()
     try :
         AI_LOOP.run_until_complete(genetic_ia.train())

@@ -45,7 +45,7 @@ class TrainableIA(IA.IA):
     async def new_game(self,opposite_level):
         mess = {'mess_type': 'new_game',\
                 'players': [[self.my_client.pid,1]],\
-                'observers': [3],\
+                'observers': [4],\
                 'IAs': [[opposite_level,1]]}
         await self.my_client.send_message(mess)
 

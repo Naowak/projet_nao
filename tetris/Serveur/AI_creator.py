@@ -21,13 +21,13 @@ async def create_ia(name,level):
         my_client = IAClientClient.IAClientClient(name,\
                                    Entropy.Genetic_IA(\
                                    name,\
-                                   file = "./JoueurIA/Trainable_AI/backup/4_heuristic.save"),\
+                                   load_file = "./JoueurIA/Trainable_AI/backup/4_heuristic.save"),\
                                    level)
     elif level == 3 :
         my_client = IAClientClient.IAClientClient(name,\
                                    Entropy.Genetic_IA(\
                                    name,\
-                                   file = "./JoueurIA/Trainable_AI/backup/6_heuristic.save"),\
+                                   load_file = "./JoueurIA/Trainable_AI/backup/6_heuristic.save"),\
                                    level)
     my_client.make_connection_to_server()
     while my_client.my_socket is None:
