@@ -27,6 +27,7 @@ class TrainableIA:
         print("end")
 
     async def message_loop(self):
+        print("depart",self.my_client.keep_connection)
         try :
             while self.my_client.keep_connection:
                 await self.my_client.on_message()

@@ -49,6 +49,7 @@ class Stats(Trainable_AI.TrainableIA):
 
     def on_finished_game(self,data):
         self.score_last_turn = 0
+        self.is_finished = True
 
         #On gère les scores et les wins
         score_player1 = data["score"][self.stats_first.id]
@@ -133,8 +134,10 @@ class MyStats() :
         string += str(self.egalite) + "parties ont été fini par une égalité.\n"
         string += "Nombre de lignes réalisées : " + str(self.nb_lines) + "\n"
         string += "Scores obtenus : " + str(self.scores) + "\n"
+        return string
 
 if __name__ == "__main__":
     statistique = Stats()
     AI_LOOP = asyncio.get_event_loop()
-    AI_LOOP.run_until_complete(statistique.run(2, 2))
+    AI_LOOP.run_until_complete(statistique.run(0, 0))
+    print(statistique.stats_first, statistique.stats_second)

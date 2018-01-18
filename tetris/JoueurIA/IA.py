@@ -25,6 +25,9 @@ class IA:
     def update_play(self, data) :
         pass
 
+    def on_init_game(self, data) :
+        pass
+
 
 
 def random_ia(state):
