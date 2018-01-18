@@ -26,17 +26,20 @@ class VoiceControl(TrainableIA):
             print("Google Speech Recognition could not understand audio")
         except sr.RequestError as e:
             print("Could not request results from Google Speech Recognition service; {0}".format(e))
-
-        piece = re.findall()
+        
+        spoken = spoken.lower()
+        #piece_num = re.findall("piece (\w+)", spoken)
+        for match in re.findall("piece (\w+)", spoken):
+            print(match)
 
     async def run(self):
         await super().init_train()
-        await super().new_game(players=[[self.my_client.id, 1]], viewers=[5], ias=[[2, 1]])
+        await super().new_game(players=[[self.my_client.pid, 1]], viewers=[5], ias=[[2, 1]])
         while True:
             await asyncio.sleep(0)
 
     def on_init_game(self, data):
-        self.colors = data["colors"]
+        self.colors = data["color"]
 
 if __name__ == '__main__':
     voice = VoiceControl()
