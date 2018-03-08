@@ -16,7 +16,7 @@ class ClientInterface:
         self.file = file
         self.active = active
 
-    async def init_train(self):
+    async def init_train(self): #rappeler connect (eventuellement)
         self.my_client = Comunication.Comunication(self.name, self)
         self.my_client.make_connection_to_server()
         print("Wait for connection")

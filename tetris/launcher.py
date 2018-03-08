@@ -4,6 +4,7 @@ import webbrowser
 
 import GlobalParameters as gp
 from Serveur import Server
+from JoueurIA.Client import Stats
 
 
 async def javascript_run() :
