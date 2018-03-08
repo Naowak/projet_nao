@@ -3,7 +3,15 @@ import websockets
 
 
 class Client:
+    """
+    Interface de representation d'un client dans le serveur.
 
+    Attributs:
+        -server : 
+        -socket : 
+        -name :
+        -id :
+    """
     def __init__(self, server, name, socket, cid):
         self.server = server
         self.socket = socket
