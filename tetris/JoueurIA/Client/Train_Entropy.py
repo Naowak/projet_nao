@@ -92,9 +92,6 @@ class Train_Entropy(ClientInterface.ClientInterface):
             self.current_game_is_finish = False
             self.current_eval = i
             for _ in range(self.evaluate_size):
-                print("JE SUIS BLOQUE !")
-                print(self.current_game_is_finish)
-                print(super().new_game())
                 await super().new_game(players=[[self.my_client.pid,1]],ias=[[3,1]],viewers=[4])
                 while not self.current_game_is_finish:
                     await asyncio.sleep(0)
