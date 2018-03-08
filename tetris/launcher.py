@@ -6,7 +6,7 @@ import GlobalParameters as gp
 from Serveur import Server
 
 
-async def javascript_run():
+async def javascript_run() :
     #os.system("gnome-open tetris_ui.html")
     webbrowser.open("JoueurGUI/tetris_ui.html")
     # pass
