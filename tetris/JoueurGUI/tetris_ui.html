@@ -434,7 +434,11 @@
             var equality = false;
 
             game.score.forEach((e,i) => {
-                var score = new createjs.Text("Score J"+(i+1)+": "+e, "20px Arial", "black");
+                if (actual_player == i) {
+                    var score = new createjs.Text("Score J"+(i+1)+": "+e, "bold 20px Arial", "black");
+                }else{
+                    var score = new createjs.Text("Score J"+(i+1)+": "+e, "20px Arial", "black");
+                }
                 score.x = screen.left + 20;
                 score.y = screen.top + 20 + 20*i;
     
