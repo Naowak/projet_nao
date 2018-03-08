@@ -54,7 +54,7 @@ class Train_Entropy(ClientInterface.ClientInterface):
             elif h == "hidden_empty_cells" :
                 self.heuristic[h] = H.hidden_empty_cells
             else :
-                raise NameError("L'heuristic ", h, " is not defined")
+                raise NameError("This heuristic ", h, " is not defined")
         
 
     def generate_population(self):
