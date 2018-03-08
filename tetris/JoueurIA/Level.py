@@ -12,7 +12,7 @@ from Jeu import Block
 URI = gp.ADRESSE + str(gp.PORT)
 
 
-class IA:
+class Level:
     def __init__(self, strategy):
         self.strategy = strategy
         

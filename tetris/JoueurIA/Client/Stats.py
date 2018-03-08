@@ -4,10 +4,10 @@ sys.path.append("../../")
 import asyncio
 
 
-import Trainable_AI
+import Client
 import GlobalParameters as gp
 
-class Stats(Trainable_AI.TrainableIA):
+class Stats(Client.ClientInterface):
     def __init__(self, name = "statistique", file = None):
         super().__init__(name, file, active=False)
         self.is_finished = False

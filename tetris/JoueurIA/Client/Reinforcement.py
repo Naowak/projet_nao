@@ -3,10 +3,10 @@
 import asyncio
 from tensorforce.agents import DQNAgent
 
-from Trainable_AI import TrainableIA
+from Client import ClientInterface
 
 
-class Reinforcement_IA(TrainableIA):
+class Reinforcement_IA(ClientInterface):
     def __init__(self, name, nb_rows, nb_cols, nb_pieces, file=None):
         super().__init__(name, file)
 

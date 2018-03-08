@@ -9,7 +9,7 @@ import GlobalParameters as gp
 URI = gp.ADRESSE + str(gp.PORT)
 
 
-class IAClientClient:
+class Comunication:
 
     def __init__(self, name,my_ia,active = True, level=None):
         self.my_socket = None
@@ -111,7 +111,7 @@ class IAClientClient:
 
 
 async def run(name):
-    my_client = IAClientClient(name,IA.IA(IA.random_ia))
+    my_client = Comunication(name,Level.Level(Level.random_ia))
     my_client.make_connection_to_server()
     while my_client.my_socket is None:
         await asyncio.sleep(0)

@@ -1,19 +1,19 @@
 from Serveur import Client
 
-class IAClientServer(Client.Client):
+class AIEntity(Client.Client):
     def __init__(self, server, name, ws, cid):
         super().__init__(server, name, ws, cid)
         self.ids_in_games = {}
         self.games = {}
 
     async def request_unlink(self, mess):
-        print("IA doesn't do an unlink request")
+        print("Level doesn't do an unlink request")
 
     async def request_new_game(self, mess):
-        print("IA doesn't do an new_game request")
+        print("Level doesn't do an new_game request")
 
     async def request_link(self, mess):
-        print("IA doesn't do an link request")
+        print("Level doesn't do an link request")
 
     async def request_action(self, mess):
         if self.games[mess["gid"]].actual_player in self.ids_in_games[mess["gid"]]:
@@ -35,10 +35,10 @@ class IAClientServer(Client.Client):
         self.ids_in_games[game.gid] = ids_in_game
 
     def on_disconnect(self):
-        super().print_error("Error :"+ self.name + " : IA disconnect")
+        super().print_error("Error :"+ self.name + " : Level disconnect")
         super().on_disconnect()
         assert(False)
 
     def on_view_game(self, game):        
         super().on_view_game(game)
-        print(self.name, " : IA doesn't watch the game")
+        print(self.name, " : Level doesn't watch the game")

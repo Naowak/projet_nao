@@ -5,10 +5,10 @@ sys.path.append("../../")
 import asyncio
 
 
-from JoueurIA import IAClientClient
-from JoueurIA import IA
+from JoueurIA import Comunication
+from JoueurIA import Level
 
-class TrainableIA:
+class ClientInterface:
     def __init__(self,name, file, active = True):
         self.state = None
         self.my_client = None
@@ -17,7 +17,7 @@ class TrainableIA:
         self.active = active
 
     async def init_train(self):
-        self.my_client = IAClientClient.IAClientClient(self.name, self)
+        self.my_client = Comunication.Comunication(self.name, self)
         self.my_client.make_connection_to_server()
         print("Wait for connection")
         while self.my_client.my_socket is None or self.my_client.pid is None:

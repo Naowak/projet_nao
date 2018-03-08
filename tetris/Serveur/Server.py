@@ -8,9 +8,9 @@ import websockets
 from Jeu import Game
 import GlobalParameters as gp
 from Jeu import Piece
-from Serveur import AI_creator
-from Serveur import IAClientServer
-from Serveur import ClientServer
+from Serveur import AICreator
+from Serveur import AIEntity
+from Serveur import PlayerEntity
 
 
 class Server:
@@ -64,7 +64,7 @@ class Server:
                         players[self.my_ias[level]] = [next_ids_in_game]
                     next_ids_in_game += 1
             except KeyError as e:
-                print("Game cancelled : IA level:",level," doesn't exist")
+                print("Game cancelled : Level level:",level," doesn't exist")
                 print(e)
                 return
 
@@ -92,18 +92,18 @@ class Server:
 
     async def init_ia(self):
         for [level, levelname] in enumerate(gp.LEVELS):
-            asyncio.ensure_future(AI_creator.create_ia("IA_SERVER_LVL"+levelname, level))
+            asyncio.ensure_future(AICreator.create_ia("IA_SERVER_LVL"+levelname, level))
 
     async def connect(self, sock, path):
         mess = await sock.recv()
         mess = json.loads(mess)
         if "level" in mess:
-            client = IAClientServer.IAClientServer(\
+            client = AIEntity.AIEntity(\
                 self, mess["name"], sock, self.next_connect_id)
             mess["level"]
             self.my_ias[mess["level"]] = client
         else:
-            client = ClientServer.ClientServer(\
+            client = PlayerEntity.PlayerEntity(\
                 self, mess["name"], sock, self.next_connect_id)
             self.my_clients[client.id] = client
         #client.on_connect()

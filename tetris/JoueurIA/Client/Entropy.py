@@ -8,10 +8,11 @@ import random
 import numpy as np
 import asyncio
 
-from JoueurIA.Trainable_AI import Heuristic as H
-from JoueurIA.Trainable_AI import Trainable_AI
+from JoueurIA.Client import Heuristic as H
+from JoueurIA.Client import ClientInterface
 
-class Genetic_IA(Trainable_AI.TrainableIA):
+
+class Entropy(ClientInterface.ClientInterface):
     def __init__(self, name, heuristic = [], load_file = None, selection_size = 10, population_size = 50, evaluate_size = 5, nb_generation = 10):
         super().__init__(name,load_file)
         self.weights = list()
@@ -26,15 +27,15 @@ class Genetic_IA(Trainable_AI.TrainableIA):
         self.heuristic = {}
 
         if load_file != None :
-            #si on charge une IA
+            #si on charge une Level
             print("mon print : ", load_file)
             self.load()
         elif len(heuristic) > 0 :
-            #IA non existante, on doit en créer une nouvelle aléatoire
+            #Level non existante, on doit en créer une nouvelle aléatoire
             self.define_heuristic(heuristic)
         else :
             #pas d'ia chargé et aucune heuristic donné : erreur
-            raise Exception("ERROR : Aucun fichier n'a été passé en paramètre pour charger une IA et aucune heuristique n'a été définie, l'IA ne peut se créer.")
+            raise Exception("ERROR : Aucun fichier n'a été passé en paramètre pour charger une Level et aucune heuristique n'a été définie, l'Level ne peut se créer.")
 
     def define_heuristic(self, heuristic_list) :
         for h in heuristic_list : 
@@ -57,7 +58,7 @@ class Genetic_IA(Trainable_AI.TrainableIA):
         
 
     def generate_population(self):
-        #si l'IA est déjà définie
+        #si l'Level est déjà définie
         if self.weights is None:
             self.population = [np.random.randn(len(self.heuristic)) for _ in  range(self.population_size)]
         #Sinon elle est définie aléatoirement 
@@ -179,7 +180,7 @@ class Genetic_IA(Trainable_AI.TrainableIA):
                 keys = list(self.heuristic.keys())
                 f.write(keys[i] + " " + str(self.weights[i]) + "\n")
             f.close()
-            print("Current IA saved in : ", file_name)
+            print("Current Level saved in : ", file_name)
         
 
     def load(self):
@@ -200,7 +201,7 @@ class Genetic_IA(Trainable_AI.TrainableIA):
 
 
 if __name__ == "__main__":
-    genetic_ia = Genetic_IA("genetic", ["line_transition","column_transition","holes","wells", "score", "height"],\
+    genetic_ia = Entropy("genetic", ["line_transition","column_transition","holes","wells", "score", "height"],\
                             load_file = "./backup/6_heuristic.save")
     AI_LOOP = asyncio.get_event_loop()
     try :
