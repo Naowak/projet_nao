@@ -1,12 +1,18 @@
 # coding: utf-8
-
+import sys
+import os
+sys.path.append("../")
+sys.path.append("../../")
+import copy
+import random
+import numpy as np
 import asyncio
-from tensorforce.agents import DQNAgent
 
-from Client import ClientInterface
+from JoueurIA.Client import Heuristic as H
+from JoueurIA.Client import ClientInterface
 
 
-class Reinforcement_IA(ClientInterface):
+class Reinforcement_IA(ClientInterface.ClientInterface):
     def __init__(self, name, nb_rows, nb_cols, nb_pieces, file=None):
         super().__init__(name, file)
 
@@ -135,7 +141,7 @@ class Reinforcement_IA(ClientInterface):
         await super().init_train()
 
         for _ in range(self.nb_games):
-            await super().new_game(2)
+            await super().new_game(players=[[self.my_client.pid,1]],ias=[[3,1]],viewers=[4])
 
             self.current_game_is_finish = False
 
@@ -155,4 +161,9 @@ if __name__ == '__main__':
     ia = Reinforcement_IA('reinforcement', 22, 10, 3)
     ia.nb_games = 3000
     AI_LOOP = asyncio.get_event_loop()
-    AI_LOOP.run_until_complete(ia.train())
+    try :
+        AI_LOOP.run_until_complete(ia.train())
+        print("fini")
+    except KeyboardInterrupt :
+        print("\nEntrainement arrêté manuellement.")
+        ia.save()
