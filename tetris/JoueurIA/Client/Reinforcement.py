@@ -7,6 +7,7 @@ import copy
 import random
 import numpy as np
 import asyncio
+from tensorforce.agents import DQNAgent
 
 from JoueurIA.Client import Heuristic as H
 from JoueurIA.Client import ClientInterface
@@ -159,7 +160,7 @@ class Reinforcement_IA(ClientInterface.ClientInterface):
 
 if __name__ == '__main__':
     ia = Reinforcement_IA('reinforcement', 22, 10, 3)
-    ia.nb_games = 3000
+    ia.nb_games = 100
     AI_LOOP = asyncio.get_event_loop()
     try :
         AI_LOOP.run_until_complete(ia.train())
