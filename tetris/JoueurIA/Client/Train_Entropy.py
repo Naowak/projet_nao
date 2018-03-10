@@ -208,11 +208,15 @@ class Train_Entropy(ClientInterface.ClientInterface):
 if __name__ == "__main__":
     stats = False
     my_file_stats = None
-    if len(sys.argv) == 3 and sys.argv[1] == "--stats" :
+    if len(sys.argv) == 2 and sys.argv[1] == "--stats" :
+        stats = True
+    elif len(sys.argv) == 3 and sys.argv[1] == "--stats" :
         stats = True
         my_file_stats = sys.argv[2]
+
     genetic_ia = Train_Entropy("genetic", load_file = "./backup/6_heuristic.save", is_stats = stats, file_stats = my_file_stats)
     AI_LOOP = asyncio.get_event_loop()
+    
     try :
         AI_LOOP.run_until_complete(genetic_ia.train())
     except KeyboardInterrupt :
