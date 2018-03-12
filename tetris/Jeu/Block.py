@@ -3,6 +3,8 @@ import enum
 
 
 class Block():
+    """Définition de toutes  les differentes couleurs que
+    les blocks peuvent avoir"""
     Empty = "White"
     Red = "Red"
     Blue = "Blue"
