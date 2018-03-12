@@ -94,7 +94,8 @@ class Comunication:
         await self.send_message({"gid": data["gid"], "mess_type": "action", "action": ["choose", dec.pop("choose")]})
         for (key, value) in dec.items():
             await self.send_message({"gid": data["gid"], "mess_type": "action", "action": [key, value]})
-        await self.send_message({"gid": data["gid"], "mess_type": "action", "action": ["valid"]})
+        if not(dec.has_key("valid") and not dec["valid"]):
+            await self.send_message({"gid": data["gid"], "mess_type": "action", "action": ["valid"]})
         return data
 
     async def suggest(self, data):

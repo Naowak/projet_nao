@@ -33,7 +33,8 @@ class ClientInterface:
                 await self.my_client.on_message()
                 await asyncio.sleep(0)
         except KeyboardInterrupt :
-            print("\nStop the program. Please press [Ctrl+C] once again to save & quit.")
+            #print("\nStop the program. Please press [Ctrl+C] once again to save & quit.")
+            raise KeyboardInterrupt
             return
 
     def play(self, state):
