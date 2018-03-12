@@ -91,7 +91,7 @@ class NaoSpeech(ClientInterface.ClientInterface):
             naopy.nao_talk("J''espère que tu es prêt")
         rdp = random.random()
         if rdp < (1/3):
-            naopy.nao_anim("animations/Sit/Waiting/PlayHands_2")
+            naopy.nao_anim("animations/Sit/Emotions/Positive/Happy_4")
         elif rdp < (2/3):
             naopy.nao_anim("animations/Sit/Gestures/ComeOn_1")
         else:
@@ -113,7 +113,7 @@ class NaoSpeech(ClientInterface.ClientInterface):
             else:
                 naopy.nao_talk("Tu veux retenter ?")
                 naopy.nao_anim("animations/Sit/Emotions/Positive/Happy_1")
-        else:
+        elif data['score'][1] < data['score'][0]
             if rd < (1/3):
                 naopy.nao_talk("Mince j''ai perdu")
                 naopy.nao_anim("animations/Sit/Emotions/Negative/Sad_1")
@@ -122,6 +122,13 @@ class NaoSpeech(ClientInterface.ClientInterface):
                 naopy.nao_anim("animations/Sit/Emotions/Negative/Hurt_1")
             else:
                 naopy.nao_talk("Tu veux rejouer ?")
+        else:
+            if rd < (1/3):
+                naopy.nao_talk("Olalala c''était tendu")
+            elif rd < (1/3):
+                naopy.nao_talk("Je méritais cette victoire")
+            else:
+                naopy.nao_talk("Égalité... Tu veux rejouer ?")
 
     def save(self):
         pass
