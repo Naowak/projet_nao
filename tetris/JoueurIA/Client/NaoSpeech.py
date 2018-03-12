@@ -20,24 +20,7 @@ class NaoSpeech(ClientInterface.ClientInterface):
             self.tour = data['turn'] 
             rdp = random.random()
             rdthink = random.random()
-            if rdp > 0.8 :
-                if random.random() > 0.5:
-                    if data["actual_player"] == 0:
-                        naopy.nao_talk("réfléchi bien")
-                    else:
-                        naopy.nao_talk("À moi de jouer")
-                else:
-                    if data["actual_player"] == 0:
-                        #print("Attention à ce que tu fais")
-                        naopy.nao_anim("animations/Sit/Emotions/Positive/Laugh_2")
-                    else:
-                        print("Regardes ce coup de maitre")
-                        naopy.nao_anim("animations/Sit/Waiting/ScratchBack_1")
-            elif random.random() > 0.7:
-                if rdthink < (1/3):
-                    naopy.nao_anim("animations/Sit/Waiting/Think_1")
-                elif rdthink > (2/3):
-                    naopy.nao_anim("animations/Sit/Waiting/Think_2")
+            rdanim = random.random()
 
             if data['score'][0]> self.score_player:
                 rd = random.random()
@@ -45,14 +28,20 @@ class NaoSpeech(ClientInterface.ClientInterface):
                         naopy.nao_talk("Mince, tu gagnes maintenant...")
                         self.winner = 0
                 elif rd < (1/3):
-                    naopy.nao_talk("Ah je n''avais pas vu")
+                    naopy.nao_talk("Ah...je n''avais pas vu")
                 elif rd < (2/3):
                     naopy.nao_talk("Oh oh bien joué")
                 else:
                     naopy.nao_talk("C''était ta dernière ligne.")
+                if (random.random() > 0.5):
+                    if (rdanim > 0.5):
+                        naopy.nao_anim("animations/Sit/Emotions/Negative/Sad_1")
+                    else:
+                        naopy.nao_anim("animations/Sit/Emotions/Negative/Hurt_1") 
+
                 self.score_player = data['score'][0]
 
-            if data['score'][1] > self.score_nao:
+            elif data['score'][1] > self.score_nao:
                 rd = random.random()
                 if (data['score'][1] > data['score'][0] and self.winner != 1):
                         naopy.nao_talk("La victoire m''appartient !")
@@ -63,7 +52,30 @@ class NaoSpeech(ClientInterface.ClientInterface):
                     naopy.nao_talk("Hop là ")
                 else:
                    naopy.nao_talk("Tu n''as pas le niveau")
+
+                if (random.random() > 0.8):
+                    if (rdanim > 0.5):
+                        naopy.nao_anim("animations/Sit/Emotions/Positive/Happy_1")
+                    else:
+                        naopy.nao_anim("animations/Sit/Emotions/Positive/Happy_2") 
                 self.score_nao = data['score'][1]
+
+            elif rdp > 0.8 :
+                if random.random() > 0.5:
+                    if data["actual_player"] == 0:
+                        naopy.nao_talk("réfléchi bien")
+                    else:
+                        naopy.nao_talk("À moi de jouer")
+                else:
+                    if data["actual_player"] == 0:
+                        naopy.nao_talk("Attention à ce que tu fais")
+                    else:
+                        naopy.nao_talk("Regardes ce coup de maitre")
+            elif random.random() > 0.7:
+                if rdthink < (1/3):
+                    naopy.nao_anim("animations/Sit/Waiting/Think_1")
+                elif rdthink > (2/3):
+                    naopy.nao_anim("animations/Sit/Waiting/Think_2")
             
 
     def play(data) :
@@ -79,11 +91,11 @@ class NaoSpeech(ClientInterface.ClientInterface):
             naopy.nao_talk("J''espère que tu es prêt")
         rdp = random.random()
         if rdp < (1/3):
-            naopy.nao_anim('animations/Sit/Waiting/PlayHands_2')
+            naopy.nao_anim("animations/Sit/Waiting/PlayHands_2")
         elif rdp < (2/3):
-            naopy.nao_anim('animations/Sit/Gestures/ComeOn_1')
+            naopy.nao_anim("animations/Sit/Gestures/ComeOn_1")
         else:
-            naopy.nao_anim('animations/Sit/Reactions/TouchHead_2')
+            naopy.nao_anim("animations/Sit/Gestures/You_4") #Pas terrible
         self.score_player = 0
         self.score_nao = 0
         self.tour = 0
