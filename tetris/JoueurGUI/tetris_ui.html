@@ -86,7 +86,10 @@
         var id;
         var ws;
         var in_game= false;
-        var observer_type = "player"; 
+        var observer_type = "player";
+        var boundaryB;
+        var boundaryR;
+        var boundary;
 
         // ------------------------------------------------------------------------------------------------------
         var nom;
@@ -371,10 +374,24 @@
         }
 
         function drawBackground() {
-            var boundary = new createjs.Shape();
+            boundary = new createjs.Shape();
             boundary.graphics
                      .setStrokeStyle(1)
                      .beginStroke("black")
+                     .drawRect(screen.left, screen.top, screen.inner_width, screen.inner_height)
+                     .moveTo(grid.left, grid.top)
+                     .lineTo(grid.left, grid.bottom);
+            boundaryB = new createjs.Shape();
+            boundaryB.graphics
+                     .setStrokeStyle(1)
+                     .beginStroke("blue")
+                     .drawRect(screen.left, screen.top, screen.inner_width, screen.inner_height)
+                     .moveTo(grid.left, grid.top)
+                     .lineTo(grid.left, grid.bottom);
+            boundaryR = new createjs.Shape();
+            boundaryR.graphics
+                     .setStrokeStyle(1)
+                     .beginStroke("red")
                      .drawRect(screen.left, screen.top, screen.inner_width, screen.inner_height)
                      .moveTo(grid.left, grid.top)
                      .lineTo(grid.left, grid.bottom);
@@ -469,7 +486,12 @@
                 disp_win.y = screen.top + 20 + 20*(nb_player+3);
                 root.addChild(disp_win);
             }
-
+            if (actual_player == 0){
+                root.addChild(boundaryB);                   
+            }else{
+                //root.removeChild(boundaryB);
+                root.addChild(boundaryR);                
+            }
 
             update();
         }
@@ -481,7 +503,6 @@
                 drawPiece(kinds[e], color[e], [0,0], place);
                 place.bottom -= 3*grid.block_size;
             });
-
             update();
         }
 
@@ -517,13 +538,20 @@
             update();
         }
 
+        function sleep(seconds){
+            var waitUntil = new Date().getTime() + seconds*1000;
+            while(new Date().getTime() < waitUntil) true;
+        }
+
         function drawGame() {
             clear_canvas();
+            if(actual_player == 1){
+                sleep(0.3);
+            }
             drawBackground();
             drawInfo();
             drawChoices();
             drawGrid();
-
             update();
         }
       </script>

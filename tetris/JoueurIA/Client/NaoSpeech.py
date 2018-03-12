@@ -33,7 +33,7 @@ class NaoSpeech(ClientInterface.ClientInterface):
                     else:
                         print("Regardes ce coup de maitre")
                         naopy.nao_anim("animations/Sit/Waiting/ScratchBack_1")
-            elif random.random() > 0.8:
+            elif random.random() > 0.7:
                 if rdthink < (1/3):
                     naopy.nao_anim("animations/Sit/Waiting/Think_1")
                 elif rdthink > (2/3):
@@ -50,20 +50,21 @@ class NaoSpeech(ClientInterface.ClientInterface):
                     naopy.nao_talk("Oh oh bien joué")
                 else:
                     naopy.nao_talk("C''était ta dernière ligne.")
+                self.score_player = data['score'][0]
+
             if data['score'][1] > self.score_nao:
                 rd = random.random()
                 if (data['score'][1] > data['score'][0] and self.winner != 1):
                         naopy.nao_talk("La victoire m''appartient !")
                         self.winner = 1
                 elif rd < (1/3):
-                    naopy.nao_anim("animations/Sit/Emotions/Positive/Laugh_2")
+                    naopy.nao_anim("animations/Sit/Emotions/Positive/Laugh_1")
                 elif rd < (2/3):
                     naopy.nao_talk("Hop là ")
                 else:
-                   naopy.nao_talk("Je ne perdrais pas")
-
-            self.score_nao = data['score'][1]
-            self.score_player = data['score'][0]
+                   naopy.nao_talk("Tu n''as pas le niveau")
+                self.score_nao = data['score'][1]
+            
 
     def play(data) :
         pass
