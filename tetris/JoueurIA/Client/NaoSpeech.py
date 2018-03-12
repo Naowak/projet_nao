@@ -31,7 +31,7 @@ class NaoSpeech(ClientInterface.ClientInterface):
                         #print("Attention à ce que tu fais")
                         naopy.nao_anim("animations/Sit/Emotions/Positive/Laugh_2")
                     else:
-                        #print("Regardes ce coup de maitre")
+                        print("Regardes ce coup de maitre")
                         naopy.nao_anim("animations/Sit/Waiting/ScratchBack_1")
             elif random.random() > 0.8:
                 if rdthink < (1/3):
@@ -82,18 +82,18 @@ class NaoSpeech(ClientInterface.ClientInterface):
 
 
     def on_finished_game(self,data):
+        rd = random.random()
         if data['score'][1] > data['score'][0]:
-            rd = random.random()
             if rd < (1/3):
                 naopy.nao_talk("Hahahaha je t''ai eu")
                 naopy.nao_anim("animations/Sit/Emotions/Positive/Winner_1")
+                #naopy.nao_anim("animations/Sit/Emotions/Positive/Happy_4")
             elif rd < (2/3):
                 naopy.nao_talk("La machine à surpasser l''homme")
             else:
                 naopy.nao_talk("Tu veux retenter ?")
                 naopy.nao_anim("animations/Sit/Emotions/Positive/Happy_1")
         else:
-            rd = random.random()
             if rd < (1/3):
                 naopy.nao_talk("Mince j''ai perdu")
                 naopy.nao_anim("animations/Sit/Emotions/Negative/Sad_1")
