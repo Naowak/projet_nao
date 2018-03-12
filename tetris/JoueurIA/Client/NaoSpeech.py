@@ -76,6 +76,13 @@ class NaoSpeech(ClientInterface.ClientInterface):
             naopy.nao_talk("Allons-y")
         else:
             naopy.nao_talk("J''espère que tu es prêt")
+        rdp = random.random()
+        if rdp < (1/3):
+            naopy.nao_anim('animations/Sit/Waiting/PlayHands_2')
+        elif rdp < (2/3):
+            naopy.nao_anim('animations/Sit/Gestures/ComeOn_1')
+        else:
+            naopy.nao_anim('animations/Sit/Reactions/TouchHead_2')
         self.score_player = 0
         self.score_nao = 0
         self.tour = 0
