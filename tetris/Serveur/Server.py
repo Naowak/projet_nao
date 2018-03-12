@@ -64,6 +64,8 @@ class Server:
                         players[self.my_ias[level]] = [next_ids_in_game]
                     next_ids_in_game += 1
             except KeyError as e:
+                import traceback
+                traceback.print_exc()
                 print("Game cancelled : Level level:",level," doesn't exist")
                 print(e)
                 return

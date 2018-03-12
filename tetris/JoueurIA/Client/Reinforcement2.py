@@ -10,7 +10,8 @@ sys.path.append("../../")
 from tensorforce.agents import DQNAgent
 from GlobalParameters import *
 
-from JoueurIA.Client import ClientInterface
+from JoueurIA.Client import ClientInterface, Heuristic
+from Jeu import State
 
 
 class Reinforcement(ClientInterface.ClientInterface):
@@ -19,23 +20,20 @@ class Reinforcement(ClientInterface.ClientInterface):
 
         self.current_game_is_finish = None
         self.first_game = True
-        self.nb_games = 1000
+        self.nb_games = 5000
         self.score_self_old, self.score_self_new = 0, 0
         self.score_other_old, self.score_other_new = 0, 0
         self.scores_list = []
         self.file_scores = open('scores.txt', 'w')
+        self.nb_heuristics = 4
+        self.iteration = 0
 
-        network_spec = [dict(type='dense', size=64, activation='relu'),
-                        dict(type='dense', size=64, activation='relu'),
-                        dict(type='dense', size=64, activation='relu'),
-                        dict(type='dense', size=64, activation='relu'),
-                        dict(type='dense', size=64, activation='relu'),
-                        dict(type='dense', size=64, activation='relu'),
-                        dict(type='dense', size=64, activation='relu'),
-                        dict(type='dense', size=64, activation='relu')]
+        network_spec = [dict(type='dense', size=10, activation='relu'),
+                        dict(type='dense', size=10, activation='relu'),
+                        dict(type='dense', size=10, activation='relu'),
+                        dict(type='dense', size=10, activation='relu')]
 
-        nb_squares = TAILLE_Y * TAILLE_X
-        self.agent = DQNAgent(states_spec={'shape': (nb_squares+NOMBRE_DE_CHOIX,), 'type': 'float'},
+        self.agent = DQNAgent(states_spec={'shape': (self.nb_heuristics + NOMBRE_DE_CHOIX,), 'type': 'float'},
                               actions_spec={'hor_move': {'type': 'int', 'num_actions': 11},
                                             'rotate': {'type': 'int', 'num_actions': 4},
                                             'choose': {'type': 'int', 'num_actions': 3}},
@@ -68,21 +66,18 @@ class Reinforcement(ClientInterface.ClientInterface):
         # format the action to make it exploitable by the Tetris game
         action_to_apply = self.format_action(action, state)
 
-        print(action['rotate'])
-        print(state['score'])
-        print(len(state_formatted))
-        print(state['step'] == 'finished')
-        print(action_to_apply)
-        print({"hor_move": -2, "rotate": 1, "choose": state["pieces"][0]})
-        print(state['step'])
-
         return action_to_apply
         # return {"hor_move": -2, "rotate": 1, "choose": state["pieces"][0]}
 
     def on_init_game(self, data):
+        print()
+        print(self.iteration)
+
         self.my_id_in_game = data["ids_in_game"][0]
 
     def on_finished_game(self, data):
+        self.iteration += 1
+
         self.current_game_is_finish = True
 
         # update all the scores (self.score_self_new, self.score_self_old, self.score_other_new, self.score_other_old)
@@ -118,14 +113,19 @@ class Reinforcement(ClientInterface.ClientInterface):
         return action_to_apply
 
     def format_state(self, state):
-        # flattened and binary grid
-        grid_flat = [int(j != 'White') for i in state['grid'] for j in i]
+        if self.nb_heuristics == 4:
+            state_bis = State.State(state['grid'])
+            heuristics = [Heuristic.line_transition(None, state_bis, None),
+                          Heuristic.column_transition(None, state_bis, None),
+                          Heuristic.holes(None, state_bis, None),
+                          Heuristic.wells(None, state_bis, None)]
+        # print('heuristics: ', heuristics)
 
         # selectable pieces as a list of integers
         pieces_num = sorted([self.char_to_int(p) for p in state['pieces']])
 
         # state used by tensorforce
-        state_formatted = grid_flat
+        state_formatted = heuristics
         state_formatted.extend(pieces_num)
 
         return state_formatted
@@ -147,7 +147,8 @@ class Reinforcement(ClientInterface.ClientInterface):
         await super().init_train()
 
         for _ in range(self.nb_games):
-            await super().new_game(players=[[self.my_client.pid, 1]], ias=[[3, 1]], viewers=[4])
+            # await super().new_game(players=[[self.my_client.pid, 1]], ias=[[4, 1]], viewers=[0])
+            await super().new_game(players=[[self.my_client.pid, 1]], ias=[[4, 1]], viewers=[])
 
             self.current_game_is_finish = False
 
@@ -155,13 +156,13 @@ class Reinforcement(ClientInterface.ClientInterface):
                 await asyncio.sleep(0)
 
             self.current_game_is_finish = False
-            
+
         self.save()
 
     def save(self):
         # directory = os.path.join(os.getcwd(), 'rein_learn_models')
         time_str = time.strftime('%Y%m%d_%H%M%S')
-        directory = os.path.join(os.getcwd(), 'rein_learn_models', 'agent_'+time_str)
+        directory = os.path.join(os.getcwd(), 'rein_learn_models', 'agent_' + time_str)
         checkpoint = self.agent.save_model(directory=directory, append_timestep=True)
         print('directory: {}'.format(directory))
         print('checkpoint: {}'.format(checkpoint))
@@ -176,7 +177,7 @@ class Reinforcement(ClientInterface.ClientInterface):
 
 if __name__ == '__main__':
     ia = Reinforcement('reinforcement')
-    ia.nb_games = 1
+    # ia.nb_games = 1000
     AI_LOOP = asyncio.get_event_loop()
     try:
         AI_LOOP.run_until_complete(ia.train())
