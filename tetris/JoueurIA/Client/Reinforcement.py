@@ -10,7 +10,7 @@ sys.path.append("../../")
 from tensorforce.agents import DQNAgent
 from GlobalParameters import *
 
-from JoueurIA.Client import ClientInterface, Heuristic
+from JoueurIA.Client import ClientInterface, Heuristic, Stats
 from Jeu import State
 
 
@@ -27,6 +27,11 @@ class Reinforcement(ClientInterface.ClientInterface):
         self.file_scores = open('scores.txt', 'w')
         self.nb_heuristics = 4
         self.iteration = 0
+
+        self.train_adversary_level = 2
+
+        # Performance function
+        self.wins = 0
 
         network_spec = [dict(type='dense', size=10, activation='relu'),
                         dict(type='dense', size=10, activation='relu'),
@@ -97,7 +102,8 @@ class Reinforcement(ClientInterface.ClientInterface):
         self.scores_list.append([self.score_self_new, self.score_other_new])
 
         # save the scores in a file
-        self.file_scores.write("%d, %d\n" % (self.score_self_new, self.score_other_new))
+        self.wins += 1 if self.score_self_new > self.score_other_new else 0
+        self.file_scores.write("%f\n" % (self.wins / self.iteration))
         self.file_scores.flush()
 
     def update_scores(self, state):
@@ -156,9 +162,13 @@ class Reinforcement(ClientInterface.ClientInterface):
 
         for _ in range(self.nb_games):
             if self.is_stats :
-                await super().new_game(players=[[self.my_client.pid, 1]],ias=[[3, 1]],viewers=[0, self.pid_stats])
+                await super().new_game(players=[[self.my_client.pid, 1]],
+                                       ias=[[self.train_adversary_level, 1]],
+                                       viewers=[0, self.pid_stats])
             else :
-                await super().new_game(players=[[self.my_client.pid, 1]],ias=[[3, 1]],viewers=[0])
+                await super().new_game(players=[[self.my_client.pid, 1]],
+                                       ias=[[self.train_adversary_level, 1]],
+                                       viewers=[0])
 
             self.current_game_is_finish = False
 
@@ -195,7 +205,7 @@ if __name__ == '__main__':
         my_file_stats = sys.argv[2]
 
     ia = Reinforcement('reinforcement', is_stats = my_stats, file_stats = my_file_stats)
-    ia.nb_games = 10
+    ia.nb_games = 1000
     AI_LOOP = asyncio.get_event_loop()
     try:
         AI_LOOP.run_until_complete(ia.train())
