@@ -51,7 +51,7 @@ class NaoSpeech(ClientInterface.ClientInterface):
                 elif rd < (2/3):
                     naopy.nao_talk("Hop là ")
                 else:
-                   naopy.nao_talk("Tu n''as pas le niveau")
+                    naopy.nao_talk("Tu n''as pas le niveau")
 
                 if (random.random() > 0.8):
                     if (rdanim > 0.5):
@@ -77,7 +77,7 @@ class NaoSpeech(ClientInterface.ClientInterface):
                 elif rdthink > (2/3):
                     naopy.nao_anim("animations/Sit/Waiting/Think_2")
 
-    def play(data) :
+    def play(self,data) :
         pass
 
     def on_init_game(self, data):
@@ -112,7 +112,7 @@ class NaoSpeech(ClientInterface.ClientInterface):
             else:
                 naopy.nao_talk("Tu veux retenter ?")
                 naopy.nao_anim("animations/Sit/Emotions/Positive/Happy_1")
-        elif data['score'][1] < data['score'][0]
+        elif data['score'][1] < data['score'][0]:
             if rd < (1/3):
                 naopy.nao_talk("Mince j''ai perdu")
                 naopy.nao_anim("animations/Sit/Emotions/Negative/Sad_1")

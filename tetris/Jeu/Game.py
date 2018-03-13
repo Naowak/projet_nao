@@ -150,6 +150,8 @@ class Game(Subject.Subject):
         dico["pieces"] = tmp["pieces"]
         dico["actual_player"] = self.actual_player
         dico["turn"] = self.actual_turn
+        dico["actual_pieces"] = self.current_piece.kind
+        dico["actual_abscisse"] = self.current_abscisse[0]
         if self.is_finished:
             dico["step"] = "finished"
         else:

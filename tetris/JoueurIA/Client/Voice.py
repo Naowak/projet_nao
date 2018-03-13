@@ -9,6 +9,7 @@ import numpy as np
 import asyncio
 from collections import Counter
 
+from JoueurIA.Client import Nao as naopy
 from JoueurIA.Client import Heuristic as H
 from JoueurIA.Client import ClientInterface
 from JoueurIA.Client import Grammar
@@ -83,18 +84,24 @@ class VoiceControl(ClientInterface.ClientInterface):
                 else:
                     print("Unvalaible piece : you must choose in ",\
                             state["pieces"])
+                    naopy.nao_talk(
+                        "La pièce que tu as chosit n'est pas disponible")
                     return None
             else:
                 action["choose"] = state["pieces"][interpret["piece"]]    
         if interpret["colonne"] is not None:
             if interpret["direction"] is not None:
                 action["hor_move"] = interpret["colonne"] * interpret["direction"]
+            else:
+                action["hor_move"] = interpret["colonne"] - state["actual_abscisse"]
         if interpret["rotate"] is not None:
             action["rotate"] = interpret["rotate"]
         if interpret["valid"] is not None:
             action["valid"] = interpret["valid"]
         else:
             action["valid"] = False
+            naopy.nao_talk(
+                "N'oublie pas de valider ton coup")
         print(action)
         return action
     
