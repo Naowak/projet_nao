@@ -103,6 +103,8 @@
         var IA_level2=0;
         var attention = 'Voulez-vous quitter la partie en cours ?';
         var HN = false;
+        var listeLigneSupp = [];
+        var data;
         
         function fHH(){
             if(in_game){
@@ -273,7 +275,7 @@
               console.log("Error");              
             };
             ws.onmessage = (event) => {
-                var data = JSON.parse(event.data);
+                data = JSON.parse(event.data);
                 console.log(data);
                 switch(data.step){
                     case "connect":
@@ -304,8 +306,13 @@
                         game.score = data.score;
                         game.choices = data.pieces;
                         game.turn = data.turn;
+                        listeLigneSupp = data.lines_complete_this_turn;
                         actual_player = data.actual_player;
-                        drawGame();
+                        if(listeLigneSupp.length == 0){
+                            drawGame();
+                        }else{
+                            drawAnim();   
+                        }             
                         break;
                     case "finished" :
                         in_game=false;
@@ -553,21 +560,50 @@
             update();
         }
 
-        function sleep(seconds){
-            var waitUntil = new Date().getTime() + seconds*1000;
-            while(new Date().getTime() < waitUntil) true;
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-        function drawGame() {
-            clear_canvas();
-            if(actual_player == 1 && HN){
-                sleep(0.3);
+        async function drawAnim(){
+            drawLine();
+            game.grid = data.grid;
+            await sleep(150);
+            drawGame();
+        }
+
+        function drawLine(){   
+            game.grid.forEach((a,i) => {
+                a.forEach((e,j) => {
+                    for(var l=0; l<listeLigneSupp.length; l++){
+                        //if(e!="White"){
+                            if(j >= listeLigneSupp[l] && j < (grid.lines - grid.holding_lines)){
+                                j = j+1;
+                            }
+                            drawBlock(e,[i,j]);
+                        //}
+                    }
+                });
+            });
+            for(var l=0; l<listeLigneSupp.length; l++){
+                for(c = 0; c <= grid.columns; c++){
+                    drawBlock("Grey",[c,listeLigneSupp[l]]);
+                }
             }
+            update();
+            //listeLigneSupp = [];
+        }
+
+
+        async function drawGame() {
+            clear_canvas();
             drawBackground();
             drawInfo();
             drawChoices();
             drawGrid();
             update();
+            if(actual_player == 1 && HN){
+                await sleep(300);
+            }
         }
       </script>
       <audio src="music/Music.mp3" autoplay="true" loop="true" preload="auto" id="audio">
