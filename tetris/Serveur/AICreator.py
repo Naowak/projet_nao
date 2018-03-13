@@ -32,8 +32,7 @@ async def create_ia(name,level):
     elif level == 3 :
         IA_STRATEGIE = Entropy.Entropy(name, load_file = "./JoueurIA/Client/backup/6_heuristic.save")
     elif level == 4 :
-        # IA_STRATEGIE = Reinforcement.Reinforcement(name, load_file = os.path.join('JoueurIA', 'Client', 'rein_learn_models', 'agent_20180309_160050-10'))
-        IA_STRATEGIE = Reinforcement.Reinforcement(name, load_file=os.path.join('JoueurIA', 'Client', 'rein_learn_models', 'agent_20180312_160212-48264'))
+        IA_STRATEGIE = Reinforcement.Reinforcement(name)
 
     my_client = Comunication.Comunication(name, IA_STRATEGIE, level = level)
     my_client.make_connection_to_server()

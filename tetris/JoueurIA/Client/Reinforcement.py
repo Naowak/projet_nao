@@ -3,6 +3,7 @@ import sys
 import os
 import asyncio
 import time
+import argparse
 
 sys.path.append("../")
 sys.path.append("../../")
@@ -28,7 +29,7 @@ class Reinforcement(ClientInterface.ClientInterface):
         self.nb_heuristics = 4
         self.iteration = 0
 
-        self.train_adversary_level = 2
+        self.train_adversary_level = 1
 
         # Performance function
         self.wins = 0
@@ -180,6 +181,7 @@ class Reinforcement(ClientInterface.ClientInterface):
         self.save()
 
     def save(self):
+        #TODO: Dire si on a bien charger
         # directory = os.path.join(os.getcwd(), 'rein_learn_models')
         time_str = time.strftime('%Y%m%d_%H%M%S')
         directory = os.path.join(os.getcwd(), 'rein_learn_models', 'agent_' + time_str)
@@ -196,15 +198,16 @@ class Reinforcement(ClientInterface.ClientInterface):
 
 
 if __name__ == '__main__':
-    my_stats = False
-    my_file_stats = None
-    if len(sys.argv) == 2 and sys.argv[1] == "--stats" :
-        my_stats = True
-    elif len(sys.argv) == 3 and sys.argv[1] == "--stats" :
-        my_stats = True
-        my_file_stats = sys.argv[2]
+    parser = argparse.ArgumentParser(description='Beep boop.')
+    parser.add_argument('load_file', nargs='?', default=None, type=str, help='file to load')
+    parser.add_argument('--stats', dest='my_file_stats', default=None, type=str, help='stats')
+    args = parser.parse_args()
 
-    ia = Reinforcement('reinforcement', is_stats = my_stats, file_stats = my_file_stats)
+    my_file_stats = args.my_file_stats
+    my_stats = my_file_stats is not None
+
+
+    ia = Reinforcement('reinforcement', is_stats = my_stats, file_stats = args.my_file_stats)
     ia.nb_games = 1000
     AI_LOOP = asyncio.get_event_loop()
     try:
