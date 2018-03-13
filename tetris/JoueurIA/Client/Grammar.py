@@ -70,7 +70,7 @@ rule_colonne = [\
             [r".*?(\w+) colonnes?.*?",union(index_column_vocab,ordinals_vocab)]\
             ]
 rule_direction = [\
-            [r".*?(:?vers la|à) (\w+).*?", directions_vocab]
+            [r".*?(?: vers la|à) (\w+).*?", directions_vocab]
             ]   
 rule_rotate = [\
             [r".*?(?: tourn(?:é|ée|és|ez|er) .* (\w+) fois).*?", index_column_vocab]
