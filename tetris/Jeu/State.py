@@ -30,7 +30,8 @@ class State:
         Attributs :
             -grid : liste deux dimensions"""
         self.grid = copy_grid(grid)
-        self.score = [0]*gp.NOMBRE_DE_JOUEUR
+        self.score = [0]*gp.NOMBRE_DE_JOUEUR    
+        self.indices_lines_complete_this_turn = list()
 
     def drop_piece(self, piece, player):
         """Fait tomber une pièce dans la grille, si celle-ci réalise une (ou plusieurs)
@@ -47,7 +48,8 @@ class State:
                       ][int(piece.center[1] + block[1])] = piece.color
         if not is_piece_accepted_ordonne(piece):
             return False
-        nb_ligne_delete = self.line_complete()
+        [nb_ligne_delete, indices] = self.line_complete()
+        self.indices_lines_complete_this_turn = indices
         self.maj_score(nb_ligne_delete, player)
         return True
 
@@ -117,9 +119,11 @@ class State:
         """Vérifie si des lignes sont complètes dans la grille, si oui gère la suppression de celles-ci et les compte.
 
         Retour :
-            - int : nombre de lignes réalisées"""
+            - int : nombre de lignes réalisées
+	    - liste int : indices des lignes réalisées"""
         j = 0
         compteur = 0
+        indices = []
         while j < gp.TAILLE_Y_LIMITE:
             test = True
             for i in range(gp.TAILLE_X):
@@ -127,6 +131,7 @@ class State:
                     test = False
             if test:
                 # ligne numero j complète
+                indices += [j + len(indices)]
                 compteur += 1
                 for k in range(j + 1, gp.TAILLE_Y_LIMITE):
                     for i in range(gp.TAILLE_X):
@@ -139,7 +144,7 @@ class State:
                 # si l'on a supprimé la ligne j, \
                                 # pas besoin d'augmenter d'ordonnee (ce serait une erreur)
                 j += 1
-        return compteur
+        return compteur, indices
 
     def __str__(self):
         """Retourne un string représentant l'état actuel."""
@@ -175,7 +180,12 @@ class State:
 
         Retourne :
             - json : représantant une instance State"""
-        serialize = {"score":self.score, "grid":[[j for j in i] for i in self.grid]}
+        serialize = {"score":self.score, "grid":[[j for j in i] for i in self.grid], "lines_complete_this_turn" : self.indices_lines_complete_this_turn}
+        
+        #ATTENTION : moyen pas beau d'envoyer les lignes correctement au serveur
+        #à corriger potentiellement plus tard
+        if len(self.indices_lines_complete_this_turn) > 0 :
+            self.indices_lines_complete_this_turn = []
         return serialize
 
     
