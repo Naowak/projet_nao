@@ -93,7 +93,7 @@ class Stats(ClientInterface.ClientInterface):
                 ias=[[level1,2]]
             else:
                 ias=[[level1,1],[level2,1]]
-            await super().new_game(ias=ias,viewers=[4,self.my_client.pid])
+            await super().new_game(ias=ias,viewers=[0,self.my_client.pid])
             self.is_finished = False
             while not self.is_finished :
                 await asyncio.sleep(0)

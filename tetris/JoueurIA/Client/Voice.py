@@ -55,7 +55,7 @@ class VoiceControl(ClientInterface.ClientInterface):
 
     @classmethod
     def interpret(cls, spoken, state):
-        extract_info = {"piece":[],"colonne":[],"direction":[],"rotate":[]}
+        extract_info = {"piece":[],"colonne":[],"direction":[],"rotate":[],"valid":[]}
         for sentence in spoken:
             sentence = sentence.lower()
             extract_info["piece"].append(Grammar.apply_basic_rule(Grammar.rule_piece,sentence))
@@ -72,11 +72,20 @@ class VoiceControl(ClientInterface.ClientInterface):
             else:
                 best_interpret[k] = None
         print(best_interpret)
+        return best_interpret
 
     def traitement(self,interpret,state):
         action = {}
         if interpret["piece"] is not None:
-            action["choose"] = state["pieces"][interpret["piece"] - 1]
+            if isinstance(interpret["piece"],type("")) :
+                if self.colors[interpret["piece"]] in state["pieces"]:
+                    action["choose"] = self.colors[interpret["piece"]]
+                else:
+                    print("Unvalaible piece : you must choose in ",\
+                            state["pieces"])
+                    return None
+            else:
+                action["choose"] = state["pieces"][interpret["piece"]]    
         if interpret["colonne"] is not None:
             if interpret["direction"] is not None:
                 action["hor_move"] = interpret["colonne"] * interpret["direction"]
@@ -84,11 +93,14 @@ class VoiceControl(ClientInterface.ClientInterface):
             action["rotate"] = interpret["rotate"]
         if interpret["valid"] is not None:
             action["valid"] = interpret["valid"]
+        else:
+            action["valid"] = False
+        print(action)
         return action
     
     def play(self, state):
         print("play")
-        print(self.colors)
+        print(state["pieces"])
         while True:
             try:
                 audio = self.record()
@@ -108,12 +120,13 @@ class VoiceControl(ClientInterface.ClientInterface):
 
     async def run(self):
         await super().init_train()
-        await super().new_game(players=[[self.my_client.pid, 1]], viewers=[4], ias=[[2, 1]])
+        await super().new_game(players=[[self.my_client.pid, 1]], viewers=[0], ias=[[2, 1]])
         while True:
             await asyncio.sleep(0)
 
     def on_init_game(self, data):
-        self.colors = data["color"]
+        self.colors = {v: k for k,v in data["color"].items()}
+        print(self.colors)
 
 if __name__ == '__main__':
     voice = VoiceControl()

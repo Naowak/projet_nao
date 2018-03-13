@@ -35,7 +35,6 @@ class ClientInterface:
         except KeyboardInterrupt :
             #print("\nStop the program. Please press [Ctrl+C] once again to save & quit.")
             raise KeyboardInterrupt
-            return
 
     def play(self, state):
         pass
@@ -58,7 +57,7 @@ class ClientInterface:
 
     async def observe_game(self,gid):
         mess = {'mess_type': 'link_game',\
-                'gid': self.gid } 
+                'gid': gid } 
         await self.my_client.send_message(mess)
 
     def save(self):

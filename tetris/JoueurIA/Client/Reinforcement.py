@@ -152,9 +152,9 @@ class Reinforcement_IA(ClientInterface.ClientInterface):
 
         for _ in range(self.nb_games):
             if self.is_stats :
-                await super().new_game(players=[[self.my_client.pid,1]],ias=[[3,1]],viewers=[4, self.pid_stats])
+                await super().new_game(players=[[self.my_client.pid,1]],ias=[[3,1]],viewers=[0, self.pid_stats])
             else :
-                await super().new_game(players=[[self.my_client.pid,1]],ias=[[3,1]],viewers=[4])
+                await super().new_game(players=[[self.my_client.pid,1]],ias=[[3,1]],viewers=[0])
 
             self.current_game_is_finish = False
 

@@ -99,9 +99,9 @@ class Train_Entropy(ClientInterface.ClientInterface):
             for _ in range(self.evaluate_size):
                 if self.is_stats :
                     #Si on récupère les stats de l'entrainement, on l'ajoute au spec
-                    await super().new_game(players=[[self.my_client.pid,1]],ias=[[3,1]],viewers=[4, self.pid_stats])
+                    await super().new_game(players=[[self.my_client.pid,1]],ias=[[3,1]],viewers=[0, self.pid_stats])
                 else :
-                    await super().new_game(players=[[self.my_client.pid,1]],ias=[[3,1]],viewers=[4])
+                    await super().new_game(players=[[self.my_client.pid,1]],ias=[[3,1]],viewers=[0])
                 while not self.current_game_is_finish:
                     await asyncio.sleep(0)
                 self.current_game_is_finish = False
