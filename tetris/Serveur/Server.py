@@ -58,13 +58,16 @@ class Server:
         for [level, number] in ias:
             try:
                 for _ in range(number):
-                    if self.my_ias[level] in players:
-                        players[self.my_ias[level]] += [next_ids_in_game]
+                    if self.my_ias[gp.LEVELS[level]] in players:
+                        players[self.my_ias[gp.LEVELS[level]]\
+                                ] += [next_ids_in_game]
                     else:
-                        players[self.my_ias[level]] = [next_ids_in_game]
+                        players[self.my_ias[gp.LEVELS[level]]] = [\
+                            next_ids_in_game]
                     next_ids_in_game += 1
             except KeyError as e:
-                print("Game cancelled : Level level:",level," doesn't exist")
+                print("Game cancelled : Level level:", level," ",\
+                    gp.LEVELS[level], " doesn't exist")
                 print(e)
                 return
 
@@ -92,24 +95,24 @@ class Server:
 
     async def init_ia(self):
         for [level, levelname] in enumerate(gp.LEVELS):
-            asyncio.ensure_future(AICreator.create_ia("IA_SERVER_LVL"+levelname, level))
+            asyncio.ensure_future(AICreator.create_ia(levelname, level))
 
     async def connect(self, sock, path):
         mess = await sock.recv()
         mess = json.loads(mess)
         if "level" in mess:
             client = AIEntity.AIEntity(\
-                self, mess["name"], sock, self.next_connect_id)
+                self, mess["name"], sock, mess["name"])
             mess["level"]
-            self.my_ias[mess["level"]] = client
+            self.my_ias[mess["name"]] = client
         else:
             client = PlayerEntity.PlayerEntity(\
                 self, mess["name"], sock, self.next_connect_id)
             self.my_clients[client.id] = client
+            self.next_connect_id += 1
         #client.on_connect()
         print(client, " is connect (id:", client.id, ")")
         await client.send_message(self.data_connect(client))
-        self.next_connect_id += 1
         await self.actualise_server_info()
         await asyncio.ensure_future(client.request())   
 
