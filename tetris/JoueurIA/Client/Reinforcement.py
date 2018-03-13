@@ -38,7 +38,7 @@ class Reinforcement(ClientInterface.ClientInterface):
                         dict(type='dense', size=10, activation='relu'),
                         dict(type='dense', size=10, activation='relu')]
 
-        self.agent = DQNAgent(states_spec={'shape': (self.nb_heuristics + NOMBRE_DE_CHOIX,), 'type': 'float'},
+        self.agent = DQNAgent(states_spec={'shape': (self.nb_heuristics + NOMBRE_DE_PIECES,), 'type': 'float'},
                               actions_spec={'hor_move': {'type': 'int', 'num_actions': 11},
                                             'rotate': {'type': 'int', 'num_actions': 4},
                                             'choose': {'type': 'int', 'num_actions': 3}},
@@ -132,14 +132,23 @@ class Reinforcement(ClientInterface.ClientInterface):
                           Heuristic.wells(None, state_bis, None)]
         # print('heuristics: ', heuristics)
 
-        # selectable pieces as a list of integers
-        pieces_num = sorted([self.char_to_int(p) for p in state['pieces']])
+        # selectable pieces as a one-shot vector
+        pieces_one_hot = self.format_pieces(state['pieces'])
 
         # state used by tensorforce
         state_formatted = heuristics
-        state_formatted.extend(pieces_num)
+        state_formatted.extend(pieces_one_hot)
 
         return state_formatted
+
+    def format_pieces(self, pieces):
+        pieces_formatted = [0] * NOMBRE_DE_PIECES
+
+        for piece in pieces:
+            pieces_formatted[self.char_to_int(piece)] = 1
+
+        print(pieces_formatted)
+        return pieces_formatted
 
     def format_score(self, state):
         id_self = self.my_id_in_game
@@ -205,7 +214,7 @@ if __name__ == '__main__':
         my_file_stats = sys.argv[2]
 
     ia = Reinforcement('reinforcement', is_stats = my_stats, file_stats = my_file_stats)
-    ia.nb_games = 1000
+    ia.nb_games = 5
     AI_LOOP = asyncio.get_event_loop()
     try:
         AI_LOOP.run_until_complete(ia.train())
