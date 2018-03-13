@@ -10,7 +10,7 @@
         </div>
         <div id="Droite" style="float:center;clear:right;">
             <center>
-                <h1>Le Super Tetris 2 joueurs</h1>
+                <h1 style="margin-top: 0">Le Super Tetris 2 joueurs</h1>
                 <h2>Oserez-vous affronter le terrible NAO ?</h2>
                 <br><br>
                 <ul id="navigation" style="list-style-type:none;">
@@ -86,7 +86,10 @@
         var id;
         var ws;
         var in_game= false;
-        var observer_type = "player"; 
+        var observer_type = "player";
+        var boundaryB;
+        var boundaryR;
+        var boundary;
 
         // ------------------------------------------------------------------------------------------------------
         var nom;
@@ -99,6 +102,9 @@
         var IA_level=0;
         var IA_level2=0;
         var attention = 'Voulez-vous quitter la partie en cours ?';
+        var HN = false;
+        var listeLigneSupp = [];
+        var data;
         
         function fHH(){
             if(in_game){
@@ -106,9 +112,11 @@
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
                     ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 2]] , 'viewers' : [] , 'IAs': []}));
+                    HN = false;
                 } 
             }else{
                 ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 2]] , 'viewers' : [] , 'IAs': []}));
+                HN = false;
             }
         }
 
@@ -117,10 +125,12 @@
                 if (confirm(attention)){
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
-                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'viewers' : [] , 'IAs':[[parseInt(IA_level),1]]}));
+                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'viewers' : [5] , 'IAs':[[parseInt(IA_level),1]]}));
+                    HN = true;
                 } 
             }else{
-                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'viewers' : [] , 'IAs':[[parseInt(IA_level),1]]}));
+                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'viewers' : [5] , 'IAs':[[parseInt(IA_level),1]]}));
+                HN = true;
             }
         }
 
@@ -130,9 +140,11 @@
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
                     ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'viewers' : [id] , 'IAs': [[parseInt(IA_level),1], [parseInt(IA_level2),1]]}));
+                    HN = false;
                 }
             }else{
                 ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'viewers' : [id] , 'IAs': [[parseInt(IA_level),1], [parseInt(IA_level2),1]]}));
+                HN = false;
             }
         }
 
@@ -223,18 +235,18 @@
             if (in_game /*&& actual_player == igid[0]*/){
                 console.log("send messages");
                 switch(event.key){
-                    case "ArrowDown": case "s":
+                    case "ArrowDown": case "s": case "S":
                         ws.send(JSON.stringify({'mess_type':'action' , 'action': ['rotate', 1]}));
                         console.log("send messages");
                     break; 
-                    case "ArrowRight": case "d":
+                    case "ArrowRight": case "d": case "D":
                         ws.send(JSON.stringify({'mess_type':'action' ,'action': ['hor_move', 1]}));
                     break; 
-                    case "ArrowUp": case "z":
+                    case "ArrowUp": case "z": case "Z":
                         ind_piece_select = (ind_piece_select+1)%nb_choices;
                         ws.send(JSON.stringify({'mess_type':'action' ,'action': ['choose',game.choices[ind_piece_select]]}));
                     break; 
-                    case "ArrowLeft": case "q":
+                    case "ArrowLeft": case "q": case"Q":
                         ws.send(JSON.stringify({'mess_type':'action' ,'action': ['hor_move', -1]}));
                     break; 
                     case " ": case "Enter":
@@ -263,7 +275,7 @@
               console.log("Error");              
             };
             ws.onmessage = (event) => {
-                var data = JSON.parse(event.data);
+                data = JSON.parse(event.data);
                 console.log(data);
                 switch(data.step){
                     case "connect":
@@ -294,8 +306,13 @@
                         game.score = data.score;
                         game.choices = data.pieces;
                         game.turn = data.turn;
+                        listeLigneSupp = data.lines_complete_this_turn;
                         actual_player = data.actual_player;
-                        drawGame();
+                        if(listeLigneSupp.length == 0){
+                            drawGame();
+                        }else{
+                            drawAnim();   
+                        }             
                         break;
                     case "finished" :
                         in_game=false;
@@ -371,10 +388,24 @@
         }
 
         function drawBackground() {
-            var boundary = new createjs.Shape();
+            boundary = new createjs.Shape();
             boundary.graphics
                      .setStrokeStyle(1)
                      .beginStroke("black")
+                     .drawRect(screen.left, screen.top, screen.inner_width, screen.inner_height)
+                     .moveTo(grid.left, grid.top)
+                     .lineTo(grid.left, grid.bottom);
+            boundaryB = new createjs.Shape();
+            boundaryB.graphics
+                     .setStrokeStyle(1)
+                     .beginStroke("blue")
+                     .drawRect(screen.left, screen.top, screen.inner_width, screen.inner_height)
+                     .moveTo(grid.left, grid.top)
+                     .lineTo(grid.left, grid.bottom);
+            boundaryR = new createjs.Shape();
+            boundaryR.graphics
+                     .setStrokeStyle(1)
+                     .beginStroke("red")
                      .drawRect(screen.left, screen.top, screen.inner_width, screen.inner_height)
                      .moveTo(grid.left, grid.top)
                      .lineTo(grid.left, grid.bottom);
@@ -424,7 +455,7 @@
             number.x = left;
             number.y = top;
             
-            root.addChild(number);
+            root.addChild(number)
             update();
         }
 
@@ -432,17 +463,48 @@
             var winner;
             var higher_score = -10;
             var equality = false;
+            var nameColor;
 
             game.score.forEach((e,i) => {
-                if (actual_player == i) {
-                    var score = new createjs.Text("Score J"+(i+1)+": "+e, "bold 20px Arial", "black");
+                if(parseInt(e) == parseInt(higher_score)){
+                    equality = true;
+                }
+                if(parseInt(e) > parseInt(higher_score)) {
+                    higher_score = e;
+                    winner = i+1;
+                }
+            });
+
+            game.score.forEach((e,i) => {
+                if(i == 0){
+                    nameColor = "blue";
+                }else{
+                    nameColor = "red";
+                }
+                if(in_game){
+                    if (actual_player == i) {     
+                        var numPlayer = new createjs.Text("Score J"+(i+1)+" :","bold 20px Arial", nameColor);                   
+                    }else{
+                        var numPlayer = new createjs.Text("Score J"+(i+1)+" :","20px Arial", nameColor);            
+                    }
+                    if(winner == i+1 && !equality){
+                        var realScore = new createjs.Text(e, "bold 20px Arial",  "black");
+                    }else{
+                        var realScore = new createjs.Text(e, "20px Arial",  "black");
+                    }
+                    numPlayer.x = screen.left +20;
+                    numPlayer.y = screen.top + 20 + 20*i;
+                    realScore.x = numPlayer.x + 100;
+                    realScore.y = numPlayer.y;
+                    root.addChild(numPlayer);
+                    root.addChild(realScore);
+
                 }else{
                     var score = new createjs.Text("Score J"+(i+1)+": "+e, "20px Arial", "black");
+                    score.x = screen.left + 20;
+                    score.y = screen.top + 20 + 20*i;
+                    root.addChild(score);
                 }
-                score.x = screen.left + 20;
-                score.y = screen.top + 20 + 20*i;
-    
-                root.addChild(score);
             });
             var disp_turn = new createjs.Text("Tour :" + game.turn, "20px Arial", "black");
             disp_turn.x = screen.left + 20;
@@ -450,16 +512,7 @@
             
             root.addChild(disp_turn);
 
-            if(! in_game){
-                game.score.forEach((e,i) => {
-                    if(parseInt(e) == parseInt(higher_score)){
-                        equality = true;
-                    }
-                    if(parseInt(e) > parseInt(higher_score)) {
-                        higher_score = e;
-                        winner = i+1;
-                    }
-                });
+            if(!in_game){
                 if(equality){
                     var disp_win = new createjs.Text("\351galit\351", "bold 20px Arial", "black");
                 }else{
@@ -469,8 +522,15 @@
                 disp_win.y = screen.top + 20 + 20*(nb_player+3);
                 root.addChild(disp_win);
             }
-
-
+            if(in_game){
+                if (actual_player == 0){
+                    root.addChild(boundaryB);                   
+                }else{
+                    root.addChild(boundaryR);                
+                }
+            }else{
+                root.addChild(boundary);    
+            }
             update();
         }
 
@@ -481,7 +541,6 @@
                 drawPiece(kinds[e], color[e], [0,0], place);
                 place.bottom -= 3*grid.block_size;
             });
-
             update();
         }
 
@@ -517,14 +576,50 @@
             update();
         }
 
-        function drawGame() {
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function drawAnim(){
+            drawLine();
+            game.grid = data.grid;
+            await sleep(150);
+            drawGame();
+        }
+
+        function drawLine(){   
+            game.grid.forEach((a,i) => {
+                a.forEach((e,j) => {
+                    for(var l=0; l<listeLigneSupp.length; l++){
+                        //if(e!="White"){
+                            if(j >= listeLigneSupp[l] && j < (grid.lines - grid.holding_lines)){
+                                j = j+1;
+                            }
+                            drawBlock(e,[i,j]);
+                        //}
+                    }
+                });
+            });
+            for(var l=0; l<listeLigneSupp.length; l++){
+                for(c = 0; c <= grid.columns; c++){
+                    drawBlock("Grey",[c,listeLigneSupp[l]]);
+                }
+            }
+            update();
+            //listeLigneSupp = [];
+        }
+
+
+        async function drawGame() {
             clear_canvas();
             drawBackground();
             drawInfo();
             drawChoices();
             drawGrid();
-
             update();
+            if(actual_player == 1 && HN){
+                await sleep(300);
+            }
         }
       </script>
 </html>
