@@ -4,13 +4,14 @@
         </script>
         <title> Tetris</title>
     </head>
-    <body onload="init();" style="margin:0;"></body>
+    <font face="Times">
+    <body onload="init();" style="margin:0"; background="Image/background.jpg"; ></body>
         <div id="Gauche" style="float:left">
             <canvas id="canvas"></canvas>
         </div>
         <div id="Droite" style="float:center;clear:right;">
             <center>
-                <h1 style="margin-top: 0">Le Super Tetris 2 joueurs</h1>
+                <h1 style="margin-top: 0;">Le Super Tetris 2 joueurs</h1>
                 <h2>Oserez-vous affronter le terrible NAO ?</h2>
                 <br><br>
                 <ul id="navigation" style="list-style-type:none;">
@@ -38,6 +39,7 @@
             <br><br>
         </div>
     </body>
+    </font>
 
     <script>
         var PORT = 9001;
@@ -455,7 +457,7 @@
             number.x = left;
             number.y = top;
             
-            root.addChild(number);
+            root.addChild(number)
             update();
         }
 
@@ -463,17 +465,42 @@
             var winner;
             var higher_score = -10;
             var equality = false;
+            var nameColor;
 
             game.score.forEach((e,i) => {
+                if(parseInt(e) == parseInt(higher_score)){
+                    equality = true;
+                }
+                if(parseInt(e) > parseInt(higher_score)) {
+                    higher_score = e;
+                    winner = i+1;
+                }
+            });
+
+            game.score.forEach((e,i) => {
+                if(i == 0){
+                    nameColor = "blue";
+                }else{
+                    nameColor = "red";
+                }
                 if(in_game){
-                    if (actual_player == i) {
-                        var score = new createjs.Text("Score J"+(i+1)+": "+e, "bold 20px Arial", "black");
+                    if (actual_player == i) {     
+                        var numPlayer = new createjs.Text("Score J"+(i+1)+" :","bold 20px Arial", nameColor);                   
                     }else{
-                        var score = new createjs.Text("Score J"+(i+1)+": "+e, "20px Arial", "black");
+                        var numPlayer = new createjs.Text("Score J"+(i+1)+" :","20px Arial", nameColor);            
                     }
-                    score.x = screen.left + 20;
-                    score.y = screen.top + 20 + 20*i;
-                    root.addChild(score);
+                    if(winner == i+1 && !equality){
+                        var realScore = new createjs.Text(e, "bold 20px Arial",  "black");
+                    }else{
+                        var realScore = new createjs.Text(e, "20px Arial",  "black");
+                    }
+                    numPlayer.x = screen.left +20;
+                    numPlayer.y = screen.top + 20 + 20*i;
+                    realScore.x = numPlayer.x + 100;
+                    realScore.y = numPlayer.y;
+                    root.addChild(numPlayer);
+                    root.addChild(realScore);
+
                 }else{
                     var score = new createjs.Text("Score J"+(i+1)+": "+e, "20px Arial", "black");
                     score.x = screen.left + 20;
@@ -488,15 +515,6 @@
             root.addChild(disp_turn);
 
             if(!in_game){
-                game.score.forEach((e,i) => {
-                    if(parseInt(e) == parseInt(higher_score)){
-                        equality = true;
-                    }
-                    if(parseInt(e) > parseInt(higher_score)) {
-                        higher_score = e;
-                        winner = i+1;
-                    }
-                });
                 if(equality){
                     var disp_win = new createjs.Text("\351galit\351", "bold 20px Arial", "black");
                 }else{
@@ -575,12 +593,12 @@
             game.grid.forEach((a,i) => {
                 a.forEach((e,j) => {
                     for(var l=0; l<listeLigneSupp.length; l++){
-                        //if(e!="White"){
+                        if(e!="White"){
                             if(j >= listeLigneSupp[l] && j < (grid.lines - grid.holding_lines)){
                                 j = j+1;
                             }
                             drawBlock(e,[i,j]);
-                        //}
+                        }
                     }
                 });
             });
@@ -590,7 +608,6 @@
                 }
             }
             update();
-            //listeLigneSupp = [];
         }
 
 
