@@ -10,7 +10,7 @@
         </div>
         <div id="Droite" style="float:center;clear:right;">
             <center>
-                <h1>Le Super Tetris 2 joueurs</h1>
+                <h1 style="margin-top: 0">Le Super Tetris 2 joueurs</h1>
                 <h2>Oserez-vous affronter le terrible NAO ?</h2>
                 <br><br>
                 <ul id="navigation" style="list-style-type:none;">
@@ -102,6 +102,7 @@
         var IA_level=0;
         var IA_level2=0;
         var attention = 'Voulez-vous quitter la partie en cours ?';
+        var HN = false;
         
         function fHH(){
             if(in_game){
@@ -109,9 +110,11 @@
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
                     ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 2]] , 'viewers' : [] , 'IAs': []}));
+                    HN = false;
                 } 
             }else{
                 ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 2]] , 'viewers' : [] , 'IAs': []}));
+                HN = false;
             }
         }
 
@@ -121,9 +124,11 @@
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
                     ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'viewers' : [5] , 'IAs':[[parseInt(IA_level),1]]}));
+                    HN = true;
                 } 
             }else{
                 ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'viewers' : [5] , 'IAs':[[parseInt(IA_level),1]]}));
+                HN = true;
             }
         }
 
@@ -133,9 +138,11 @@
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
                     ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'viewers' : [id] , 'IAs': [[parseInt(IA_level),1], [parseInt(IA_level2),1]]}));
+                    HN = false;
                 }
             }else{
                 ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'viewers' : [id] , 'IAs': [[parseInt(IA_level),1], [parseInt(IA_level2),1]]}));
+                HN = false;
             }
         }
 
@@ -226,18 +233,18 @@
             if (in_game /*&& actual_player == igid[0]*/){
                 console.log("send messages");
                 switch(event.key){
-                    case "ArrowDown": case "s":
+                    case "ArrowDown": case "s": case "S":
                         ws.send(JSON.stringify({'mess_type':'action' , 'action': ['rotate', 1]}));
                         console.log("send messages");
                     break; 
-                    case "ArrowRight": case "d":
+                    case "ArrowRight": case "d": case "D":
                         ws.send(JSON.stringify({'mess_type':'action' ,'action': ['hor_move', 1]}));
                     break; 
-                    case "ArrowUp": case "z":
+                    case "ArrowUp": case "z": case "Z":
                         ind_piece_select = (ind_piece_select+1)%nb_choices;
                         ws.send(JSON.stringify({'mess_type':'action' ,'action': ['choose',game.choices[ind_piece_select]]}));
                     break; 
-                    case "ArrowLeft": case "q":
+                    case "ArrowLeft": case "q": case"Q":
                         ws.send(JSON.stringify({'mess_type':'action' ,'action': ['hor_move', -1]}));
                     break; 
                     case " ": case "Enter":
@@ -451,15 +458,21 @@
             var equality = false;
 
             game.score.forEach((e,i) => {
-                if (actual_player == i) {
-                    var score = new createjs.Text("Score J"+(i+1)+": "+e, "bold 20px Arial", "black");
+                if(in_game){
+                    if (actual_player == i) {
+                        var score = new createjs.Text("Score J"+(i+1)+": "+e, "bold 20px Arial", "black");
+                    }else{
+                        var score = new createjs.Text("Score J"+(i+1)+": "+e, "20px Arial", "black");
+                    }
+                    score.x = screen.left + 20;
+                    score.y = screen.top + 20 + 20*i;
+                    root.addChild(score);
                 }else{
                     var score = new createjs.Text("Score J"+(i+1)+": "+e, "20px Arial", "black");
+                    score.x = screen.left + 20;
+                    score.y = screen.top + 20 + 20*i;
+                    root.addChild(score);
                 }
-                score.x = screen.left + 20;
-                score.y = screen.top + 20 + 20*i;
-    
-                root.addChild(score);
             });
             var disp_turn = new createjs.Text("Tour :" + game.turn, "20px Arial", "black");
             disp_turn.x = screen.left + 20;
@@ -467,7 +480,7 @@
             
             root.addChild(disp_turn);
 
-            if(! in_game){
+            if(!in_game){
                 game.score.forEach((e,i) => {
                     if(parseInt(e) == parseInt(higher_score)){
                         equality = true;
@@ -486,13 +499,15 @@
                 disp_win.y = screen.top + 20 + 20*(nb_player+3);
                 root.addChild(disp_win);
             }
-            if (actual_player == 0){
-                root.addChild(boundaryB);                   
+            if(in_game){
+                if (actual_player == 0){
+                    root.addChild(boundaryB);                   
+                }else{
+                    root.addChild(boundaryR);                
+                }
             }else{
-                //root.removeChild(boundaryB);
-                root.addChild(boundaryR);                
+                root.addChild(boundary);    
             }
-
             update();
         }
 
@@ -545,7 +560,7 @@
 
         function drawGame() {
             clear_canvas();
-            if(actual_player == 1){
+            if(actual_player == 1 && HN){
                 sleep(0.3);
             }
             drawBackground();

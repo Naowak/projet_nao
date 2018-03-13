@@ -76,7 +76,6 @@ class NaoSpeech(ClientInterface.ClientInterface):
                     naopy.nao_anim("animations/Sit/Waiting/Think_1")
                 elif rdthink > (2/3):
                     naopy.nao_anim("animations/Sit/Waiting/Think_2")
-            
 
     def play(data) :
         pass
