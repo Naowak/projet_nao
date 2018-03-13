@@ -13,3 +13,6 @@ Une fois sur la page html et le serveur lancé (launcher.py lance tout, normalem
 	- Pour bouger une pièce utiliser les touches [Z,Q,S,D] ou les flèches (ne fonctionne pas sur tout les ordinateurs).
 	- Pour poser une pièce utiliser la toucher Enter ou la barre d'espace.
 	- Le nombre de tour est fixé à 30, si jamais vous voulez le changer, modifier la variable "NOMBRE_DE_TOUR" dans le fichier "GlobalParameters.py", mettez le nombre de tour que vous voulez.
+	
+Package utile :
+	Python3.6, asyncio, numpy, websockets 

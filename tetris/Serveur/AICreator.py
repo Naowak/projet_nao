@@ -1,3 +1,8 @@
+
+"""
+Script de creation des niveaux de jeu appele par le serveur, chaque niveau represente un client de
+type AIEntity stocke dans l'attribut my-ias du serveur.
+"""
 import sys
 import os
 sys.path.append('../')
@@ -9,6 +14,13 @@ from JoueurIA import Comunication
 from JoueurIA.Client import Entropy, Reinforcement, Reinforcement2
 
 async def create_ia(name,level):
+    """
+    Fonction de creation d'un thread correspondant a une niveau du jeu.
+
+    Attributs:
+        -name : nom du niveau;
+        -level : niveau correspondant dans le tableau level de GlobalParameters.
+    """
     my_client = None
     IA_STRATEGIE = None
     if level == 0 :

@@ -16,7 +16,7 @@ class ClientInterface:
         self.file = file
         self.active = active
 
-    async def init_train(self):
+    async def init_train(self): #rappeler connect (eventuellement)
         self.my_client = Comunication.Comunication(self.name, self)
         self.my_client.make_connection_to_server()
         print("Wait for connection")
@@ -33,8 +33,8 @@ class ClientInterface:
                 await self.my_client.on_message()
                 await asyncio.sleep(0)
         except KeyboardInterrupt :
-            print("\nStop the program. Please press [Ctrl+C] once again to save & quit.")
-            return
+            #print("\nStop the program. Please press [Ctrl+C] once again to save & quit.")
+            raise KeyboardInterrupt
 
     def play(self, state):
         pass
@@ -57,7 +57,7 @@ class ClientInterface:
 
     async def observe_game(self,gid):
         mess = {'mess_type': 'link_game',\
-                'gid': self.gid } 
+                'gid': gid } 
         await self.my_client.send_message(mess)
 
     def save(self):

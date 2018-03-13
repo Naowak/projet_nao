@@ -7,9 +7,11 @@ import copy
 import random
 import numpy as np
 import asyncio
+from collections import Counter
 
 from JoueurIA.Client import Heuristic as H
 from JoueurIA.Client import ClientInterface
+from JoueurIA.Client import Grammar
 
 import speech_recognition as sr
 import re
@@ -19,53 +21,112 @@ class VoiceControl(ClientInterface.ClientInterface):
         super().__init__("VoiceControl", None)
         self.recog = sr.Recognizer()
 
-    def play(self, state):
-        print("play")
-        print(self.colors)
-
+    def record(self):
+        audio = None
         while True:
             with sr.Microphone() as source:
                 self.recog.adjust_for_ambient_noise(source)
                 print("Say something!")
-                audio = self.recog.listen(source, timeout=10, phrase_time_limit=10)
-            spoken = ""
-            try:
-                spoken = self.recog.recognize_google(audio, language="fr-FR")
-                print("You said: " + spoken)
-            except sr.UnknownValueError:
-                print("Google Speech Recognition could not understand audio")
-            except sr.RequestError as e:
-                print("Could not request results from Google Speech Recognition service; {0}".format(e))
-
-            spoken = spoken.lower()
-            #match = re.findall("poser la pièces? (\w+) (\w+) colonnes? à (\w+)(?: tourn(?:é|ée|és|ez|er) (\w+) fois)?",
-            #                   "poser la pièce une deux colonnes à droite")
-            match = re.findall("poser la pièces? (\w+) (\w+) colonnes? à (\w+)(?: tourn(?:é|ée|és|ez|er) (\w+) fois)?", spoken)
-            if(len(match) != 0):
-                items = list(match[0])
-                transform = {"un":1, "une":1, "de":2, "deux":2, "trois":3, "quatre":4, "cinq":5, "six":6, "sept":7, "huit":8, "neuf":9, "dix":10}
-                items = [(transform[i] if i in transform else i) for i in items]
-                if(items[3] == ""):
-                    items[3] = 0
-
-
-                if (items[0] not in [1,2,3]) or (items[1] not in [0,1,2,3,4,5]) or (items[2] not in ["droite","gauche"]) or (items[3] not in [0,1,2,3,4]):
+                try:
+                    audio = self.recog.listen(source,timeout=10, phrase_time_limit=10)
+                except sr.WaitTimeoutError:
+                    print("Timeout exception")
                     continue
-                print(items[0],items[1],items[2],items[3])
-                return {"hor_move": items[1]*(-1 if items[2]=="gauche" else 1), "rotate": items[3], "choose": state["pieces"][items[0]-1]}
+                print("Record done !")
+                return audio
+    
+    def recognize(self,audio):
+        spoken = []
+        try:
+            alternative = self.recog.recognize_google(audio, language="fr-FR", show_all=True)
+            print("You said: ")
+            if not alternative:
+                return
+            for transcript in alternative["alternative"]:
+                spoken.append(transcript["transcript"])
+            print(spoken)
+        except sr.UnknownValueError:
+            print("Google Speech Recognition could not understand audio")
+            return
+        except sr.RequestError as e:
+            print("Could not request results from Google Speech Recognition service; {0}".format(e))
+            return
+        return spoken
+
+    @classmethod
+    def interpret(cls, spoken, state):
+        extract_info = {"piece":[],"colonne":[],"direction":[],"rotate":[],"valid":[]}
+        for sentence in spoken:
+            sentence = sentence.lower()
+            extract_info["piece"].append(Grammar.apply_basic_rule(Grammar.rule_piece,sentence))
+            extract_info["colonne"].append(Grammar.apply_basic_rule(Grammar.rule_colonne, sentence))
+            extract_info["direction"].append(Grammar.apply_basic_rule(Grammar.rule_direction, sentence))
+            extract_info["rotate"].append(Grammar.apply_basic_rule(Grammar.rule_rotate, sentence))
+            extract_info["valid"].append(Grammar.apply_basic_rule(Grammar.rule_valid, sentence))
+
+        best_interpret = {}
+        for k in extract_info:
+            extract_info[k] = list(filter(None, extract_info[k]))
+            if extract_info[k]:
+                best_interpret[k] = Counter(extract_info[k]).most_common(1)[0][0]
             else:
-                continue
+                best_interpret[k] = None
+        print(best_interpret)
+        return best_interpret
 
-
+    def traitement(self,interpret,state):
+        action = {}
+        if interpret["piece"] is not None:
+            if isinstance(interpret["piece"],type("")) :
+                if self.colors[interpret["piece"]] in state["pieces"]:
+                    action["choose"] = self.colors[interpret["piece"]]
+                else:
+                    print("Unvalaible piece : you must choose in ",\
+                            state["pieces"])
+                    return None
+            else:
+                action["choose"] = state["pieces"][interpret["piece"]]    
+        if interpret["colonne"] is not None:
+            if interpret["direction"] is not None:
+                action["hor_move"] = interpret["colonne"] * interpret["direction"]
+        if interpret["rotate"] is not None:
+            action["rotate"] = interpret["rotate"]
+        if interpret["valid"] is not None:
+            action["valid"] = interpret["valid"]
+        else:
+            action["valid"] = False
+        print(action)
+        return action
+    
+    def play(self, state):
+        print("play")
+        print(state["pieces"])
+        while True:
+            try:
+                audio = self.record()
+                spoken = self.recognize(audio)
+                if spoken is not None:
+                    interpret = VoiceControl.interpret(spoken, state)
+                    action = self.traitement(interpret,state)
+                    if action:
+                        return action
+            except KeyboardInterrupt:
+                print("Would you cancel the record or quit ? (C/q)")
+                rep = input()
+                if rep == "" or rep == "C" or rep == "c":
+                    continue
+                else:
+                    exit()
 
     async def run(self):
         await super().init_train()
-        await super().new_game(players=[[self.my_client.pid, 1]], viewers=[4], ias=[[2, 1]])
+        await super().new_game(players=[[self.my_client.pid, 1]], viewers=[0], ias=[[2, 1]])
         while True:
             await asyncio.sleep(0)
 
     def on_init_game(self, data):
-        self.colors = data["color"]
+        self.colors = {v: k for k,v in data["color"].items()}
+        print(self.colors)
 
 if __name__ == '__main__':
     voice = VoiceControl()

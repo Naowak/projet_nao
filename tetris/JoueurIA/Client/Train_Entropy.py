@@ -11,10 +11,11 @@ import asyncio
 
 from JoueurIA.Client import Heuristic as H
 from JoueurIA.Client import ClientInterface
+from JoueurIA.Client import Stats
 
 
 class Train_Entropy(ClientInterface.ClientInterface):
-    def __init__(self, name, heuristic = [], load_file = None, selection_size = 10, population_size = 50, evaluate_size = 5, nb_generation = 10):
+    def __init__(self, name, heuristic = [], load_file = None, selection_size = 10, population_size = 50, evaluate_size = 5, nb_generation = 10, is_stats = False, file_stats = None):
         super().__init__(name,load_file)
         self.weights = list()
         self.heuristic = {}
@@ -26,6 +27,10 @@ class Train_Entropy(ClientInterface.ClientInterface):
         self.current_eval = None
         self.current_game_is_finish = None
         self.nb_generation = nb_generation
+        self.is_stats = is_stats
+        self.my_stats = None
+        self.pid_stats = None
+        self.file_stats = file_stats
 
         if load_file != None :
             #si on charge une Level
@@ -54,7 +59,7 @@ class Train_Entropy(ClientInterface.ClientInterface):
             elif h == "hidden_empty_cells" :
                 self.heuristic[h] = H.hidden_empty_cells
             else :
-                raise NameError("L'heuristic ", h, " is not defined")
+                raise NameError("This heuristic ", h, " is not defined")
         
 
     def generate_population(self):
@@ -92,7 +97,11 @@ class Train_Entropy(ClientInterface.ClientInterface):
             self.current_game_is_finish = False
             self.current_eval = i
             for _ in range(self.evaluate_size):
-                await super().new_game(players=[[self.my_client.pid,1]],ias=[[3,1]],viewers=[4])
+                if self.is_stats :
+                    #Si on récupère les stats de l'entrainement, on l'ajoute au spec
+                    await super().new_game(players=[[self.my_client.pid,1]],ias=[[3,1]],viewers=[0, self.pid_stats])
+                else :
+                    await super().new_game(players=[[self.my_client.pid,1]],ias=[[3,1]],viewers=[0])
                 while not self.current_game_is_finish:
                     await asyncio.sleep(0)
                 self.current_game_is_finish = False
@@ -110,6 +119,10 @@ class Train_Entropy(ClientInterface.ClientInterface):
                     vect[ind] += random.random()*(-0.2)
 
     async def train(self):
+        if self.is_stats :
+            self.my_stats = Stats.Stats()
+            self.pid_stats = await self.my_stats.observe()
+
         await super().init_train()
         print("Train begin!")
         self.generate_population()
@@ -193,11 +206,23 @@ class Train_Entropy(ClientInterface.ClientInterface):
 
 
 if __name__ == "__main__":
-    genetic_ia = Train_Entropy("genetic", load_file = "./backup/6_heuristic.save")
+    stats = False
+    my_file_stats = None
+    if len(sys.argv) == 2 and sys.argv[1] == "--stats" :
+        stats = True
+    elif len(sys.argv) == 3 and sys.argv[1] == "--stats" :
+        stats = True
+        my_file_stats = sys.argv[2]
+
+    genetic_ia = Train_Entropy("genetic", load_file = "./backup/6_heuristic.save", is_stats = stats, file_stats = my_file_stats)
     AI_LOOP = asyncio.get_event_loop()
+    
     try :
         AI_LOOP.run_until_complete(genetic_ia.train())
-        print("fini")
     except KeyboardInterrupt :
         print("\nEntrainement arrêté manuellement.")
         genetic_ia.save()
+    if stats :
+        print("\n\n", genetic_ia.my_stats)
+        f = open(genetic_ia.file_stats, 'w')
+        f.write(str(genetic_ia.my_stats))

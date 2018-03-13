@@ -15,7 +15,7 @@ from Jeu import State
 
 
 class Reinforcement(ClientInterface.ClientInterface):
-    def __init__(self, name, load_file=None):
+    def __init__(self, name, load_file=None, is_stats = False, file_stats = None):
         super().__init__(name, load_file)
 
         self.current_game_is_finish = None
@@ -42,6 +42,11 @@ class Reinforcement(ClientInterface.ClientInterface):
 
         if load_file is not None:
             self.load(load_file)
+        
+        self.is_stats = is_stats
+        self.my_stats = None
+        self.file_stats = file_stats
+        self.pid_stats = None
 
     def play(self, state):
         # update all the scores (self.score_self_new, self.score_self_old, self.score_other_new, self.score_other_old)
@@ -145,10 +150,15 @@ class Reinforcement(ClientInterface.ClientInterface):
 
     async def train(self):
         await super().init_train()
+        if self.is_stats :
+            self.my_stats = Stats.Stats()
+            self.pid_stats = await self.my_stats.observe()
 
         for _ in range(self.nb_games):
-            # await super().new_game(players=[[self.my_client.pid, 1]], ias=[[4, 1]], viewers=[0])
-            await super().new_game(players=[[self.my_client.pid, 1]], ias=[[4, 1]], viewers=[])
+            if self.is_stats :
+                await super().new_game(players=[[self.my_client.pid, 1]],ias=[[3, 1]],viewers=[0, self.pid_stats])
+            else :
+                await super().new_game(players=[[self.my_client.pid, 1]],ias=[[3, 1]],viewers=[0])
 
             self.current_game_is_finish = False
 
@@ -176,8 +186,16 @@ class Reinforcement(ClientInterface.ClientInterface):
 
 
 if __name__ == '__main__':
-    ia = Reinforcement('reinforcement')
-    # ia.nb_games = 1000
+    my_stats = False
+    my_file_stats = None
+    if len(sys.argv) == 2 and sys.argv[1] == "--stats" :
+        my_stats = True
+    elif len(sys.argv) == 3 and sys.argv[1] == "--stats" :
+        my_stats = True
+        my_file_stats = sys.argv[2]
+
+    ia = Reinforcement('reinforcement', is_stats = my_stats, file_stats = my_file_stats)
+    ia.nb_games = 10
     AI_LOOP = asyncio.get_event_loop()
     try:
         AI_LOOP.run_until_complete(ia.train())
@@ -185,3 +203,8 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print("\nEntrainement arrêté manuellement.")
         ia.save()
+
+    if my_stats :
+        print("\n\n", ia.my_stats)
+        f = open(ia.file_stats, 'w')
+        f.write(str(ia.my_stats))

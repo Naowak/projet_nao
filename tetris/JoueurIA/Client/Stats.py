@@ -4,10 +4,10 @@ sys.path.append("../../")
 import asyncio
 
 
-import Client
+from JoueurIA.Client import ClientInterface
 import GlobalParameters as gp
 
-class Stats(Client.ClientInterface):
+class Stats(ClientInterface.ClientInterface):
     def __init__(self, name = "statistique", file = None):
         super().__init__(name, file, active=False)
         self.is_finished = False
@@ -79,9 +79,10 @@ class Stats(Client.ClientInterface):
             self.stats_second.egalite += 1
 
         #on gère les lignes réalisées
-        self.stats_first.scores += [self.stats_first.nb_lines]
-        self.stats_second.scores += [self.stats_second.nb_lines]
-        self.nb_line_current_game = 0
+        self.stats_first.nb_lines += [self.stats_first.nb_line_current_game]
+        self.stats_second.nb_lines += [self.stats_second.nb_line_current_game]
+        self.stats_first.nb_line_current_game = 0
+        self.stats_second.nb_line_current_game = 0
 
 
 
@@ -92,11 +93,16 @@ class Stats(Client.ClientInterface):
                 ias=[[level1,2]]
             else:
                 ias=[[level1,1],[level2,1]]
-            await super().new_game(ias=ias,viewers=[4,self.my_client.pid])
+            await super().new_game(ias=ias,viewers=[0,self.my_client.pid])
             self.is_finished = False
             while not self.is_finished :
                 await asyncio.sleep(0)
 
+    async def observe(self) :
+        await super().init_train()
+        while self.my_client == None :
+            asyncio.sleep(0)
+        return self.my_client.pid
 
 
     def save(self):
@@ -104,6 +110,9 @@ class Stats(Client.ClientInterface):
 
     def load(self):
         pass
+
+    def __str__(self) :
+        return str(self.stats_first) + "\n\n" + str(self.stats_second)
 
 class MyStats() :
     def __init__(self, id) :
@@ -121,23 +130,19 @@ class MyStats() :
         self.egalite = 0
 
     def __str__(self) :
-        string = "Id : " + str(self.id) + "\n"
-        string += "Ratio gagnée/perdues : " + str(self.win_by_height + self.wins_by_points) \
-            + "/" + str(self.loose_by_height + self.loose_by_points) + " : " \
-            + str((self.wins_by_points + self.win_by_height)/(self.loose_by_points + self.loose_by_height)) \
-            + "\n"
-        string += "Parmis les parties gagnées, " + str(self.wins_by_points) + \
-         " parties ont été gagné par les points (nb de coups max atteint) et " + str(self.win_by_height) +\
-         " parce que son adversaire a atteint dépasser la hauteur maximum.\n"
-        string += "De même, " + str(self.loose_by_points) + " parties ont été pardu par le nb de points et " + \
-            str(self.loose_by_height) + " par la hauteur maximale.\n"
-        string += str(self.egalite) + "parties ont été fini par une égalité.\n"
+        string = "ID = " + str(self.id) + "\n"
+        string += "Parties gagnées (points, ko) : " + str(self.wins_by_points + self.win_by_height) \
+            + "(" + str(self.wins_by_points) + ", " + str(self.win_by_height) + ")\n"
+        string += "Parties perdues (points, ko) : " + str(self.loose_by_points + self.loose_by_height) \
+            + "(" + str(self.loose_by_points) + ", " + str(self.loose_by_height) + ")\n"
+        string += "Egalité : " + str(self.egalite) + "\n"
         string += "Nombre de lignes réalisées : " + str(self.nb_lines) + "\n"
         string += "Scores obtenus : " + str(self.scores) + "\n"
         return string
 
+
 if __name__ == "__main__":
     statistique = Stats()
     AI_LOOP = asyncio.get_event_loop()
-    AI_LOOP.run_until_complete(statistique.run(0, 0))
-    print(statistique.stats_first, statistique.stats_second)
+    AI_LOOP.run_until_complete(statistique.run(3, 3))
+    print(statistique.stats_first, "\n\n" , statistique.stats_second)
