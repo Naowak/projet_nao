@@ -36,8 +36,10 @@ class Server:
 
     async def unlink_game(self, client, game):
         game.unbind_client(client)
+        await self.actualise_server_info()
     async def link_game(self, client, gid):
-        self.games[gid].bind_client(client)
+        self.games[gid].bind_viewer(client)
+        await self.actualise_server_info()
 
     async def new_game(self, players_id, viewers_id, ias):
         #donner les ids in game et l'envoye dans le data_init_game
