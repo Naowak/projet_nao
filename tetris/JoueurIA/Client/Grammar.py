@@ -1,6 +1,14 @@
 import re
 from multi_key_dict import multi_key_dict
 
+["Place la pièce 2 dans la deuxième collone",\
+"Tourne la pièce rouge deux fois vers la droite",\
+"Mets le carré rose en bas",\
+"Décale-la de deux colonnes",\
+"Décale-la dans la colonne trois",\
+"Décale la pièce deux colonnes à droite",\
+"Termine mon tour",\
+"Décale la vers la droite de deux colonnes", \]
 
 def union(x, y): return multi_key_dict({**x.items_dict, **y.items_dict})
 ordinals_vocab = multi_key_dict({\
