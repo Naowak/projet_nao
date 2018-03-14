@@ -1,19 +1,21 @@
+<!DOCTYPE html>
 <html>
     <head>
         <script src="easeljs.min.js">
         </script>
         <title> Tetris</title>
+        <link rel="stylesheet" href="style.css" />
     </head>
-    <font face="Times">
+
     <body onload="init();" style="margin:0"; background="Image/background.jpg"; ></body>
         <div id="Gauche" style="float:left">
-            <canvas id="canvas" style="background-color: rgba(255,255,255,0.3)""></canvas>
+            <canvas id="canvas" style="background-color: rgba(255,255,255,0.3)"></canvas>
         </div>
         <div id="Droite" style="float:center;clear:right;">
             <center>
-                <h1 style="margin-top: 0;">Le Super Tetris 2 joueurs</h1>
-                <h2>Oserez-vous affronter le terrible NAO ?</h2>
-                <br><br>
+                <h1 style="margin-top: 0; padding-top: 0px; margin-bottom: 0px">PROJET NATO</h1>
+                <h2 style ="margin-bottom: 0px">Tetris 2 joueurs</h2>
+                <h3>Oserez-vous affronter le terrible NAO ?</h3>
                 <ul id="navigation" style="list-style-type:none;">
                     <li><a href="#" title="HH" onmousedown="fHH()">Human VS Human</a></li><br>
                     <li><a href="#" title="HN" onmousedown="fHN()">Human VS NAO</a></li><br>
@@ -33,13 +35,12 @@
             <ol id='listJ' style="list-style-type:none;">
             </ol>
             <br><br>
-            <h5>Partie(s) en cour :</h5>
+            <h5>Partie(s) en cours :</h5>
             <ol id='listP' style="list-style-type:none;">
             </ol>
             <br><br>
         </div>
     </body>
-    </font>
 
     <script>
         var PORT = 9001;
@@ -262,7 +263,11 @@
             return true;
         }
         function connexion() {
-            ws = new WebSocket("ws://127.0.0.1:9001");
+            var params = (new URL(document.location)).searchParams;
+            var ip_addr = params.get("ip");
+            if(!ip_addr) ip_addr = "127.0.0.1";
+
+            ws = new WebSocket("ws://"+ip_addr+":9001");
             ws.onopen = function (event) {
                 var msg = {
                     name: "Rambo",

@@ -1,0 +1,15 @@
+@font-face {
+	font-family: sansation_light;
+	src: url("font/sansation_light.woff");
+}
+@font-face {
+	font-family: balooda;
+    src: url("font/BalooDa-Regular.ttf");
+}
+h1{
+	font-family: balooda;
+	font-size: 65px;
+}
+div {
+	font-family: sansation_light;
+}
