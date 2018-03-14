@@ -34,17 +34,17 @@ class Reinforcement(ClientInterface.ClientInterface):
         # Performance function
         self.wins = 0
 
-        network_spec = [dict(type='dense', size=10, activation='relu'),
-                        dict(type='dense', size=10, activation='relu'),
-                        dict(type='dense', size=10, activation='relu'),
-                        dict(type='dense', size=10, activation='relu')]
+        network_spec = [dict(type='dense', size=20, activation='relu'),
+                        dict(type='dense', size=20, activation='relu'),
+                        dict(type='dense', size=12, activation='relu'),
+                        dict(type='dense', size=6, activation='relu')]
 
         self.agent = DQNAgent(states_spec={'shape': (self.nb_heuristics + NOMBRE_DE_PIECES,), 'type': 'float'},
                               actions_spec={'hor_move': {'type': 'int', 'num_actions': 11},
                                             'rotate': {'type': 'int', 'num_actions': 4},
                                             'choose': {'type': 'int', 'num_actions': 3}},
                               network_spec=network_spec,
-                              batch_size=64)
+                              )
 
         if load_file is not None:
             self.load(load_file)
