@@ -34,10 +34,7 @@ class Reinforcement(ClientInterface.ClientInterface):
         # Performance function
         self.wins = 0
 
-        network_spec = [dict(type='dense', size=20, activation='relu'),
-                        dict(type='dense', size=20, activation='relu'),
-                        dict(type='dense', size=12, activation='relu'),
-                        dict(type='dense', size=6, activation='relu')]
+        network_spec = [dict(type='dense', size=20, activation='relu')] * 10
 
         self.agent = DQNAgent(states_spec={'shape': (self.nb_heuristics + NOMBRE_DE_PIECES,), 'type': 'float'},
                               actions_spec={'hor_move': {'type': 'int', 'num_actions': 11},
