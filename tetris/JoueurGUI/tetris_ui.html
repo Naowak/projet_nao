@@ -1,18 +1,21 @@
+<!DOCTYPE html>
 <html>
     <head>
         <script src="easeljs.min.js">
         </script>
         <title> Tetris</title>
+        <link rel="stylesheet" href="style.css" />
     </head>
-    <font face="Times">
+
     <body onload="init();" style="margin:0"; background="Image/background.jpg"; ></body>
         <div id="Gauche" style="float:left">
-            <canvas id="canvas" style="background-color: rgba(255,255,255,0.3)""></canvas>
+            <canvas id="canvas" style="background-color: rgba(255,255,255,0.3)"></canvas>
         </div>
         <div id="Droite" style="float:center;clear:right;">
             <center>
-                <h1 style="margin-top: 0;">Le Super Tetris 2 joueurs</h1>
-                <h2>Oserez-vous affronter le terrible NAO ?</h2>
+                <h1 style="margin-top: 0; padding-top: 20px;">PROJET NATO</h1>
+                <h2>Tetris 2 joueurs</h2>
+                <h3>Oserez-vous affronter le terrible NAO ?</h3>
                 <br><br>
                 <ul id="navigation" style="list-style-type:none;">
                     <li><a href="#" title="HH" onmousedown="fHH()">Human VS Human</a></li><br>
@@ -39,7 +42,6 @@
             <br><br>
         </div>
     </body>
-    </font>
 
     <script>
         var PORT = 9001;
