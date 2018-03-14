@@ -22,6 +22,7 @@ class Subject:
 
     def bind_viewer(self, viewer):
         self.clients["viewers"][viewer.id] = viewer
+        viewer.on_view_game(self)
         print(viewer.name, "observebind to the game ", self.gid)
 
     async def notify_all_viewers(self):

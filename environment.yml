@@ -1,0 +1,11 @@
+# run: conda env create --file environment.yml
+name: tetris
+dependencies:
+- python>=3.6
+- pip
+- pip:
+  - multi_key_dict==2.0.3
+  - numpy==1.14.2
+  - tensorflow==1.5
+  - tensorforce==0.3.5.1
+  - websockets==4.0.1

@@ -4,6 +4,7 @@ sys.path.append('../')
 import asyncio
 import json
 import websockets
+import argparse
 
 from Jeu import Game
 import GlobalParameters as gp
@@ -35,8 +36,10 @@ class Server:
 
     async def unlink_game(self, client, game):
         game.unbind_client(client)
+        await self.actualise_server_info()
     async def link_game(self, client, gid):
-        self.games[gid].bind_client(client)
+        self.games[gid].bind_viewer(client)
+        await self.actualise_server_info()
 
     async def new_game(self, players_id, viewers_id, ias):
         #donner les ids in game et l'envoye dans le data_init_game
@@ -153,7 +156,7 @@ class Server:
         return data
 
     def accept_connections(self, port):
-        return websockets.serve(self.connect, 'localhost', port)
+        return websockets.serve(self.connect, gp.LOCAL_ADDRESS, port)
 
     async def disconnect_client(self, client):
         await client.on_disconnect()
@@ -171,6 +174,13 @@ class Server:
             await ia_client.send_message(data)
 
 if __name__ == "__main__" :
+    parser = argparse.ArgumentParser(description='launcher')
+    parser.add_argument('--remote', dest='local_ip', const="0.0.0.0", action='store_const', help='remote possible')
+    args = parser.parse_args()
+
+    if args.local_ip is not None:
+        gp.LOCAL_ADDRESS = args.local_ip
+
     SERVER = Server()
     SERVER_LOOP = asyncio.get_event_loop()
     SERVER_LOOP.run_until_complete(SERVER.accept_connections(gp.PORT))

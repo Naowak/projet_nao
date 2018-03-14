@@ -1,18 +1,21 @@
+<!DOCTYPE html>
 <html>
     <head>
         <script src="easeljs.min.js">
         </script>
         <title> Tetris</title>
+        <link rel="stylesheet" href="style.css" />
     </head>
-    <body onload="init();" style="margin:0;"></body>
+
+    <body onload="init();" style="margin:0"; background="Image/background.jpg"; ></body>
         <div id="Gauche" style="float:left">
-            <canvas id="canvas"></canvas>
+            <canvas id="canvas" style="background-color: rgba(255,255,255,0.3)"></canvas>
         </div>
         <div id="Droite" style="float:center;clear:right;">
             <center>
-                <h1 style="margin-top: 0">Le Super Tetris 2 joueurs</h1>
-                <h2>Oserez-vous affronter le terrible NAO ?</h2>
-                <br><br>
+                <h1 style="margin-top: 0; padding-top: 0px; margin-bottom: 0px">PROJET NATO</h1>
+                <h2 style ="margin-bottom: 0px">Tetris 2 joueurs</h2>
+                <h3>Oserez-vous affronter le terrible NAO ?</h3>
                 <ul id="navigation" style="list-style-type:none;">
                     <li><a href="#" title="HH" onmousedown="fHH()">Human VS Human</a></li><br>
                     <li><a href="#" title="HN" onmousedown="fHN()">Human VS NAO</a></li><br>
@@ -28,11 +31,13 @@
             <select id="levIA2" onChange="nivIA2()"> 
                 <option selected>0</option>
             </select><br>
+            Observer la partie num:
+            <select id="obsP">
+            </select><br>
             <h5>Joueur(s) connect&eacute(s) :</h5>
             <ol id='listJ' style="list-style-type:none;">
             </ol>
-            <br><br>
-            <h5>Partie(s) en cour :</h5>
+            <h5>Partie(s) en cours :</h5>
             <ol id='listP' style="list-style-type:none;">
             </ol>
             <br><br>
@@ -149,9 +154,13 @@
         }
 
         function fO(){
-            var rejid = 0;
-            //TODO
-            //ws.send(JSON.stringify({'mess_type':'link_game', rejid}));
+            if(document.getElementById('obsP').options.length != 0){
+                var select = document.getElementById('obsP');
+                obID = select.options[select.selectedIndex].value;
+                ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
+                ws.send(JSON.stringify({'mess_type':'link_game', 'gid':parseInt(obID) }));
+                gid = parseInt(obID) ;          
+            }
         }
         
         function displayJ(){
@@ -175,16 +184,23 @@
 
         function displayG(){
             var ul = document.getElementById("listP");
-            var li ;
+            var ob = document.getElementById("obsP");
+            var oi;
+            var li;
+            var gnom;
             while (ul.firstChild) {
                 ul.removeChild(ul.firstChild);
+            }
+            while (ob.firstChild) {
+                ob.removeChild(ob.firstChild);
             }
             var games = Object.keys(tabG);
             var pls;
             for (var i = 0, c = games.length; i < c; i++) {
-
                 li = document.createElement("li");
                 nom = games[i];
+                oi = new Option (nom, parseInt(i));
+                ob.options.add(oi);
                 pls = tabG[nom];
                 nom = "Partie numero : "+nom+", "+pls;
                 li.appendChild(document.createTextNode(nom));
@@ -260,7 +276,11 @@
             return true;
         }
         function connexion() {
-            ws = new WebSocket("ws://127.0.0.1:9001");
+            var params = (new URL(document.location)).searchParams;
+            var ip_addr = params.get("ip");
+            if(!ip_addr) ip_addr = "127.0.0.1";
+
+            ws = new WebSocket("ws://"+ip_addr+":9001");
             ws.onopen = function (event) {
                 var msg = {
                     name: "Rambo",
@@ -591,12 +611,12 @@
             game.grid.forEach((a,i) => {
                 a.forEach((e,j) => {
                     for(var l=0; l<listeLigneSupp.length; l++){
-                        //if(e!="White"){
+                        if(e!="White"){
                             if(j >= listeLigneSupp[l] && j < (grid.lines - grid.holding_lines)){
                                 j = j+1;
                             }
                             drawBlock(e,[i,j]);
-                        //}
+                        }
                     }
                 });
             });
@@ -606,7 +626,6 @@
                 }
             }
             update();
-            //listeLigneSupp = [];
         }
 
 

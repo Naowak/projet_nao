@@ -6,6 +6,7 @@ Script de lancement du programme lance :
 import asyncio
 import os
 import webbrowser
+import argparse
 
 import GlobalParameters as gp
 from Serveur import Server
@@ -21,6 +22,13 @@ async def javascript_run() :
     webbrowser.open("JoueurGUI/tetris_ui.html")
     # pass
 
+
+parser = argparse.ArgumentParser(description='launcher')
+parser.add_argument('--remote', dest='local_ip', const="0.0.0.0", action='store_const', help='remote possible')
+args = parser.parse_args()
+
+if args.local_ip is not None:
+    gp.LOCAL_ADDRESS = args.local_ip
 
 SERVER = Server.Server()
 
