@@ -1,6 +1,14 @@
 import re
 from multi_key_dict import multi_key_dict
 
+["Place la pièce 2 dans la deuxième collone",\
+"Tourne la pièce rouge deux fois vers la droite",\
+"Mets le carré rose en bas",\
+"Décale-la de deux colonnes",\
+"Décale-la dans la colonne trois",\
+"Décale la pièce deux colonnes à droite",\
+"Termine mon tour",\
+"Décale la vers la droite de deux colonnes", \]
 
 def union(x, y): return multi_key_dict({**x.items_dict, **y.items_dict})
 ordinals_vocab = multi_key_dict({\
@@ -14,10 +22,21 @@ ordinals_vocab = multi_key_dict({\
     ("huitième","8e"): 8,\
     ("neuvième","9e"): 9,\
     ("dixième","10e"): 10})
+
+shape_vocab = multi_key_dict({
+    ("carré","bloc","o","haut","eau"): 'O',\
+    ("barre", "bâton", "i"): 'I',
+    ("thé","t"): 'T',\
+    ("l", "elle","lambda"): 'L',\
+    ("j", "l inversé","gamma"): 'J',\
+    ("z","biais"): 'Z',\
+    ("s", "z inversé", "biais inversé"): 'S'})
+
 index_piece_vocab = multi_key_dict({
     ("1", "un", "une"): 1,\
     ("2", "de", "deux"): 2,\
     ("3", "trois", "troie"): 3})
+
 index_column_vocab = union(index_piece_vocab,multi_key_dict({
     ("4","quatre"): 4,\
     ("5","cinq"): 5,\
@@ -59,10 +78,10 @@ rule_colonne = [\
             [r".*?(\w+) colonnes?.*?",union(index_column_vocab,ordinals_vocab)]\
             ]
 rule_direction = [\
-            [r".*?(:?vers la|à) (\w+).*?", directions_vocab]
+            [r".*?(?: vers la|à) (\w+).*?", directions_vocab]
             ]   
 rule_rotate = [\
-    [r".*?(?: tourn(?:é|ée|és|ez|er) .* (\w+) fois).*?", index_column_vocab]
+            [r".*?(?: tourn(?:é|ée|és|ez|er) .* (\w+) fois).*?", index_column_vocab]
             ]
 rule_valid = [\
             [r".*?(\w+)$", valid_vocab],\
