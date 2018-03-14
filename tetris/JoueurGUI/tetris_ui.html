@@ -263,7 +263,11 @@
             return true;
         }
         function connexion() {
-            ws = new WebSocket("ws://127.0.0.1:9001");
+            var params = (new URL(document.location)).searchParams;
+            var ip_addr = params.get("ip");
+            if(!ip_addr) ip_addr = "127.0.0.1";
+
+            ws = new WebSocket("ws://"+ip_addr+":9001");
             ws.onopen = function (event) {
                 var msg = {
                     name: "Rambo",
