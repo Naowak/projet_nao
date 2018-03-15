@@ -26,6 +26,7 @@ class Client:
         while self.connect:
             try:
                 mess = await self.socket.recv()
+                print(mess)
                 #print("receive from ", self.name)
                 #print(mess)
                 mess = json.loads(mess)

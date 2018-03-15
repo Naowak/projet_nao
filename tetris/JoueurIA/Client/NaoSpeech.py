@@ -77,7 +77,7 @@ class NaoSpeech(ClientInterface.ClientInterface):
                 elif rdthink > (2/3):
                     naopy.nao_anim("animations/Sit/Waiting/Think_2")
 
-    def play(self,data) :
+    async def play(self,data) :
         pass
 
     def on_init_game(self, data):

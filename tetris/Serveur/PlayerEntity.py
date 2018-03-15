@@ -30,8 +30,11 @@ class PlayerEntity(Client.Client):
         while self.unlink_request == True :
             await asyncio.sleep(0)
         if self.state == PlayerEntity.State.FREE:
+            audio = False
+            if "audio" in mess :
+                audio = True
             await self.server.new_game(
-                mess["players"], mess["viewers"], mess["IAs"])
+                mess["players"], mess["viewers"], mess["IAs"], audio)
         else:
             super().print_error("Error message receive :" + self.name +\
                         "(" + str(self.id) + "): already in game/observation", mess)
@@ -44,6 +47,7 @@ class PlayerEntity(Client.Client):
                         "(" + str(self.id) + "): already in game/observation", mess)
 
     async def request_action(self, mess):
+        print(self.game.actual_player, self.ids_in_game, self.name)
         if self.game.actual_player in self.ids_in_game:
             await self.game.set_action(mess["action"])
         else:

@@ -22,11 +22,13 @@ class VoiceControl(ClientInterface.ClientInterface):
         super().__init__("VoiceControl", None)
         self.recog = sr.Recognizer()
 
-    def record(self):
+    async def record(self):
         audio = None
         while True:
+            await asyncio.sleep(0)
             with sr.Microphone() as source:
                 self.recog.adjust_for_ambient_noise(source)
+                await asyncio.sleep(0)
                 print("Say something!")
                 try:
                     audio = self.recog.listen(source,timeout=10, phrase_time_limit=10)
@@ -85,7 +87,7 @@ class VoiceControl(ClientInterface.ClientInterface):
                     print("Unvalaible piece : you must choose in ",\
                             state["pieces"])
                     naopy.nao_talk(
-                        "La pièce que tu as chosit n'est pas disponible")
+                        "La pièce que tu as choisi n'est pas disponible")
                     return None
             else:
                 action["choose"] = state["pieces"][interpret["piece"]]    
@@ -105,13 +107,16 @@ class VoiceControl(ClientInterface.ClientInterface):
         print(action)
         return action
     
-    def play(self, state):
+    async def play(self, state):
         print("play")
         print(state["pieces"])
         while True:
+            await asyncio.sleep(0)
             try:
-                audio = self.record()
+                audio = await asyncio.ensure_future(self.record())
+                await asyncio.sleep(0)
                 spoken = self.recognize(audio)
+                await asyncio.sleep(0)
                 if spoken is not None:
                     interpret = VoiceControl.interpret(spoken, state)
                     action = self.traitement(interpret,state)

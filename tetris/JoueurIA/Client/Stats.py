@@ -41,7 +41,7 @@ class Stats(ClientInterface.ClientInterface):
             self.stats_second.score_last_turn = data["score"][self.stats_second.id]
             self.stats_second.nb_line_current_game += nb_lines
 
-    def play(data) :
+    async def play(data) :
         pass
 
     def on_init_game(self, data):

@@ -134,11 +134,11 @@
                 if (confirm(attention)){
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
-                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'viewers' : [5] , 'IAs':[[parseInt(IA_level),1]]}));
+                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'viewers' : [] , 'IAs':[[parseInt(IA_level),1]], 'audio' : true}));
                     HN = true;
                 } 
             }else{
-                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'viewers' : [5] , 'IAs':[[parseInt(IA_level),1]]}));
+                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'viewers' : [] , 'IAs':[[parseInt(IA_level),1]], 'audio' : true}));
                 HN = true;
             }
         }
@@ -288,7 +288,8 @@
             ws.onopen = function (event) {
                 var msg = {
                     name: "Rambo",
-                    active: true
+                    active: true,
+                    audio: true
                 };
                 ws.send(JSON.stringify(msg));
             };
