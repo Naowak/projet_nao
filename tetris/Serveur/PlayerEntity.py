@@ -31,7 +31,7 @@ class PlayerEntity(Client.Client):
             await asyncio.sleep(0)
         if self.state == PlayerEntity.State.FREE:
             audio = False
-            if "audio" in mess :
+            if "audio" in mess  and mess["audio"] == True:
                 audio = True
             await self.server.new_game(
                 mess["players"], mess["viewers"], mess["IAs"], audio)
@@ -47,7 +47,6 @@ class PlayerEntity(Client.Client):
                         "(" + str(self.id) + "): already in game/observation", mess)
 
     async def request_action(self, mess):
-        print(self.game.actual_player, self.ids_in_game, self.name)
         if self.game.actual_player in self.ids_in_game:
             await self.game.set_action(mess["action"])
         else:

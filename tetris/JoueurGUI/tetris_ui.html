@@ -36,7 +36,7 @@
             </select>
             <br>
             Controle Vocale On/Off
-            <input id="voice_control" type="checkbox"> </input> 
+            <input id="voice_control_checkbox" type="checkbox" name="voice_control"> </input> 
             <br>
             <h5>Joueur(s) connect&eacute(s) :</h5>
             <ol id='listJ' style="list-style-type:none;">
@@ -116,29 +116,31 @@
         var data;
         
         function fHH(){
+            var audio = document.getElementById('voice_control_checkbox').checked;
             if(in_game){
                 if (confirm(attention)){
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
-                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 2]] , 'viewers' : [] , 'IAs': []}));
+                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 2]] , 'viewers' : [] , 'IAs': [], "audio" : audio}))
                     HN = false;
                 } 
             }else{
-                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 2]] , 'viewers' : [] , 'IAs': []}));
+                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 2]] , 'viewers' : [] , 'IAs': [], "audio" : audio}));
                 HN = false;
             }
         }
 
         function fHN(){
+            var audio = document.getElementById('voice_control_checkbox').checked;
             if(in_game){
                 if (confirm(attention)){
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
-                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'viewers' : [] , 'IAs':[[parseInt(IA_level),1]], 'audio' : true}));
+                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'viewers' : [] , 'IAs':[[parseInt(IA_level),1]], 'audio' : audio}));
                     HN = true;
                 } 
             }else{
-                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'viewers' : [] , 'IAs':[[parseInt(IA_level),1]], 'audio' : true}));
+                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'viewers' : [] , 'IAs':[[parseInt(IA_level),1]], 'audio' : audio}));
                 HN = true;
             }
         }

@@ -45,7 +45,6 @@ class Server:
 
     async def new_game(self, players_id, viewers_id, ias, audio=False):
         #donner les ids in game et l'envoye dans le data_init_game
-        print(self.my_audio, audio)
         players = {}
         next_ids_in_game = 0
         for [pid, number] in players_id:
@@ -125,7 +124,7 @@ class Server:
                     self, mess["name"], sock, mess["name"])
                 self.my_ias[mess["name"]] = client
         else:
-            if "audio" in mess and mess["audio"] :
+            if "audio" in mess and mess["audio"] == True:
                 asyncio.ensure_future(self.create_audio("audio"+str(self.next_connect_id)))
                 print("lancement du create_audio")
             client = PlayerEntity.PlayerEntity(\
