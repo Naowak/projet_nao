@@ -17,44 +17,51 @@ from JoueurIA.Client import Grammar
 import speech_recognition as sr
 import re
 
+from concurrent.futures import ThreadPoolExecutor
+
 class VoiceControl(ClientInterface.ClientInterface):
     def __init__(self):
         super().__init__("VoiceControl", None)
         self.recog = sr.Recognizer()
+        self.executor = ThreadPoolExecutor(max_workers=2)
 
     async def record(self):
-        audio = None
-        while True:
-            await asyncio.sleep(0)
-            with sr.Microphone() as source:
-                self.recog.adjust_for_ambient_noise(source)
-                await asyncio.sleep(0)
-                print("Say something!")
-                try:
-                    audio = self.recog.listen(source,timeout=10, phrase_time_limit=10)
-                except sr.WaitTimeoutError:
-                    print("Timeout exception")
-                    continue
-                print("Record done !")
-                return audio
+        def _record(self):
+            audio = None
+            while True:
+                with sr.Microphone() as source:
+                    #self.recog.adjust_for_ambient_noise(source)
+                    print("Say something!")
+                    try:
+                        audio = self.recog.listen(source, timeout=5, phrase_time_limit=5)
+                    except sr.WaitTimeoutError:
+                        print("Timeout exception")
+                        continue
+                    print("Record done !")
+                    return audio
     
-    def recognize(self,audio):
-        spoken = []
-        try:
-            alternative = self.recog.recognize_google(audio, language="fr-FR", show_all=True)
-            print("You said: ")
-            if not alternative:
+        return await asyncio.wrap_future(self.executor.submit(_record, self))
+
+    async def recognize(self,audio):
+        def _recognize(self):
+            spoken = []
+            try:
+                alternative = self.recog.recognize_google(audio, language="fr-FR", show_all=True)
+                print("You said: ")
+                if not alternative:
+                    return
+                for transcript in alternative["alternative"]:
+                    spoken.append(transcript["transcript"])
+                print(spoken)
+            except sr.UnknownValueError:
+                print("Google Speech Recognition could not understand audio")
                 return
-            for transcript in alternative["alternative"]:
-                spoken.append(transcript["transcript"])
-            print(spoken)
-        except sr.UnknownValueError:
-            print("Google Speech Recognition could not understand audio")
-            return
-        except sr.RequestError as e:
-            print("Could not request results from Google Speech Recognition service; {0}".format(e))
-            return
-        return spoken
+            except sr.RequestError as e:
+                print("Could not request results from Google Speech Recognition service; {0}".format(e))
+                return
+            return spoken
+
+        return await asyncio.wrap_future(self.executor.submit(_recognize, self))
 
     @classmethod
     def interpret(cls, spoken, state):
@@ -112,23 +119,13 @@ class VoiceControl(ClientInterface.ClientInterface):
         print(state["pieces"])
         while True:
             await asyncio.sleep(0)
-            try:
-                audio = await asyncio.ensure_future(self.record())
-                await asyncio.sleep(0)
-                spoken = self.recognize(audio)
-                await asyncio.sleep(0)
-                if spoken is not None:
-                    interpret = VoiceControl.interpret(spoken, state)
-                    action = self.traitement(interpret,state)
-                    if action:
-                        return action
-            except KeyboardInterrupt:
-                print("Would you cancel the record or quit ? (C/q)")
-                rep = input()
-                if rep == "" or rep == "C" or rep == "c":
-                    continue
-                else:
-                    exit()
+            audio = await self.record()
+            spoken = await self.recognize(audio)
+            if spoken is not None:
+                interpret = VoiceControl.interpret(spoken, state)
+                action = self.traitement(interpret,state)
+                if action:
+                    return action
 
     async def run(self):
         await super().init_train()

@@ -56,8 +56,8 @@ colors_vocab =multi_key_dict({
     "orange": "Orange"})
 
 directions_vocab = multi_key_dict({
-    "gauche":1,\
-    "droite":-1})
+    "gauche":-1,\
+    "droite":1})
 
 valid_vocab = multi_key_dict({
     "valider": True,\
