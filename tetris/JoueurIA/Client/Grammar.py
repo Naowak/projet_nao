@@ -1,7 +1,11 @@
 import re
 from multi_key_dict import multi_key_dict
+# from nltk.parse import generate
+# from nltk import load_parser
+import arpeggio as peg
+from arpeggio.cleanpeg import ParserPEG
 
-["Place la pièce 2 dans la deuxième collone",\
+["Place la pièce 2 dans la deuxième colonne",\
 "Tourne la pièce rouge deux fois vers la droite",\
 "Mets le carré rose en bas",\
 "Décale-la de deux colonnes",\
@@ -9,6 +13,35 @@ from multi_key_dict import multi_key_dict
 "Décale la pièce deux colonnes à droite",\
 "Termine mon tour",\
 "Décale la vers la droite de deux colonnes"]
+
+def ordinaux(): return peg.RegExMatch(r'\de')
+ #première|1ère|deuxième|troisième|quatrième|cinquième|sixième|septième|huitième|neuvième|dixième|
+
+parser= peg.ParserPython(ordinaux)
+a= '3e'
+parse_tree = parser.parse(a)
+
+class Visit(peg.PTNodeVisitor):
+	def visit_ordinaux(self, node, children):
+		return node.value
+
+result = peg.visit_parse_tree(parse_tree,Visit(debug=True))
+print(result)
+# nom_fichier = 'gr_play.fcfg'
+# #grammaire = load(nom_fichier)
+# parser = load_parser(nom_fichier)
+
+# arbre = parser.parse("Place la pièce 2".lower().split())
+
+# for arbre in arbre:
+# 	print(arbre)
+
+# interpretation = arbre.label()
+
+# for element in interpretation:
+# 	print(element)
+# 	print(interpretation[element])
+
 
 def union(x, y): return multi_key_dict({**x.items_dict, **y.items_dict})
 ordinals_vocab = multi_key_dict({\
