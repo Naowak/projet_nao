@@ -16,36 +16,44 @@ from Jeu import State
 
 
 class Reinforcement(ClientInterface.ClientInterface):
-    def __init__(self, name, load_file=None, is_stats = False, file_stats = None):
+    def __init__(self, name, load_file=None, is_stats=False, file_stats=None,
+                 train_adversary_level=2, nb_batches=5000, nb_games_per_batch=2,
+                 layer_size=15, nb_layers=3):
         super().__init__(name, load_file)
-
+        
         self.current_game_is_finish = None
         self.first_game = True
-        self.nb_games = 5000
+        
+        # score
         self.score_self_old, self.score_self_new = 0, 0
         self.score_other_old, self.score_other_new = 0, 0
-        self.scores_list = []
         self.file_scores = open('scores.txt', 'w')
+        
+        # AI parameters
         self.nb_heuristics = 4
+        self.train_adversary_level = train_adversary_level
+        
+        # iteration
+        self.nb_batches = nb_batches
+        self.nb_games_per_batch = nb_games_per_batch
         self.iteration = 0
-
-        self.train_adversary_level = 1
-
-        # Performance function
-        self.wins = 0
-
-        network_spec = [dict(type='dense', size=20, activation='relu')] * 10
+        
+        # neural network
+        self.layer_size = layer_size
+        self.nb_layers = nb_layers
+        network_spec = [dict(type='dense', size=self.layer_size, activation='relu')] * self.nb_layers
 
         self.agent = DQNAgent(states_spec={'shape': (self.nb_heuristics + NOMBRE_DE_PIECES,), 'type': 'float'},
                               actions_spec={'hor_move': {'type': 'int', 'num_actions': 11},
                                             'rotate': {'type': 'int', 'num_actions': 4},
                                             'choose': {'type': 'int', 'num_actions': 3}},
-                              network_spec=network_spec,
-                              )
-
+                              network_spec=network_spec)
+        
+        # loading of a saved model
         if load_file is not None:
             self.load(load_file)
         
+        # stats
         self.is_stats = is_stats
         self.my_stats = None
         self.file_stats = file_stats
@@ -96,14 +104,6 @@ class Reinforcement(ClientInterface.ClientInterface):
         reward = (self.score_self_new - self.score_self_old) - (self.score_other_new - self.score_other_old)
         self.agent.observe(terminal, reward)
 
-        # update the list of scores
-        self.scores_list.append([self.score_self_new, self.score_other_new])
-
-        # save the scores in a file
-        self.wins += 1 if self.score_self_new > self.score_other_new else 0
-        self.file_scores.write("%f\n" % (self.wins / self.iteration))
-        self.file_scores.flush()
-
     def update_scores(self, state):
         # update the old scores
         self.score_self_old, self.score_other_old = self.score_other_new, self.score_other_new
@@ -128,15 +128,17 @@ class Reinforcement(ClientInterface.ClientInterface):
                           Heuristic.column_transition(None, state_bis, None),
                           Heuristic.holes(None, state_bis, None),
                           Heuristic.wells(None, state_bis, None)]
-        # print('heuristics: ', heuristics)
+        else:
+            heuristics = []
+            print('No heuristic is used.')
 
         # selectable pieces as a one-shot vector
         pieces_one_hot = self.format_pieces(state['pieces'])
 
         # state used by tensorforce
-        state_formatted = heuristics
-        state_formatted.extend(pieces_one_hot)
+        state_formatted = heuristics + pieces_one_hot
 
+        print('{}, {}'.format(heuristics, pieces_one_hot))
         return state_formatted
 
     def format_pieces(self, pieces):
@@ -145,7 +147,6 @@ class Reinforcement(ClientInterface.ClientInterface):
         for piece in pieces:
             pieces_formatted[self.char_to_int(piece)] = 1
 
-        print(pieces_formatted)
         return pieces_formatted
 
     def format_score(self, state):
@@ -163,26 +164,35 @@ class Reinforcement(ClientInterface.ClientInterface):
 
     async def train(self):
         await super().init_train()
-        if self.is_stats :
+        if self.is_stats:
             self.my_stats = Stats.Stats()
             self.pid_stats = await self.my_stats.observe()
 
-        for _ in range(self.nb_games):
-            if self.is_stats :
-                await super().new_game(players=[[self.my_client.pid, 1]],
-                                       ias=[[self.train_adversary_level, 1]],
-                                       viewers=[0, self.pid_stats])
-            else :
-                await super().new_game(players=[[self.my_client.pid, 1]],
-                                       ias=[[self.train_adversary_level, 1]],
-                                       viewers=[0])
+        for _ in range(self.nb_batches):
+            wins = 0
+            for _ in range(self.nb_games_per_batch):
+                if self.is_stats:
+                    await super().new_game(players=[[self.my_client.pid, 1]],
+                                           ias=[[self.train_adversary_level, 1]],
+                                           viewers=[0, self.pid_stats])
+                else:
+                    await super().new_game(players=[[self.my_client.pid, 1]],
+                                           ias=[[self.train_adversary_level, 1]],
+                                           viewers=[0])
 
-            self.current_game_is_finish = False
+                self.current_game_is_finish = False
 
-            while not self.current_game_is_finish:
-                await asyncio.sleep(0)
+                while not self.current_game_is_finish:
+                    await asyncio.sleep(0)
 
-            self.current_game_is_finish = False
+                self.current_game_is_finish = False
+                
+                # increment wins when a game is won
+                wins += 1 if self.score_self_new > self.score_other_new else 0
+            
+            # save the scores in a file
+            self.file_scores.write('{}\n'.format(wins / self.nb_games_per_batch))
+            self.file_scores.flush()
 
         self.save()
 
@@ -206,15 +216,20 @@ class Reinforcement(ClientInterface.ClientInterface):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Beep boop.')
     parser.add_argument('load_file', nargs='?', default=None, type=str, help='file to load')
-    parser.add_argument('--stats', dest='my_file_stats', default=None, type=str, help='stats')
+    parser.add_argument('--stats', dest='my_file_stats', default=None, type=str, help='stats')               
+        
     args = parser.parse_args()
 
     my_file_stats = args.my_file_stats
     my_stats = my_file_stats is not None
 
-
-    ia = Reinforcement('reinforcement', is_stats = my_stats, file_stats = args.my_file_stats)
-    ia.nb_games = 1000
+    ia = Reinforcement('reinforcement', is_stats=my_stats,
+                                        file_stats=my_file_stats,
+                                        train_adversary_level=2,
+                                        nb_batches=5000,
+                                        nb_games_per_batch=2,
+                                        layer_size=15,
+                                        nb_layers=3)
     AI_LOOP = asyncio.get_event_loop()
     try:
         AI_LOOP.run_until_complete(ia.train())
@@ -223,7 +238,7 @@ if __name__ == '__main__':
         print("\nEntrainement arrêté manuellement.")
         ia.save()
 
-    if my_stats :
+    if my_stats:
         print("\n\n", ia.my_stats)
         f = open(ia.file_stats, 'w')
         f.write(str(ia.my_stats))
