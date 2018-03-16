@@ -39,7 +39,7 @@ class Entropy(Level.Level):
             else :
                 raise NameError("L'heuristic ", h, " is not defined")
 
-    def play(self, state):
+    async def play(self, state):
         return H.best_move(list(self.heuristic.values()),self.weights,state)
    
     def load(self):

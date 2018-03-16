@@ -142,7 +142,7 @@ class Train_Entropy(ClientInterface.ClientInterface):
             print("\nSélection : ", self.population)
         self.save()
 
-    def play(self, state):
+    async def play(self, state):
         return H.best_move(list(self.heuristic.values()),self.population[self.current_eval],state)
 
     def on_finished_game(self,data):

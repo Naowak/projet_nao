@@ -48,7 +48,7 @@ class Reinforcement_IA(ClientInterface.ClientInterface):
         self.file_stats = file_stats
         self.pid_stats = None
 
-    def play(self, state):
+    async def play(self, state):
         # update all the scores (self.score_self_new, self.score_self_old, self.score_other_new, self.score_other_old)
         self.update_scores(state)
 
