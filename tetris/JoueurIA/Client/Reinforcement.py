@@ -126,7 +126,7 @@ class Reinforcement(ClientInterface.ClientInterface):
             state_bis = State.State(state['grid'])
             heuristics = [Heuristic.line_transition(None, state_bis, None),
                           Heuristic.column_transition(None, state_bis, None),
-                          Heuristic.holes(None, state_bis, None),
+                          Heuristic.hidden_empty_cells(None, state_bis, None),
                           Heuristic.wells(None, state_bis, None)]
         else:
             heuristics = []
