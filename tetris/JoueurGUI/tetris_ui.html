@@ -110,6 +110,7 @@
         var HN = false;
         var listeLigneSupp = [];
         var data;
+        var wait = false;
         
         function fHH(){
             if(in_game){
@@ -321,18 +322,44 @@
                         //mettre en place la taille de la grille
                         break;
                     case "game" :
-                        in_game=true;
-                        game.grid = data.grid;
-                        game.score = data.score;
-                        game.choices = data.pieces;
-                        game.turn = data.turn;
-                        listeLigneSupp = data.lines_complete_this_turn;
-                        actual_player = data.actual_player;
-                        if(listeLigneSupp.length == 0){
-                            drawGame();
+                        if(actual_player == 1 && HN){
+                            wait = true;
+                            //sleep(300).then(() => {
+                            setTimeout(function(){ 
+                                //alert("Hello");
+                                in_game=true;
+                                game.grid = data.grid;
+                                game.score = data.score;
+                                game.choices = data.pieces;
+                                game.turn = data.turn;
+                                listeLigneSupp = data.lines_complete_this_turn;
+                                actual_player = data.actual_player;
+                                if(listeLigneSupp.length == 0){
+                                    console.log("REDRAW");
+                                    drawGame();
+                                }else{
+                                    drawAnim();   
+                                } 
+                            }, 1000);
+                            wait = false;  
+                            //});
                         }else{
-                            drawAnim();   
-                        }             
+                            in_game=true;
+                            game.grid = data.grid;
+                            game.score = data.score;
+                            game.choices = data.pieces;
+                            game.turn = data.turn;
+                            listeLigneSupp = data.lines_complete_this_turn;
+                            actual_player = data.actual_player;
+                            if(!wait){
+                                if(listeLigneSupp.length == 0){
+                                    drawGame();
+                                }else{
+                                    drawAnim();   
+                                }   
+                            }
+
+                        }
                         break;
                     case "finished" :
                         in_game=false;
@@ -629,16 +656,13 @@
         }
 
 
-        async function drawGame() {
+        async function drawGame() {       
             clear_canvas();
-            drawBackground();
+            drawBackground();           
             drawInfo();
             drawChoices();
             drawGrid();
-            update();
-            if(actual_player == 1 && HN){
-                await sleep(300);
-            }
+            update();    
         }
       </script>
       <audio src="music/Music.mp3" autoplay="true" loop="true" preload="auto" id="audio">
