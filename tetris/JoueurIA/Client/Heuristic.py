@@ -113,7 +113,50 @@ def height(g_prec, g_next, action) :
 
 #(number of line last action)*(number of cells eliminated from the last piece)
 def erosion(g_prec, g_next, action):
-    pass
+    kind = action["choose"]
+    rotation = action["rotate"]
+    hor_move = action["hor_move"]
+
+    #on recréer la piece et l'état précédent
+    p = Piece.Piece.factory(kind, copy.copy(Piece.Piece.centers_init[kind]))
+    etat = State.State(g_prec.grid)
+    hauteur = 0
+    for _ in range(rotation) :
+        p.rotate()
+
+    #si elle dépasse, return 0
+    if(not State.is_piece_accepted_abscisse(p, p.center[0] + p.block_control[0] + hor_move)):
+        return 0
+
+    #on descend la piece
+    p.center[0] += hor_move
+    while not etat.is_piece_blocked(p):
+        p.center[1] -= 1
+
+    #on calcul tous les indices d'ordonne de la piece qui est tombé
+    indices_ordonnee_piece = []
+    for block in p.blocks:
+        indices_ordonnee_piece += [int(p.center[1] + block[1])]
+        etat.grid[int(p.center[0] + block[0])
+                  ][int(p.center[1] + block[1])] = p.color
+    set_ordonnee_piece = list(set(indices_ordonnee_piece))
+
+    #on compte le nombre de block détruit et le nombre de ligne réalisées.
+    nb_block_detruit = 0
+    nb_lines_complete = 0
+    for j in set_ordonnee_piece :
+        line_complete = True
+        for i in range(gp.TAILLE_X) :
+            if etat.grid[i][j] == Block.Block.Empty :
+                line_complete = False
+        if line_complete :
+            nb_lines_complete += 1
+            nb_block_detruit += indices_ordonnee_piece.count(j)
+
+    return nb_lines_complete*nb_block_detruit
+
+
+
 
 #number of empty/filled or filled/empty cells transition
 def line_transition(g_prec, g_next, action):
@@ -273,12 +316,17 @@ if __name__ == "__main__" :
     [Block.Block.Red, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Red, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty]]
 
     action = {"hor_move" : 1, "choose" : 'L', "rotate" : 1}
-    etat = State.State(my_grid)
-    etat.score[0] = 125
-    etat.score[1] = 168
-    print(etat)
+    # etat = State.State(my_grid)
+    # etat.score[0] = 125
+    # etat.score[1] = 168
+    # print(etat)
 
-    etat2 = State.State(my_grid)
-    etat2.score[0] = 125
-    etat2.score[1] = 365
-    print(score(etat, etat2, None))
+    # etat2 = State.State(my_grid)
+    # etat2.score[0] = 125
+    # etat2.score[1] = 365
+    # print(score(etat, etat2, None))
+
+    etat = State.State(my_grid)
+    print(etat)
+    print("Erosion : ", erosion(etat, None, action))
+
