@@ -37,10 +37,13 @@ class Subject:
         for player in self.clients["players"].values():
             await player.send_message(mess)
 
-    async def notify_view(self):
+    async def notify_view(self,viewer_to_notify = None):
         mess = self.get_etat()
-        for viewer in self.clients["viewers"]:
-            await viewer.send_message(mess)
+        if viewer_to_notify is None:
+            for viewer in self.clients["viewers"]:
+                await viewer.send_message(mess)
+        else:
+           await viewer_to_notify.send_message(mess) 
 
     def quit(self):
         clients = []

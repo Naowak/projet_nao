@@ -41,6 +41,8 @@ class Server:
         await self.actualise_server_info()
     async def link_game(self, client, gid):
         self.games[gid].bind_viewer(client)
+        await client.send_message(Server.data_init_game(self.games[gid], []))
+        await self.games[gid].notify_view(viewer_to_notify = client)
         await self.actualise_server_info()
 
     async def new_game(self, players_id, viewers_id, ias, audio=False):
