@@ -30,7 +30,13 @@ class Reinforcement(ClientInterface.ClientInterface):
         self.file_scores = open('scores.txt', 'w')
         
         # AI parameters
-        self.nb_heuristics = 4
+        self.heuristics = [Heuristic.line_transition,
+                           Heuristic.column_transition,
+                           Heuristic.hidden_empty_cells,
+                           Heuristic.wells,
+                           Heuristic.holes,
+                           Heuristic.highest_column]
+        self.nb_heuristics = len(self.heuristics)
         self.train_adversary_level = train_adversary_level
         
         # iteration
@@ -121,24 +127,20 @@ class Reinforcement(ClientInterface.ClientInterface):
 
         return action_to_apply
 
+    def evaluate_heuristics(self, heuristics, g_prec, g_next, action):
+        return [heuristic(g_prec, g_next, action) for heuristic in heuristics]
+
     def format_state(self, state):
-        if self.nb_heuristics == 4:
-            state_bis = State.State(state['grid'])
-            heuristics = [Heuristic.line_transition(None, state_bis, None),
-                          Heuristic.column_transition(None, state_bis, None),
-                          Heuristic.hidden_empty_cells(None, state_bis, None),
-                          Heuristic.wells(None, state_bis, None)]
-        else:
-            heuristics = []
-            print('No heuristic is used.')
+        state_bis = State.State(state['grid'])
+        heuristics_values = self.evaluate_heuristics(self.heuristics, None, state_bis, None)
 
         # selectable pieces as a one-shot vector
         pieces_one_hot = self.format_pieces(state['pieces'])
 
         # state used by tensorforce
-        state_formatted = heuristics + pieces_one_hot
+        state_formatted = heuristics_values + pieces_one_hot
 
-        print('{}, {}'.format(heuristics, pieces_one_hot))
+        print('{}, {}'.format(heuristics_values, pieces_one_hot))
         return state_formatted
 
     def format_pieces(self, pieces):
@@ -225,9 +227,9 @@ if __name__ == '__main__':
 
     ia = Reinforcement('reinforcement', is_stats=my_stats,
                                         file_stats=my_file_stats,
-                                        train_adversary_level=2,
+                                        train_adversary_level=1,
                                         nb_batches=5000,
-                                        nb_games_per_batch=2,
+                                        nb_games_per_batch=1,
                                         layer_size=15,
                                         nb_layers=3)
     AI_LOOP = asyncio.get_event_loop()
