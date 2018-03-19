@@ -14,11 +14,49 @@ from arpeggio.cleanpeg import ParserPEG
 "Termine mon tour",\
 "Décale la vers la droite de deux colonnes"]
 
-def ordinaux(): return peg.RegExMatch(r'\de')
- #première|1ère|deuxième|troisième|quatrième|cinquième|sixième|septième|huitième|neuvième|dixième|
+def ordinaux(): return peg.RegExMatch(
+    r'(?:\de|10e|1ère|\
+    première|deuxième|troisième|quatrième|cinquième|sixième|septième|huitième|neuvième|dixième)')
+
+def verbe(): return peg.RegExMatch(
+    r'.*?(?:\
+        (?:(?:décal|pos|termin|plac)(?:e|ez|é|er))|\
+        (?:chosi(?:s|r|e|ssez))|\
+        (?:met(?:s|ttez|tre)\
+    )\
+        (?: | -)(?: la | le)')
+
+
+reg_o = r'carré|bloc|o|haut|eau'
+reg_i = r'barre|bâton|i'
+reg_t = r'thé|t'
+reg_l = r'l|elle|lambda'
+reg_j = r'j|linversé|gamma'
+reg_z = r'z|biais'
+reg_s = r'z inversé|biais inversé'
+def forme(): return peg.RegExMatch(\
+    r"(?:"+\
+    reg_o+\
+    reg_i+\
+    reg_j+\
+    reg_l+\
+    reg_s+\
+    reg_t+\
+    reg_z+")")
+
+def fuschia() : return 'rose'/'violet'/'mauve'/'magenta'/'fuchsia'/'lila'/'violette'
+def green(): return 'verte'/'kaki'/'vert'
+def yellow(): return 'jaune'
+def blue(): return 'bleu foncé'/'bleu'
+def aqua(): return 'bleu'/'ciel'/'bleu clair'/'bleu cyan'/'cyan'/'turquoise'/'bleu turquoise'
+def red(): return 'rouge'
+def orange(): return 'orange'
+
+def color(): return fuschia/green/yellow/blue/aqua/red/orange
+
 
 parser= peg.ParserPython(ordinaux)
-a= '3e'
+a = 'septième'
 parse_tree = parser.parse(a)
 
 class Visit(peg.PTNodeVisitor):
