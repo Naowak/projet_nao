@@ -4,6 +4,7 @@ from multi_key_dict import multi_key_dict
 # from nltk import load_parser
 import arpeggio as peg
 from arpeggio.cleanpeg import ParserPEG
+from arpeggio import Optional, ZeroOrMore, OneOrMore, EOF
 
 ["Place la pièce 2 dans la deuxième colonne",\
 "Tourne la pièce rouge deux fois vers la droite",\
@@ -27,13 +28,13 @@ def verbe(): return peg.RegExMatch(
         (?: | -)(?: la | le)')
 
 
-reg_o = r'carré|bloc|o|haut|eau'
-reg_i = r'barre|bâton|i'
-reg_t = r'thé|t'
-reg_l = r'l|elle|lambda'
-reg_j = r'j|linversé|gamma'
-reg_z = r'z|biais'
-reg_s = r'z inversé|biais inversé'
+reg_o = r'carré |bloc |o |haut |eau '
+reg_i = r'barre |bâton |i '
+reg_t = r'thé |t '
+reg_l = r'l |elle |lambda '
+reg_j = r'j |- |gamma '
+reg_z = r'z |biais '
+reg_s = r'z inversé |biais inversé '
 def forme(): return peg.RegExMatch(\
     r"(?:"+\
     reg_o+\
@@ -44,19 +45,20 @@ def forme(): return peg.RegExMatch(\
     reg_t+\
     reg_z+")")
 
-def fuschia() : return 'rose'/'violet'/'mauve'/'magenta'/'fuchsia'/'lila'/'violette'
-def green(): return 'verte'/'kaki'/'vert'
-def yellow(): return 'jaune'
-def blue(): return 'bleu foncé'/'bleu'
-def aqua(): return 'bleu'/'ciel'/'bleu clair'/'bleu cyan'/'cyan'/'turquoise'/'bleu turquoise'
-def red(): return 'rouge'
-def orange(): return 'orange'
+def fuschia() : return ['rose ','violet ','mauve ','magenta ','fuschia ','lila ','violette ']
+def green(): return ['verte' ,'kaki ','vert ']
+def yellow(): return 'jaune '
+def blue(): return ['bleu foncé ','bleu ']
+def aqua(): return ['ciel ','bleu clair ','bleu cyan ','cyan ','turquoise ','bleu turquoise ']
+def red(): return ['rouge ']
+def orange(): return ['orange ']
 
-def color(): return fuschia/green/yellow/blue/aqua/red/orange
+def color(): return Optional(orange), 
+#/yellow/blue/aqua/red/orange
 
 
-parser= peg.ParserPython(ordinaux)
-a = 'septième'
+parser= peg.ParserPython(forme)
+a = 'thé '
 parse_tree = parser.parse(a)
 
 class Visit(peg.PTNodeVisitor):
