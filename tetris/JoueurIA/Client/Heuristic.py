@@ -64,12 +64,14 @@ def best_move(heuristic, weights, state):
         play_send = random.choice(best_plays)[0]
         return play_send
 
+#retourne le coup d'un play en fonction des heuristics choisi pour le calculer
 def evaluate_play(grid_prec, grid_next, action, weights, heuristic) :
         tot = 0
         for i,func in enumerate(heuristic):
             tot += weights[i]*func(grid_prec,grid_next,action)
         return tot
 
+#Calcul du nombre de cellule vide inaccessible (recouverte par un block plein)
 def hidden_empty_cells(g_prec, g_next, action) :
     cpt = 0
     for i in range(gp.TAILLE_X) :
