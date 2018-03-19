@@ -20,45 +20,32 @@ def ordinaux(): return peg.RegExMatch(
     première|deuxième|troisième|quatrième|cinquième|sixième|septième|huitième|neuvième|dixième)')
 
 def verbe(): return peg.RegExMatch(
-    r'.*?(?:\
-        (?:(?:décal|pos|termin|plac)(?:e|ez|é|er))|\
-        (?:chosi(?:s|r|e|ssez))|\
-        (?:met(?:s|ttez|tre)\
-    )\
-        (?: | -)(?: la | le)')
+    r'(?:(?:(?:décal|pos|termin|plac)(?:e|ez|é|er))|(?:chosi(?:s|r|e|ssez))|(?:met(?:s|ttez|tre)))(?:(?: |-)(?:la|le)| une| un)')
 
 
-reg_o = r'carré |bloc |o |haut |eau '
-reg_i = r'barre |bâton |i '
-reg_t = r'thé |t '
-reg_l = r'l |elle |lambda '
-reg_j = r'j |- |gamma '
-reg_z = r'z |biais '
-reg_s = r'z inversé |biais inversé '
-def forme(): return peg.RegExMatch(\
-    r"(?:"+\
-    reg_o+\
-    reg_i+\
-    reg_j+\
-    reg_l+\
-    reg_s+\
-    reg_t+\
-    reg_z+")")
+def reg_o() : return ['carré','bloc','o','haut','eau']
+def reg_i() : return['barre','bâton','i']
+def reg_t() : return['thé','t']
+def reg_l() : return['l','elle','lambda']
+def reg_j() : return['j','gamma']
+def reg_z() : return['z','biais']
+def reg_s() : return['z inversé','biais inversé']
 
-def fuschia() : return ['rose ','violet ','mauve ','magenta ','fuschia ','lila ','violette ']
-def green(): return ['verte' ,'kaki ','vert ']
-def yellow(): return 'jaune '
-def blue(): return ['bleu foncé ','bleu ']
-def aqua(): return ['ciel ','bleu clair ','bleu cyan ','cyan ','turquoise ','bleu turquoise ']
-def red(): return ['rouge ']
-def orange(): return ['orange ']
+def forme(): return [reg_o,reg_i,reg_j,reg_l,reg_s,reg_t,reg_z]
 
-def color(): return Optional(orange), 
-#/yellow/blue/aqua/red/orange
+def fuschia() : return ['rose','violet','mauve','magenta','fuschia','lila','violette']
+def green(): return ['verte' ,'kaki','vert']
+def yellow(): return 'jaune'
+def blue(): return ['bleu foncé','bleu']
+def aqua(): return ['ciel','bleu clair','bleu cyan','cyan','turquoise','bleu turquoise']
+def red(): return ['rouge']
+def orange(): return ['orange']
 
+def color(): return [yellow, fuschia, green, aqua, blue, red, orange]
+def mainrule(): return ordinaux, peg.EOF
 
-parser= peg.ParserPython(forme)
-a = 'thé '
+parser= peg.ParserPython(mainrule)
+a = 'sixième'
 parse_tree = parser.parse(a)
 
 class Visit(peg.PTNodeVisitor):
