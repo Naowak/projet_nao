@@ -113,6 +113,18 @@ def height(g_prec, g_next, action) :
         return hauteur
     return gp.TAILLE_Y_LIMITE - 1
 
+#Retourne the sum of each column hight
+def agregate_height(g_prec, g_next, action) :
+    etat = State.state(g_next)
+    somme = 0
+    for i in range(gp.TAILLE_X) :
+        for j in reverse(list(range(gp.TAILLE_Y_LIMITE-1))) :
+            if etat.grid[i][j] != Block.Block.Empty :
+                somme += j
+                break
+    return somme
+
+
 #(number of line last action)*(number of cells eliminated from the last piece)
 def erosion(g_prec, g_next, action):
     kind = action["choose"]

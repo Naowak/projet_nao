@@ -53,6 +53,8 @@ class Entropy(Level.Level):
                 self.heuristic[h] = H.hidden_empty_cells
             elif h == "erosion" :
                 self.heuristic[h] = H.erosion
+            elif h == "agregate_height" :
+                self.heuristic[h] = H.agregate_height
             else :
                 raise NameError("L'heuristic ", h, " is not defined")
 
