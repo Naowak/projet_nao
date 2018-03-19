@@ -52,8 +52,7 @@ def aqua(): return 'bleu'/'ciel'/'bleu clair'/'bleu cyan'/'cyan'/'turquoise'/'bl
 def red(): return 'rouge'
 def orange(): return 'orange'
 
-def color(): return fuschia/green/yellow/blue/aqua/red/orange
-
+def color(): return fuschia / green / yellow / blue / aqua / red / orange
 
 parser= peg.ParserPython(ordinaux)
 a = 'septième'
