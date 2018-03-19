@@ -74,7 +74,9 @@ class Train_Entropy(ClientInterface.ClientInterface):
             Retour : 
                 None
 
-            Ajoute les heuristics de heuristic_list dans self.heuristic. """
+            Ajoute les heuristics de heuristic_list dans self.heuristic.
+            Les considères pour cette IA.
+            """
 
         for h in heuristic_list : 
             if h == "line_transition" :
