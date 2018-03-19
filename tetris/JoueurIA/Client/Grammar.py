@@ -5,6 +5,7 @@ from multi_key_dict import multi_key_dict
 import arpeggio as peg
 from arpeggio.cleanpeg import ParserPEG
 from arpeggio import Optional, ZeroOrMore, OneOrMore, EOF
+from sys import argv
 
 ["Place la pièce 2 dans la deuxième colonne",\
 "Tourne la pièce rouge deux fois vers la droite",\
@@ -15,46 +16,75 @@ from arpeggio import Optional, ZeroOrMore, OneOrMore, EOF
 "Termine mon tour",\
 "Décale la vers la droite de deux colonnes"]
 
+def direction(): return Optional(["vers la ","à "]),["droite","gauche"]
+
+def valider(): return peg.RegExMatch(r"(?:valid(?:ez|é|er|e)|en bas)")
+def num_piece(): return ["un","deux","trois","1","2","3","une","de","troie"]
+def num_colonne(): return peg.RegExMatch(r"(?:\d|10|dix|\
+    un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|troie|de)")
+
 def ordinaux(): return peg.RegExMatch(
-    r'(?:\de|10e|1ère|\
-    première|deuxième|troisième|quatrième|cinquième|sixième|septième|huitième|neuvième|dixième)')
+    r"(?:\de|10e|1ère|\
+    première|deuxième|troisième|quatrième|cinquième|sixième|septième|huitième|neuvième|dixième)")
 
 def verbe(): return peg.RegExMatch(
-    r'(?:(?:(?:décal|pos|termin|plac)(?:e|ez|é|er))|(?:chosi(?:s|r|e|ssez))|(?:met(?:s|ttez|tre)))(?:(?: |-)(?:la|le)| une| un)')
+    r"(?:(?:(?:décal|pos|termin|plac)(?:er|ez|é|e))|(?:chosi(?:s|r|e|ssez))|(?:met(?:s|ttez|tre)))(?:(?: |-)(?:la|le)| une| un)")
 
+def reg_o() : return ["carré","bloc","o","haut","eau"]
+def reg_i() : return["barre","bâton","i"]
+def reg_t() : return["thé","t"]
+def reg_l() : return["elle","lambda","l"]
+def reg_j() : return["j","gamma"]
+def reg_z() : return["z","biais"]
+def reg_s() : return["z inversé","biais inversé"]
 
-def reg_o() : return ['carré','bloc','o','haut','eau']
-def reg_i() : return['barre','bâton','i']
-def reg_t() : return['thé','t']
-def reg_l() : return['l','elle','lambda']
-def reg_j() : return['j','gamma']
-def reg_z() : return['z','biais']
-def reg_s() : return['z inversé','biais inversé']
+def forme(): return Optional(["en forme de "]),[reg_o,reg_i,reg_j,reg_l,reg_s,reg_t,reg_z]
 
-def forme(): return [reg_o,reg_i,reg_j,reg_l,reg_s,reg_t,reg_z]
+def fuschia() : return ["rose","violet","mauve","magenta","fuschia","lila","violette"]
+def green(): return ["verte" ,"kaki","vert"]
+def yellow(): return "jaune"
+def blue(): return ["bleu foncé","bleu"]
+def aqua(): return ["ciel","bleu clair","bleu cyan","cyan","turquoise","bleu turquoise"]
+def red(): return ["rouge"]
+def orange(): return ["orange"]
 
-def fuschia() : return ['rose','violet','mauve','magenta','fuschia','lila','violette']
-def green(): return ['verte' ,'kaki','vert']
-def yellow(): return 'jaune'
-def blue(): return ['bleu foncé','bleu']
-def aqua(): return ['ciel','bleu clair','bleu cyan','cyan','turquoise','bleu turquoise']
-def red(): return ['rouge']
-def orange(): return ['orange']
+def color(): return Optional(["de couleur "]),[yellow, fuschia, green, aqua, blue, red, orange]
 
-def color(): return [yellow, fuschia, green, aqua, blue, red, orange]
-def mainrule(): return ordinaux, peg.EOF
+def select_piece(): return [("pièce", peg.Not([color,num_piece])),
+                            ("pièce", [num_piece, (forme, color), (color, forme), color, forme]),
+                            (forme, Optional([color]))]
 
-parser= peg.ParserPython(mainrule)
-a = 'sixième'
-parse_tree = parser.parse(a)
+def select_column(): return [("dans la", [(ordinaux, "colonne"), ("colonne", num_colonne)]),
+                            (Optional(["de "]), num_colonne, ["colonnes", "colonne"], direction),
+                            (direction, Optional(["de"]), num_colonne, ["colonnes", "colonne"])
+                            ]
+
+def action(): return verbe, [(select_piece,select_column),
+                            (select_column,select_piece),
+                            select_column,
+                            select_piece],Optional(valider)
+
+def mainrule(): return action, peg.EOF
+
+parser= peg.ParserPython(mainrule,debug=True)
+try:
+    parse_tree = parser.parse(argv[1])
+except peg.NoMatch as e:
+    print(e)
 
 class Visit(peg.PTNodeVisitor):
-	def visit_ordinaux(self, node, children):
-		return node.value
+    def visit_ordinaux(self, node, children):
+        return node.value 
+
+    def visit_direction(self, node, children):
+        return node.value
+    
+    def visit_action(self, node, children):
+        return node.value
 
 result = peg.visit_parse_tree(parse_tree,Visit(debug=True))
-print(result)
-# nom_fichier = 'gr_play.fcfg'
+print("result",result)
+# nom_fichier = "gr_play.fcfg"
 # #grammaire = load(nom_fichier)
 # parser = load_parser(nom_fichier)
 
@@ -84,13 +114,13 @@ ordinals_vocab = multi_key_dict({\
     ("dixième","10e"): 10})
 
 shape_vocab = multi_key_dict({
-    ("carré","bloc","o","haut","eau"): 'O',\
-    ("barre", "bâton", "i"): 'I',
-    ("thé","t"): 'T',\
-    ("l", "elle","lambda"): 'L',\
-    ("j", "l inversé","gamma"): 'J',\
-    ("z","biais"): 'Z',\
-    ("s", "z inversé", "biais inversé"): 'S'})
+    ("carré","bloc","o","haut","eau"): "O",\
+    ("barre", "bâton", "i"): "I",
+    ("thé","t"): "T",\
+    ("l", "elle","lambda"): "L",\
+    ("j", "l inversé","gamma"): "J",\
+    ("z","biais"): "Z",\
+    ("s", "z inversé", "biais inversé"): "S"})
 
 index_piece_vocab = multi_key_dict({
     ("1", "un", "une"): 1,\
