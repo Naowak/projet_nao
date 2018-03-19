@@ -10,6 +10,7 @@ sys.path.append("../../")
 
 from tensorforce.agents import DQNAgent
 from GlobalParameters import *
+from utilities import *
 
 from JoueurIA.Client import ClientInterface, Heuristic, Stats
 from Jeu import State
@@ -19,6 +20,19 @@ class Reinforcement(ClientInterface.ClientInterface):
     def __init__(self, name, load_file=None, is_stats=False, file_stats=None,
                  train_adversary_level=2, nb_batches=5000, nb_games_per_batch=2,
                  layer_size=15, nb_layers=3):
+        """
+        :param name: name of the IA/
+        :param load_file: path and name of the model to load (without any extension).
+        :param is_stats: boolean which tells whether the statistics are enabled.
+        :param file_stats: name of the file where the statistics are written.
+        :param train_adversary_level: integer indicating the AI to train against (corresponds to level in AICreator).
+        :param nb_batches: number of batches. A batch is a group of successive games on which the ratio
+        (nb_won_games / nb_games_per_batch) is computed and saved in score.txt.
+        :param nb_games_per_batch: number of games per batch.
+        :param layer_size: size of a neural network layer.
+        :param nb_layers: number of layers in the neural network.
+        """
+
         super().__init__(name, load_file)
         
         self.current_game_is_finish = None
@@ -35,8 +49,13 @@ class Reinforcement(ClientInterface.ClientInterface):
                            Heuristic.hidden_empty_cells,
                            Heuristic.wells,
                            Heuristic.holes,
-                           Heuristic.highest_column]
-        self.nb_heuristics = len(self.heuristics)
+                           Heuristic.highest_column,
+                           Heuristic.columns_heights]
+
+        state = State.State()
+        heuristics_sizes = [heuristic(state, state, None) for heuristic in self.heuristics]
+        self.nb_heuristics = len(flatten(heuristics_sizes))
+        print('self.nb_heuristics', heuristics_sizes)
         self.train_adversary_level = train_adversary_level
         
         # iteration
@@ -66,6 +85,12 @@ class Reinforcement(ClientInterface.ClientInterface):
         self.pid_stats = None
 
     def play(self, state):
+        """
+        Associates an action to a state. Called by the server.
+        :param state: dictionary containing information about the game, send by the server.
+        :return: action to apply.
+        """
+
         # update all the scores (self.score_self_new, self.score_self_old, self.score_other_new, self.score_other_old)
         self.update_scores(state)
 
@@ -92,17 +117,27 @@ class Reinforcement(ClientInterface.ClientInterface):
         # return {"hor_move": -2, "rotate": 1, "choose": state["pieces"][0]}
 
     def on_init_game(self, data):
+        """
+        Called at the beginning of a game.
+        :param data: dictionary containing information about the game, send by the server.
+        """
+
         print()
         print(self.iteration)
 
         self.my_id_in_game = data["ids_in_game"][0]
 
     def on_finished_game(self, data):
+        """
+        Called at the end on a game.
+        :param data: dictionary containing information about the game, send by the server.
+        """
+
         self.iteration += 1
 
         self.current_game_is_finish = True
 
-        # update all the scores (self.score_self_new, self.score_self_old, self.score_other_new, self.score_other_old)
+        # update all the scores
         self.update_scores(data)
 
         # pass observation to the agent
@@ -111,6 +146,11 @@ class Reinforcement(ClientInterface.ClientInterface):
         self.agent.observe(terminal, reward)
 
     def update_scores(self, state):
+        """
+        Updates the scores of the agent and of the the other player.
+        :param state: dictionary containing information about the game.
+        """
+
         # update the old scores
         self.score_self_old, self.score_other_old = self.score_other_new, self.score_other_new
 
@@ -119,6 +159,13 @@ class Reinforcement(ClientInterface.ClientInterface):
 
     @staticmethod
     def format_action(action, state):
+        """
+        Formats the action returned by tensorforce so that it can be used in the play function.
+        :param action: action returned by tensorforce (function act).
+        :param state: dictionary containing information about the game, send by the server.
+        :return: dictionary containing the action.
+        """
+
         # convert int32 (which is not serializable) to standard int
         action_to_apply = {key: int(value) for key, value in action.items()}
 
@@ -128,9 +175,24 @@ class Reinforcement(ClientInterface.ClientInterface):
         return action_to_apply
 
     def evaluate_heuristics(self, heuristics, g_prec, g_next, action):
-        return [heuristic(g_prec, g_next, action) for heuristic in heuristics]
+        """
+        Computes the current values of the heuristic.
+        :param heuristics: list containing the heuristic functions.
+        :param g_prec: previous state.
+        :param g_next: current state.
+        :param action: action which allows to go from g_prec to g_next.
+        :return: flat list containing the heuristics values (flattening is necessary because some heuristics are lists).
+        """
+
+        return flatten([heuristic(g_prec, g_next, action) for heuristic in heuristics])
 
     def format_state(self, state):
+        """
+        Formats the state so that it can be used by tensorforce.
+        :param state: dictionary containing information about the game, send by the server.
+        :return: list containing the heuristics values. Represents the state.
+        """
+
         state_bis = State.State(state['grid'])
         heuristics_values = self.evaluate_heuristics(self.heuristics, None, state_bis, None)
 
@@ -144,6 +206,12 @@ class Reinforcement(ClientInterface.ClientInterface):
         return state_formatted
 
     def format_pieces(self, pieces):
+        """
+        Formats the available pieces so that they can be used by tensorforce.
+        :param pieces: 3-elements list containing letters representing pieces (no repetition).
+        :return: 7-elements one-hot list containing 1 or 0.
+        """
+
         pieces_formatted = [0] * NOMBRE_DE_PIECES
 
         for piece in pieces:
@@ -152,6 +220,12 @@ class Reinforcement(ClientInterface.ClientInterface):
         return pieces_formatted
 
     def format_score(self, state):
+        """
+        Extracts the score of the AI and of the other player.
+        :param state: dictionary containing information about the game, send by the server.
+        :return: score_self, score_other.
+        """
+
         id_self = self.my_id_in_game
         id_other = (id_self + 1) % 2
         score_self = state['score'][id_self]
@@ -161,10 +235,20 @@ class Reinforcement(ClientInterface.ClientInterface):
 
     @staticmethod
     def char_to_int(char):
+        """
+        Converts a letter whose shape looks like a tetromino to a corresponding integer.
+        :param char: 'O', 'I', 'L', 'T', 'S', 'Z' or 'J'.
+        :return: integer from 0 to 6.
+        """
+
         lu_table = {'O': 0, 'I': 1, 'L': 2, 'T': 3, 'S': 4, 'Z': 5, 'J': 6}
         return lu_table[char]
 
     async def train(self):
+        """
+        Triggers the training.
+        """
+
         await super().init_train()
         if self.is_stats:
             self.my_stats = Stats.Stats()
@@ -199,7 +283,11 @@ class Reinforcement(ClientInterface.ClientInterface):
         self.save()
 
     def save(self):
-        #TODO: Dire si on a bien charger
+        """
+        Saves the current model in directory rein_learn_models as 3 files.
+        """
+
+        #TODO: Dire si on a bien chargé
         # directory = os.path.join(os.getcwd(), 'rein_learn_models')
         time_str = time.strftime('%Y%m%d_%H%M%S')
         directory = os.path.join(os.getcwd(), 'rein_learn_models', 'agent_' + time_str)
@@ -208,6 +296,11 @@ class Reinforcement(ClientInterface.ClientInterface):
         print('checkpoint: {}'.format(checkpoint))
 
     def load(self, load_file):
+        """
+        Loads a saved model.
+        :param load_file: path and name of the model to load (without any extension).
+        """
+
         # load_file represent the file path (without any extension)
         directory = os.path.dirname(load_file)
         file = os.path.basename(load_file)
