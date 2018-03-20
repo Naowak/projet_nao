@@ -255,7 +255,7 @@
         function onkeypress(event) {
             event.preventDefault();
             console.log(event);
-            if (in_game /*&& actual_player == igid[0]*/){
+            if (in_game && (actual_player == igid[0] || !HN)){
                 console.log("send messages");
                 switch(event.key){
                     case "ArrowDown": case "s": case "S":
@@ -399,7 +399,7 @@
             drawBackground();
             connexion();
             if(observer_type == "player"){
-                document.body.onkeypress=onkeypress;
+                document.body.onkeydown=onkeypress;
             }
             //window.addEventListener("resize", resize, false);
 
