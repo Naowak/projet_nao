@@ -46,11 +46,7 @@ class Subject:
            await viewer_to_notify.send_message(mess) 
 
     def quit(self):
-        clients = []
-        for client in self.clients["players"].values():
-            clients.append(client)
-        for client in self.clients["viewers"].values():
-            clients.append(client)
+        clients = list(self.clients["viewers"].values())+list(self.clients["players"].values())
         for client in clients:
             client.on_quit_game(self)
         print("Game ", self.gid, "close")
