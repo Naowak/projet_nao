@@ -191,7 +191,6 @@ class State:
             my_piece.center[1] -= 1
         for block in my_piece.blocks:
             coord_blocks += [[int(my_piece.center[0] + block[0]), int(my_piece.center[1] + block[1])]]
-        print(coord_blocks)
        
 
         serialize = {"score":self.score, "grid":[[j for j in i] for i in self.grid], \
