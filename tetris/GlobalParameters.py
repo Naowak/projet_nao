@@ -12,10 +12,10 @@ Fichier de reglage des parametres du jeu :
     -LEVELS : tableau des differents niveau du jeu.
     ["random" : coup aleatoire
     ,"smart1":  realise une ligne si possible, dans le cas contraire un coup aleatoire est joue
-    ,"4-heuristic": le coup est chosit comme l'argmin d'une fonction 4-heuristique
-                    avec des poids genere par entropy croise voir entropy  
-    ,"6-heuristic": le coup est chosit comme l'argmin d'une fonction 6-heuristique
-                    avec des poids genere par entropy croise voir entropy 
+    ,"4-heuristic": le coup est choisi comme l'argmin d'une fonction 4-heuristique
+                    avec des poids générés par entropie croisée (voir entropy)
+    ,"6-heuristic": le coup est choisi comme l'argmin d'une fonction 6-heuristique
+                    avec des poids générés par entropie croisée (voir entropy)
     ]
 """
 TAILLE_X = 10

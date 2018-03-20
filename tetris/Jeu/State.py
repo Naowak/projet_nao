@@ -181,10 +181,11 @@ class State:
         Retourne :
             - json : représantant une instance State"""
         coord_blocks = []
-        while not self.is_piece_blocked(piece):
-            piece.center[1] -= 1
-        for block in piece.blocks:
-            coord_blocks += [[int(piece.center[0] + block[0]), int(piece.center[1] + block[1])]]
+        my_piece = copy.copy(piece)
+        while not self.is_piece_blocked(my_piece):
+            my_piece.center[1] -= 1
+        for block in my_piece.blocks:
+            coord_blocks += [[int(my_piece.center[0] + block[0]), int(my_piece.center[1] + block[1])]]
        
 
         serialize = {"score":self.score, "grid":[[j for j in i] for i in self.grid], \
