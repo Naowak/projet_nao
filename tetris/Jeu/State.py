@@ -4,7 +4,7 @@ sys.path.append('../')
 import copy
 
 import GlobalParameters as gp
-from Jeu import Block
+from Jeu import Block, Piece
 
 def copy_grid(grid) :
     """Retourne une copie de la grille passée en paramètre.
@@ -181,11 +181,14 @@ class State:
         Retourne :
             - json : représantant une instance State"""
         coord_blocks = []
-        my_piece = copy.copy(piece)
-        while not self.is_piece_blocked(my_piece):
+        my_piece = Piece.Piece.factory(piece.kind, copy.copy(piece.center))
+        etat = State(self.grid)
+        etat.clear_rotation_vue()
+        while not etat.is_piece_blocked(my_piece):
             my_piece.center[1] -= 1
         for block in my_piece.blocks:
             coord_blocks += [[int(my_piece.center[0] + block[0]), int(my_piece.center[1] + block[1])]]
+        print(coord_blocks)
        
 
         serialize = {"score":self.score, "grid":[[j for j in i] for i in self.grid], \
