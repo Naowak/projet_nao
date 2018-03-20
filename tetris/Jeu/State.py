@@ -182,6 +182,9 @@ class State:
             - json : représantant une instance State"""
         coord_blocks = []
         my_piece = Piece.Piece.factory(piece.kind, copy.copy(piece.center))
+        my_piece.blocks = []
+        for block in piece.blocks :
+            my_piece.blocks += [copy.copy(block)]
         etat = State(self.grid)
         etat.clear_rotation_vue()
         while not etat.is_piece_blocked(my_piece):
