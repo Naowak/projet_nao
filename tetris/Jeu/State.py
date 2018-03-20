@@ -175,12 +175,21 @@ class State:
         string += "SCORE:: " + str(self.score) + "\n"
         return string
 
-    def encode_to_json(self):
+    def encode_to_json(self, piece):
         """Convertit en json l'état
 
         Retourne :
             - json : représantant une instance State"""
-        serialize = {"score":self.score, "grid":[[j for j in i] for i in self.grid], "lines_complete_this_turn" : self.indices_lines_complete_this_turn}
+        coord_blocks = []
+        while not self.is_piece_blocked(piece):
+            piece.center[1] -= 1
+        for block in piece.blocks:
+            coord_blocks += [[int(piece.center[0] + block[0]), int(piece.center[1] + block[1])]]
+       
+
+        serialize = {"score":self.score, "grid":[[j for j in i] for i in self.grid], \
+         "lines_complete_this_turn" : self.indices_lines_complete_this_turn, \
+         "preview" : coord_blocks}
         
         #ATTENTION : moyen pas beau d'envoyer les lignes correctement au serveur
         #à corriger potentiellement plus tard
