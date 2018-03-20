@@ -608,7 +608,12 @@
                 });
             });
             for(var i=0; i<preview.length; i++){
-                drawBlock("#D0D1D1",preview[i]);
+                coord = preview[i];
+                if(coord[1] >= grid.lines - grid.holding_lines){
+                    drawBlock("Black",coord);
+                }else{
+                    drawBlock("#D0D1D1",coord);
+                }   
             }
             update();
         }
