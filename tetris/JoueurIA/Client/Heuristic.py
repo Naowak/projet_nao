@@ -120,6 +120,7 @@ def agregate_height(g_prec, g_next, action) :
     for i in range(gp.TAILLE_X) :
         for j in reverse(list(range(gp.TAILLE_Y_LIMITE-1))) :
             if etat.grid[i][j] != Block.Block.Empty :
+                #première case de la colonne qui n'est pas vide
                 somme += j
                 break
     return somme
