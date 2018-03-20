@@ -5,6 +5,7 @@ import asyncio
 import json
 import websockets
 import argparse
+import copy
 
 from Jeu import Game
 import GlobalParameters as gp
@@ -177,9 +178,12 @@ class Server:
         return websockets.serve(self.connect, gp.LOCAL_ADDRESS, port)
 
     async def disconnect_client(self, client):
-        if self.my_audio[client.id] :
-            await self.my_audio[client.id].on_disconnect()
-            del self.my_audio[client.id]
+        try :
+            if self.my_audio[client.id] :
+                await self.my_audio[client.id].on_disconnect()
+                del self.my_audio[client.id]
+        except KeyError :
+            print("Error catch : client doesn't manage audio")
         await client.on_disconnect()
         del self.my_clients[client.id]
         print(str(client), " is unconnect")
@@ -187,8 +191,8 @@ class Server:
 
     async def actualise_server_info(self):
         data = self.data_update()
-        clients = self.my_clients.values()
-        ias = self.my_ias.values()
+        clients = list(self.my_clients.values())
+        ias = list(self.my_ias.values())
         for client in clients:
             await client.send_message(data)
         for ia_client in ias:

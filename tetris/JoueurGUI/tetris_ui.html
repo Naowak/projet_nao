@@ -120,6 +120,7 @@
             var audio = document.getElementById('voice_control_checkbox').checked;
             if(in_game){
                 if (confirm(attention)){
+
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
                     ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 2]] , 'viewers' : [] , 'IAs': [], "audio" : audio}))
@@ -312,13 +313,16 @@
                         displayLevel();
                     break;
                     case "update":
+                        //enqueueUpdate(()=>{
                         tabJ = data.clients;
                         tabG = data.games;
                         displayJ();
                         displayG();
+                        //}, 0);
                         break;
                     case "init_game" :
                         console.log(this);
+                        in_game=true;
                         kinds = data.kinds;
                         color = data.color;
                         nb_player = data.nb_player;
@@ -330,7 +334,8 @@
                         break;
                     case "game" :
                         enqueueUpdate(() => { 
-                                in_game=true;
+                                
+                                console.log("true")
                                 game.grid = data.grid;
                                 game.score = data.score;
                                 game.choices = data.pieces;
@@ -345,14 +350,17 @@
                                 }}, (actual_player == 1 && HN)?300:0); 
                         break;
                     case "finished" :
+                        enqueueUpdate(()=>{
                         in_game=false;
+                        console.log("false")
                         game.grid = data.grid;
                         game.score = data.score;
                         game.choices = data.pieces;
                         game.turn = data.turn;
                         actual_player = data.actual_player;
                         drawGame();
-          
+                        }, 0);
+                        break;
                     default :
                         console.log("message non reconnu");
                         break;
