@@ -334,7 +334,7 @@
                         break;
                     case "game" :
                         enqueueUpdate(() => { 
-                                console.log("true")
+                                in_game=true;
                                 game.grid = data.grid;
                                 game.score = data.score;
                                 game.choices = data.pieces;
@@ -351,7 +351,6 @@
                     case "finished" :
                         enqueueUpdate(()=>{
                         in_game=false;
-                        console.log("false")
                         game.grid = data.grid;
                         game.score = data.score;
                         game.choices = data.pieces;
