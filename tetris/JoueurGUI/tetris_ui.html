@@ -312,12 +312,12 @@
                         displayLevel();
                     break;
                     case "update":
-                        //enqueueUpdate(()=>{
-                        tabJ = data.clients;
-                        tabG = data.games;
-                        displayJ();
-                        displayG();
-                        //}, 0);
+                        enqueueUpdate(()=>{
+                            tabJ = data.clients;
+                            tabG = data.games;
+                            displayJ();
+                            displayG();
+                            }, 0);
                         break;
                     case "init_game" :
                         console.log(this);
