@@ -33,7 +33,11 @@
             </select><br>
             Observer la partie num:
             <select id="obsP">
-            </select><br>
+            </select>
+            <br>
+            Controle Vocale On/Off
+            <input id="voice_control_checkbox" type="checkbox" name="voice_control"> </input> 
+            <br>
             <h5>Joueur(s) connect&eacute(s) :</h5>
             <ol id='listJ' style="list-style-type:none;">
             </ol>
@@ -109,32 +113,36 @@
         var attention = 'Voulez-vous quitter la partie en cours ?';
         var HN = false;
         var listeLigneSupp = [];
-        var data;
+        var queue = new Promise(resolve => resolve());
+        var preview;
         
         function fHH(){
+            var audio = document.getElementById('voice_control_checkbox').checked;
             if(in_game){
                 if (confirm(attention)){
+
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
-                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 2]] , 'viewers' : [] , 'IAs': []}));
+                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 2]] , 'viewers' : [] , 'IAs': [], "audio" : audio}))
                     HN = false;
                 } 
             }else{
-                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 2]] , 'viewers' : [] , 'IAs': []}));
+                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 2]] , 'viewers' : [] , 'IAs': [], "audio" : audio}));
                 HN = false;
             }
         }
 
         function fHN(){
+            var audio = document.getElementById('voice_control_checkbox').checked;
             if(in_game){
                 if (confirm(attention)){
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
-                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'viewers' : [5] , 'IAs':[[parseInt(IA_level),1]]}));
+                    ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'viewers' : [] , 'IAs':[[parseInt(IA_level),1]], 'audio' : audio}));
                     HN = true;
                 } 
             }else{
-                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'viewers' : [5] , 'IAs':[[parseInt(IA_level),1]]}));
+                ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'viewers' : [] , 'IAs':[[parseInt(IA_level),1]], 'audio' : audio}));
                 HN = true;
             }
         }
@@ -248,7 +256,7 @@
         function onkeypress(event) {
             event.preventDefault();
             console.log(event);
-            if (in_game /*&& actual_player == igid[0]*/){
+            if (in_game && (actual_player == igid[0] || !HN)){
                 console.log("send messages");
                 switch(event.key){
                     case "ArrowDown": case "s": case "S":
@@ -284,7 +292,8 @@
             ws.onopen = function (event) {
                 var msg = {
                     name: "Rambo",
-                    active: true
+                    active: true,
+                    audio: true
                 };
                 ws.send(JSON.stringify(msg));
             };
@@ -294,8 +303,8 @@
             ws.onerror = function (event) {
               console.log("Error");              
             };
-            ws.onmessage = (event) => {
-                data = JSON.parse(event.data);
+            ws.onmessage = async (event) => {
+                var data = JSON.parse(event.data);
                 console.log(data);
                 switch(data.step){
                     case "connect":
@@ -304,13 +313,16 @@
                         displayLevel();
                     break;
                     case "update":
-                        tabJ = data.clients;
-                        tabG = data.games;
-                        displayJ();
-                        displayG();
+                        enqueueUpdate(()=>{
+                            tabJ = data.clients;
+                            tabG = data.games;
+                            displayJ();
+                            displayG();
+                            }, 0);
                         break;
                     case "init_game" :
                         console.log(this);
+                        in_game=true;
                         kinds = data.kinds;
                         color = data.color;
                         nb_player = data.nb_player;
@@ -321,20 +333,23 @@
                         //mettre en place la taille de la grille
                         break;
                     case "game" :
-                        in_game=true;
-                        game.grid = data.grid;
-                        game.score = data.score;
-                        game.choices = data.pieces;
-                        game.turn = data.turn;
-                        listeLigneSupp = data.lines_complete_this_turn;
-                        actual_player = data.actual_player;
-                        if(listeLigneSupp.length == 0){
-                            drawGame();
-                        }else{
-                            drawAnim();   
-                        }             
+                        enqueueUpdate(() => { 
+                                in_game=true;
+                                game.grid = data.grid;
+                                game.score = data.score;
+                                game.choices = data.pieces;
+                                game.turn = data.turn;
+                                listeLigneSupp = data.lines_complete_this_turn;
+                                actual_player = data.actual_player;
+                                preview = data.preview;
+                                if(listeLigneSupp.length == 0){
+                                    drawGame();
+                                }else{
+                                    drawAnim(data);   
+                                }}, (actual_player == 1 && HN)?300:0); 
                         break;
                     case "finished" :
+                        enqueueUpdate(()=>{
                         in_game=false;
                         game.grid = data.grid;
                         game.score = data.score;
@@ -342,7 +357,8 @@
                         game.turn = data.turn;
                         actual_player = data.actual_player;
                         drawGame();
-          
+                        }, 0);
+                        break;
                     default :
                         console.log("message non reconnu");
                         break;
@@ -389,7 +405,7 @@
             drawBackground();
             connexion();
             if(observer_type == "player"){
-                document.body.onkeypress=onkeypress;
+                document.body.onkeydown=onkeypress;
             }
             //window.addEventListener("resize", resize, false);
 
@@ -465,6 +481,11 @@
                 .lineTo(sidebar.right, screen.bottom - sidebar.choices.height);
 
             root.addChild(choices_box);
+        }
+
+        function enqueueUpdate(fun, ms = 0) {
+            queue = queue.then(async () => await sleep(ms))
+                         .then(fun);
         }
 
         function drawColumnNumber(num) {
@@ -592,7 +613,14 @@
                         drawBlock(e,[i,j]);
                 });
             });
-
+            for(var i=0; i<preview.length; i++){
+                coord = preview[i];
+                if(coord[1] >= grid.lines - grid.holding_lines){
+                    drawBlock("Black",coord);
+                }else{
+                    drawBlock("#D0D1D1",coord);
+                }   
+            }
             update();
         }
 
@@ -600,11 +628,14 @@
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-        async function drawAnim(){
-            drawLine();
-            game.grid = data.grid;
-            await sleep(150);
-            drawGame();
+        async function drawAnim(data){
+            enqueueUpdate(async () => {
+                drawLine();
+                game.grid = data.grid;
+                await sleep(300);
+                drawGame();
+                console.log("DRAW ANIM");
+            });
         }
 
         function drawLine(){   
@@ -629,16 +660,13 @@
         }
 
 
-        async function drawGame() {
+        async function drawGame() {       
             clear_canvas();
-            drawBackground();
+            drawBackground();           
             drawInfo();
             drawChoices();
             drawGrid();
-            update();
-            if(actual_player == 1 && HN){
-                await sleep(300);
-            }
+            update();    
         }
       </script>
 </html>

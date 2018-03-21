@@ -36,7 +36,7 @@ class ClientInterface:
             #print("\nStop the program. Please press [Ctrl+C] once again to save & quit.")
             raise KeyboardInterrupt
 
-    def play(self, state):
+    async def play(self, state):
         pass
 
     def on_init_game(self, data):

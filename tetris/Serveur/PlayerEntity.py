@@ -30,8 +30,11 @@ class PlayerEntity(Client.Client):
         while self.unlink_request == True :
             await asyncio.sleep(0)
         if self.state == PlayerEntity.State.FREE:
+            audio = False
+            if "audio" in mess  and mess["audio"] == True:
+                audio = True
             await self.server.new_game(
-                mess["players"], mess["viewers"], mess["IAs"])
+                mess["players"], mess["viewers"], mess["IAs"], audio)
         else:
             super().print_error("Error message receive :" + self.name +\
                         "(" + str(self.id) + "): already in game/observation", mess)

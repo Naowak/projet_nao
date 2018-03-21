@@ -84,7 +84,7 @@ class Reinforcement(ClientInterface.ClientInterface):
         self.file_stats = file_stats
         self.pid_stats = None
 
-    def play(self, state):
+    async def play(self, state):
         """
         Associates an action to a state. Called by the server.
         :param state: dictionary containing information about the game, send by the server.

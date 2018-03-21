@@ -12,10 +12,10 @@ Fichier de reglage des parametres du jeu :
     -LEVELS : tableau des differents niveau du jeu.
     ["random" : coup aleatoire
     ,"smart1":  realise une ligne si possible, dans le cas contraire un coup aleatoire est joue
-    ,"4-heuristic": le coup est chosit comme l'argmin d'une fonction 4-heuristique
-                    avec des poids genere par entropy croise voir entropy  
-    ,"6-heuristic": le coup est chosit comme l'argmin d'une fonction 6-heuristique
-                    avec des poids genere par entropy croise voir entropy 
+    ,"4-heuristic": le coup est choisi comme l'argmin d'une fonction 4-heuristique
+                    avec des poids générés par entropie croisée (voir entropy)
+    ,"6-heuristic": le coup est choisi comme l'argmin d'une fonction 6-heuristique
+                    avec des poids générés par entropie croisée (voir entropy)
     ]
 """
 TAILLE_X = 10
@@ -29,4 +29,4 @@ NOMBRE_DE_CHOIX = 3
 NOMBRE_DE_PIECES = 7
 SCORE_DEPASSEMENT = -100
 NOMBRE_DE_TOUR = 30
-LEVELS = ["random", "smart1","4-heuristic", "6-heuristic", "rein_learn"]
+LEVELS = ["random", "smart1","4-heuristic", "6-heuristic", "rein_learn", "Concurrente_1", "Concurrente_2"]

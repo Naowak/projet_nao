@@ -50,7 +50,7 @@ class Comunication:
         elif data["step"] == "game":
             if data["actual_player"] in self.ids_in_games[data["gid"]] and\
             data["turn"]!= self.last_turn[data["gid"]]:
-                await self.play(data)
+                await asyncio.ensure_future(self.play(data))
             self.update_play(data)
         elif data["step"] == "suggest":
             if data["actual_player"] in self.ids_in_games[data["gid"]] and\
@@ -82,14 +82,14 @@ class Comunication:
         self.keep_connection = True
         self.ids_in_games[data["gid"]] = data["ids_in_game"]
         self.last_turn[data["gid"]] = None
-        print("Succesfull game connection ids_in_games:", str(self.ids_in_games))
+        print(self.name, ": Succesfull game connection ids_in_games:", str(self.ids_in_games))
 
     def init_connect(self, data):
         self.pid = data["pid"]
-        print("Succesfull server connection id:", str(self.pid))
+        print(self.name, ": Succesfull server connection id:", str(self.pid))
 
     async def play(self, data):
-        dec = self.my_ia.play(data)
+        dec = await self.my_ia.play(data)
         self.last_turn[data["gid"]] = data["turn"]
         #await self.send_message({"gid": data["gid"], "mess_type": "action", "action": ["choose", dec.pop("choose")]})
         for (key, value) in dec.items():
@@ -98,10 +98,10 @@ class Comunication:
         if (not "valid" in dec.keys()) or (dec["valid"]):
             await self.send_message({"gid": data["gid"], "mess_type": "action", "action": ["valid"]})
         else:
-            await self.play(data)
+            asyncio.ensure_future(self.play(data))
 
     async def suggest(self, data):
-        dec = self.my_ia.play(data)
+        dec = await self.my_ia.play(data)
         self.last_turn[data["gid"]] = data["turn"]
         await self.send_message({"gid": data["gid"],"mess_type": "action", "action": ["choose", dec.pop("choose")]})
         for (key, value) in dec.items():

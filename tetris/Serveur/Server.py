@@ -5,6 +5,7 @@ import asyncio
 import json
 import websockets
 import argparse
+import copy
 
 from Jeu import Game
 import GlobalParameters as gp
@@ -12,11 +13,13 @@ from Jeu import Piece
 from Serveur import AICreator
 from Serveur import AIEntity
 from Serveur import PlayerEntity
+from Serveur import AudioCreator
 
 
 class Server:
     def __init__(self):
         self.my_clients = {}
+        self.my_audio = {}
         self.games = {}
         self.next_games_id = 0
         self.next_connect_id = 0
@@ -39,9 +42,11 @@ class Server:
         await self.actualise_server_info()
     async def link_game(self, client, gid):
         self.games[gid].bind_viewer(client)
+        await client.send_message(Server.data_init_game(self.games[gid], []))
+        await self.games[gid].notify_view(viewer_to_notify = client)
         await self.actualise_server_info()
 
-    async def new_game(self, players_id, viewers_id, ias):
+    async def new_game(self, players_id, viewers_id, ias, audio=False):
         #donner les ids in game et l'envoye dans le data_init_game
         players = {}
         next_ids_in_game = 0
@@ -50,8 +55,12 @@ class Server:
                 for _ in range(number):
                     if self.my_clients[pid] in players:
                         players[self.my_clients[pid]] += [next_ids_in_game]
+                        if audio and self.my_audio[pid] : 
+                            players[self.my_audio[pid]] += [next_ids_in_game]
                     else:
                         players[self.my_clients[pid]] = [next_ids_in_game]
+                        if audio and self.my_audio[pid] : 
+                            players[self.my_audio[pid]] = [next_ids_in_game]
                     next_ids_in_game += 1
             except KeyError as e:
                 print("Game cancelled : Player ",pid," doesn't exist")
@@ -102,15 +111,27 @@ class Server:
         for [level, levelname] in enumerate(gp.LEVELS):
             asyncio.ensure_future(AICreator.create_ia(levelname, level))
 
+    async def create_audio(self,name) :
+        asyncio.ensure_future(AudioCreator.create_audio(name))
+
     async def connect(self, sock, path):
         mess = await sock.recv()
         mess = json.loads(mess)
         if "level" in mess:
-            client = AIEntity.AIEntity(\
-                self, mess["name"], sock, mess["name"])
-            mess["level"]
-            self.my_ias[mess["name"]] = client
+            if mess["level"] == "audio" :
+                #on connecte la reconnaissance vocale
+                client = PlayerEntity.PlayerEntity(\
+                    self, mess["name"], sock, mess["name"])
+                self.my_audio[int(mess["name"][5:])] = client
+            else :
+                #c'est un nombre : c'est une ia
+                client = AIEntity.AIEntity(\
+                    self, mess["name"], sock, mess["name"])
+                self.my_ias[mess["name"]] = client
         else:
+            if "audio" in mess and mess["audio"] == True:
+                asyncio.ensure_future(self.create_audio("audio"+str(self.next_connect_id)))
+                print("lancement du create_audio")
             client = PlayerEntity.PlayerEntity(\
                 self, mess["name"], sock, self.next_connect_id)
             self.my_clients[client.id] = client
@@ -159,6 +180,12 @@ class Server:
         return websockets.serve(self.connect, gp.LOCAL_ADDRESS, port)
 
     async def disconnect_client(self, client):
+        try :
+            if self.my_audio[client.id] :
+                await self.my_audio[client.id].on_disconnect()
+                del self.my_audio[client.id]
+        except KeyError :
+            print("Error catch : client doesn't manage audio")
         await client.on_disconnect()
         del self.my_clients[client.id]
         print(str(client), " is unconnect")
@@ -166,8 +193,8 @@ class Server:
 
     async def actualise_server_info(self):
         data = self.data_update()
-        clients = self.my_clients.values()
-        ias = self.my_ias.values()
+        clients = list(self.my_clients.values())
+        ias = list(self.my_ias.values())
         for client in clients:
             await client.send_message(data)
         for ia_client in ias:
