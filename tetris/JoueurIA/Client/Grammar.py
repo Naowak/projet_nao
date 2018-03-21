@@ -89,10 +89,10 @@ def select_column(): return [("dans la", [(ordinaux, "colonne"), ("colonne", num
                             (direction, Optional(["de"]), num_column, ["colonnes", "colonne"])
                             ]
 
-def action(): return verb, [(select_piece,select_column),
+def action(): return Optional((verb, [(select_piece,select_column),
                             (select_column,select_piece),
                             select_column,
-                            select_piece],Optional(valid)
+                            select_piece])),Optional(valid)
 
 def mainrule(): return action, peg.EOF
 
@@ -117,7 +117,7 @@ class Visit(peg.PTNodeVisitor):
             self.pieces = state["pieces"]
             self.current_abscisse = state["actual_abscisse"]
             self.current_piece = state["actual_pieces"]
-        self.mess = {}
+        self.mess = {"valid":False}
 
     def visit_reg_o(self, node, children): return "O"
     def visit_reg_i(self, node, children): return "I"
@@ -147,20 +147,20 @@ class Visit(peg.PTNodeVisitor):
         print("directions:",node, children)
         print(type(node),type(children))
         if "gauche" == children[-1]:
-            return {direction:1}
-        if "droite" == children[-1]:
             return {direction:-1}
+        if "droite" == children[-1]:
+            return {direction:1}
 
     def visit_select_piece(self, node, children):
         # convert to choose
         info = filter_dict(children)
-        print("select_piece:", info)
+        #print("select_piece:", info)
         if info:
             choose = info.popitem()[1]
             for key in info:
                 if not choose == info[key]:
                     raise ShapeAndColorNotMatchException
-            if key not in self.pieces :
+            if choose not in self.pieces :
                 raise UnvalaibleChooseException
             self.mess["choose"] = choose
         return info
@@ -168,7 +168,7 @@ class Visit(peg.PTNodeVisitor):
     def visit_select_column(self, node, children):
         # convert to hor_move
         info = filter_dict(children)
-        print("num_column:", info)
+        #print("num_column:", info)
         if ordinaux in info:
             self.mess["hor_move"] = info[ordinaux] - self.current_abscisse
         elif direction in info and num_column in info:

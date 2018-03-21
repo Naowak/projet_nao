@@ -86,8 +86,9 @@ class VoiceControl(ClientInterface.ClientInterface):
                 continue
         if not interprets :
             naopy.nao_talk("Je n'ai pas compris ce que tu voulais faire.")
+            return
         else :
-            pass
+            return interprets[0]
 
     async def play(self, state):
         print("play")
