@@ -227,7 +227,6 @@
             while (ul2.firstChild) {
                 ul2.removeChild(ul2.firstChild);
             }
-
             for (var i = 0, c = levels.length; i < c; i++) {
                 nom = levels[i];
                 li = new Option (nom, parseInt(i));
@@ -313,12 +312,12 @@
                         displayLevel();
                     break;
                     case "update":
-                        //enqueueUpdate(()=>{
-                        tabJ = data.clients;
-                        tabG = data.games;
-                        displayJ();
-                        displayG();
-                        //}, 0);
+                        enqueueUpdate(()=>{
+                            tabJ = data.clients;
+                            tabG = data.games;
+                            displayJ();
+                            displayG();
+                            }, 0);
                         break;
                     case "init_game" :
                         console.log(this);

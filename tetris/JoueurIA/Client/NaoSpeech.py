@@ -25,8 +25,12 @@ class NaoSpeech(ClientInterface.ClientInterface):
             if data['score'][0]> self.score_player:
                 rd = random.random()
                 if (data['score'][0]> data['score'][1] and self.winner != 0 ):
-                        naopy.nao_talk("Mince, tu gagnes maintenant...")
-                        self.winner = 0
+                	if(random.random() > 0.5){
+                		naopy.nao_talk("Mince, tu gagnes maintenant...")
+                	}else{
+                		naopy.nao_talk("Ne sourit pas trop vite !")
+                	}
+                    self.winner = 0
                 elif rd < (1/3):
                     naopy.nao_talk("Ah...je n''avais pas vu")
                 elif rd < (2/3):
@@ -44,8 +48,12 @@ class NaoSpeech(ClientInterface.ClientInterface):
             elif data['score'][1] > self.score_nao:
                 rd = random.random()
                 if (data['score'][1] > data['score'][0] and self.winner != 1):
-                        naopy.nao_talk("La victoire m''appartient !")
-                        self.winner = 1
+                	if(){
+                		naopy.nao_talk("La victoire m''appartient !")
+                	}else{
+                		naopy.nao_talk("Tu n'arrivera pas à me gagner !")
+                	}
+                    self.winner = 1
                 elif rd < (1/3):
                     naopy.nao_anim("animations/Sit/Emotions/Positive/Laugh_1")
                 elif rd < (2/3):
