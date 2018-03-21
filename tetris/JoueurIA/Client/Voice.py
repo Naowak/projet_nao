@@ -3,6 +3,7 @@ import sys
 import os
 sys.path.append("../")
 sys.path.append("../../")
+sys.path.append("../../../")
 import copy
 import random
 import numpy as np
@@ -56,57 +57,38 @@ class VoiceControl(ClientInterface.ClientInterface):
             return
         return spoken
 
-    @classmethod
-    def interpret(cls, spoken, state):
-        extract_info = {"piece":[],"colonne":[],"direction":[],"rotate":[],"valid":[]}
+    def interpret(self, spoken, state):
+        interprets = []
         for sentence in spoken:
-            sentence = sentence.lower()
-            extract_info["piece"].append(Grammar.apply_basic_rule(Grammar.rule_piece,sentence))
-            extract_info["colonne"].append(Grammar.apply_basic_rule(Grammar.rule_colonne, sentence))
-            extract_info["direction"].append(Grammar.apply_basic_rule(Grammar.rule_direction, sentence))
-            extract_info["rotate"].append(Grammar.apply_basic_rule(Grammar.rule_rotate, sentence))
-            extract_info["valid"].append(Grammar.apply_basic_rule(Grammar.rule_valid, sentence))
+            try:
+                parse_tree = Grammar.parser.parse(sentence.lower())
+            except Grammar.peg.NoMatch as e:
+                print("NoMatchError: ",e)
+                continue
+            try:
+                visit = Grammar.Visit(colors = self.colors,state=state,debug=True)
+                result = Grammar.peg.visit_parse_tree(parse_tree,visit)
+                print ("result",result)
+                print("visit: ",visit.mess)
+                interprets.append(visit.mess)
+            except Grammar.ShapeAndColorNotMatchException:
+                print("Grammar.ShapeAndColorNotMatchException")
+                naopy.nao_talk(
+                    "La forme et la couleur ne correspondent à aucune pièce.")
+                continue
+            except Grammar.HorMoveException:
+                print("Grammar.HorMoveException")
+                continue
+            except Grammar.UnvalaibleChooseException:
+                print("Grammar.UnvalaibleChooseException")
+                naopy.nao_talk(
+                    "La pièce selectionnée n'est pas disponible ce tour-ci.")
+                continue
+        if not interprets :
+            naopy.nao_talk("Je n'ai pas compris ce que tu voulais faire.")
+        else :
+            pass
 
-        best_interpret = {}
-        for k in extract_info:
-            extract_info[k] = list(filter(None, extract_info[k]))
-            if extract_info[k]:
-                best_interpret[k] = Counter(extract_info[k]).most_common(1)[0][0]
-            else:
-                best_interpret[k] = None
-        print(best_interpret)
-        return best_interpret
-
-    def traitement(self,interpret,state):
-        action = {}
-        if interpret["piece"] is not None:
-            if isinstance(interpret["piece"],type("")) :
-                if self.colors[interpret["piece"]] in state["pieces"]:
-                    action["choose"] = self.colors[interpret["piece"]]
-                else:
-                    print("Unvalaible piece : you must choose in ",\
-                            state["pieces"])
-                    naopy.nao_talk(
-                        "La pièce que tu as choisi n'est pas disponible")
-                    return None
-            else:
-                action["choose"] = state["pieces"][interpret["piece"]]    
-        if interpret["colonne"] is not None:
-            if interpret["direction"] is not None:
-                action["hor_move"] = interpret["colonne"] * interpret["direction"]
-            else:
-                action["hor_move"] = interpret["colonne"] - state["actual_abscisse"]
-        if interpret["rotate"] is not None:
-            action["rotate"] = interpret["rotate"]
-        if interpret["valid"] is not None:
-            action["valid"] = interpret["valid"]
-        else:
-            action["valid"] = False
-            naopy.nao_talk(
-                "N'oublie pas de valider ton coup")
-        print(action)
-        return action
-    
     async def play(self, state):
         print("play")
         print(state["pieces"])
@@ -114,12 +96,9 @@ class VoiceControl(ClientInterface.ClientInterface):
             await asyncio.sleep(0)
             try:
                 audio = await asyncio.ensure_future(self.record())
-                await asyncio.sleep(0)
                 spoken = self.recognize(audio)
-                await asyncio.sleep(0)
                 if spoken is not None:
-                    interpret = VoiceControl.interpret(spoken, state)
-                    action = self.traitement(interpret,state)
+                    action = self.interpret(spoken, state)
                     if action:
                         return action
             except KeyboardInterrupt:
