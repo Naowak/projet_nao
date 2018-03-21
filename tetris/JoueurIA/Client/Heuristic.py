@@ -114,7 +114,7 @@ def evaluate_play(grid_prec, grid_next, action, weights, heuristic) :
             tot += weights[i]*func(grid_prec,grid_next,action)
         return tot
 
-def hidden_empty_cells(g_prec=None, g_next, action=None) :
+def hidden_empty_cells(g_prec, g_next, action) :
     """ Heuristique calculant le nombre de cellule vide inaccessible (recouverte par un block plein).
         Heuristiques post-action.
         
@@ -137,7 +137,7 @@ def hidden_empty_cells(g_prec=None, g_next, action=None) :
     return cpt
 
 
-def score(g_prec=None, g_next, action=None) :
+def score(g_prec, g_next, action) :
     """ Heuristique qui retourne le score rapporté par le dernier coup.
         Heuristique post-action.
 
