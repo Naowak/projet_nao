@@ -114,11 +114,13 @@
         var HN = false;
         var listeLigneSupp = [];
         var queue = new Promise(resolve => resolve());
+        var preview;
         
         function fHH(){
             var audio = document.getElementById('voice_control_checkbox').checked;
             if(in_game){
                 if (confirm(attention)){
+
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                     in_game=false;
                     ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 2]] , 'viewers' : [] , 'IAs': [], "audio" : audio}))
@@ -225,7 +227,6 @@
             while (ul2.firstChild) {
                 ul2.removeChild(ul2.firstChild);
             }
-
             for (var i = 0, c = levels.length; i < c; i++) {
                 nom = levels[i];
                 li = new Option (nom, parseInt(i));
@@ -254,7 +255,7 @@
         function onkeypress(event) {
             event.preventDefault();
             console.log(event);
-            if (in_game /*&& actual_player == igid[0]*/){
+            if (in_game && (actual_player == igid[0] || !HN)){
                 console.log("send messages");
                 switch(event.key){
                     case "ArrowDown": case "s": case "S":
@@ -311,13 +312,16 @@
                         displayLevel();
                     break;
                     case "update":
-                        tabJ = data.clients;
-                        tabG = data.games;
-                        displayJ();
-                        displayG();
+                        enqueueUpdate(()=>{
+                            tabJ = data.clients;
+                            tabG = data.games;
+                            displayJ();
+                            displayG();
+                            }, 0);
                         break;
                     case "init_game" :
                         console.log(this);
+                        in_game=true;
                         kinds = data.kinds;
                         color = data.color;
                         nb_player = data.nb_player;
@@ -336,6 +340,7 @@
                                 game.turn = data.turn;
                                 listeLigneSupp = data.lines_complete_this_turn;
                                 actual_player = data.actual_player;
+                                preview = data.preview;
                                 if(listeLigneSupp.length == 0){
                                     drawGame();
                                 }else{
@@ -343,6 +348,7 @@
                                 }}, (actual_player == 1 && HN)?300:0); 
                         break;
                     case "finished" :
+                        enqueueUpdate(()=>{
                         in_game=false;
                         game.grid = data.grid;
                         game.score = data.score;
@@ -350,7 +356,8 @@
                         game.turn = data.turn;
                         actual_player = data.actual_player;
                         drawGame();
-          
+                        }, 0);
+                        break;
                     default :
                         console.log("message non reconnu");
                         break;
@@ -397,7 +404,7 @@
             drawBackground();
             connexion();
             if(observer_type == "player"){
-                document.body.onkeypress=onkeypress;
+                document.body.onkeydown=onkeypress;
             }
             //window.addEventListener("resize", resize, false);
 
@@ -605,7 +612,14 @@
                         drawBlock(e,[i,j]);
                 });
             });
-
+            for(var i=0; i<preview.length; i++){
+                coord = preview[i];
+                if(coord[1] >= grid.lines - grid.holding_lines){
+                    drawBlock("Black",coord);
+                }else{
+                    drawBlock("#D0D1D1",coord);
+                }   
+            }
             update();
         }
 

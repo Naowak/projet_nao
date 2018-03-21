@@ -4,7 +4,7 @@ sys.path.append('../')
 import copy
 
 import GlobalParameters as gp
-from Jeu import Block
+from Jeu import Block, Piece
 
 def copy_grid(grid) :
     """Retourne une copie de la grille passée en paramètre.
@@ -175,12 +175,33 @@ class State:
         string += "SCORE:: " + str(self.score) + "\n"
         return string
 
-    def encode_to_json(self):
+    def encode_to_json(self, piece):
         """Convertit en json l'état
+
+        Attribut :
+            - piece : instance Piece.Piece : piece actuel (self.current_piece dans Game.Game)
 
         Retourne :
             - json : représantant une instance State"""
-        serialize = {"score":self.score, "grid":[[j for j in i] for i in self.grid], "lines_complete_this_turn" : self.indices_lines_complete_this_turn}
+
+        #On fait tomber la pièce et on récupère les coordonnées de chacun de ses blocks 
+        #Pour la prévisualisation
+        coord_blocks = []
+        my_piece = Piece.Piece.factory(piece.kind, copy.copy(piece.center))
+        my_piece.blocks = []
+        for block in piece.blocks :
+            my_piece.blocks += [copy.copy(block)]
+        etat = State(self.grid)
+        etat.clear_rotation_vue()
+        while not etat.is_piece_blocked(my_piece):
+            my_piece.center[1] -= 1
+        for block in my_piece.blocks:
+            coord_blocks += [[int(my_piece.center[0] + block[0]), int(my_piece.center[1] + block[1])]]
+       
+        #On créé le message json
+        serialize = {"score":self.score, "grid":[[j for j in i] for i in self.grid], \
+         "lines_complete_this_turn" : self.indices_lines_complete_this_turn, \
+         "preview" : coord_blocks}
         
         #ATTENTION : moyen pas beau d'envoyer les lignes correctement au serveur
         #à corriger potentiellement plus tard

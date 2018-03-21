@@ -13,30 +13,88 @@ URI = gp.ADRESSE + str(gp.PORT)
 
 
 class Level:
+    """ Une instance de cette classe représente un niveau d'une IA sélectionnable par le client javascript, en l'ajoutant 
+    dans le fichier AI_creator"""
+
     def __init__(self, strategy):
+        """ Créer un object Level 
+
+        Paramètres :
+            - strategy : fonction de la forme fonction fonction(state), 
+            où state est un objet State.State :
+            Cette fonction stategy est la fonction appeler à chaque fois que l'IA doit jouer un coup.
+
+        Retour :
+            une instance de Level.Level"""
         self.strategy = strategy
         
     async def play(self,state):
+        """ Demande à l'IA de jouer un coup
+
+        Paramètres :
+            - state : instance State.State : état du jeu
+
+        Retour :
+         Un play de la forme {"hor_move":hor_move, "rotate":rotat, "choose":piece}"""
         return self.strategy(state)
     
     def on_finished_game(self, data):
+        """Fonction appelée lors de la fin de la partie, à redéfinir si l'on souhaite définir un comportement
+        particulier pour l'IA à la fin de chaque partie.
+
+        Paramètres : 
+            - data : dictionnaire : message reçu de la part du serveur
+
+        Retour :
+            None"""
         pass
 
     def update_play(self, data) :
+        """Fonction appelée après chaque coup, à redéfinir si l'on souhaite définir un comportement
+        particulier pour l'IA après chaque coup.
+
+        Paramètres : 
+            - data : dictionnaire : message reçu de la part du serveur
+
+        Retour :
+            None"""
         pass
 
     def on_init_game(self, data) :
+        """Fonction appelée lors de l'initialisation d'une partie, à redéfinir si l'on souhaite définir un comportement
+        particulier pour l'IA lors l'initialisation d'une partie.
+
+        Paramètres : 
+            - data : dictionnaire : message reçu de la part du serveur
+
+        Retour :
+            None"""
         pass
 
 
 
 def random_ia(state):
+    """ Stratégie de l'IA aléatoire 
+
+    Paramètres :
+        - state :  instance State.State : etat du jeu
+
+    Retour :
+        Un play de la forme {"hor_move":hor_move, "rotate":rotat, "choose":piece}"""
     piece = random.choice(state["pieces"])
     rotat = random.randrange(1, 4, 1)
     hor_move = random.randrange(0, 9, 1)-5
     return {"hor_move":hor_move, "rotate":rotat, "choose":piece}
 
 def basic_smart_ia(state) :
+    """ Stratégie IA aléatoire smart : Elle joue aléatoirement, sauf si elle peut prendre une ligne.
+    Dans ce cas, elle complète la ligne;
+
+    Paramètres :
+        - state :  instance State.State : etat du jeu
+
+    Retour :
+        Un play de la forme {"hor_move":hor_move, "rotate":rotat, "choose":piece}"""
     pieces = copy.copy(state["pieces"])
     scores = []
     compteur = 0
@@ -65,6 +123,13 @@ def basic_smart_ia(state) :
 
 
 def copy_grid(grid) :
+    """ Copie une grille et chacun de ses blocks 
+
+    Paramètres :
+        -grid : tableau deux dimension : représente la grille du jeu
+
+    Retour :
+        Une nouvelle grille du jeu en tout point exact à grid."""
     size = (len(grid), len(grid[0]))
     new_grid = list()
     for i in range(size[0]) :

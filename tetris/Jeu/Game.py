@@ -144,7 +144,7 @@ class Game(Subject.Subject):
 
         Retourne :
             dictionnaire : représente l'état de la game"""
-        dico = self.grid.encode_to_json()
+        dico = self.grid.encode_to_json(self.current_piece)
         tmp = {"pieces": list(self.actual_pieces.keys())}
         dico["gid"] = self.gid
         dico["pieces"] = tmp["pieces"]
