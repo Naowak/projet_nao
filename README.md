@@ -19,6 +19,7 @@ L’application se décompose en plusieurs modules distincts, qui communiquent e
 * le **serveur** (fichiers du sous-dossier [`projet_nao/tetris/Serveur/`](/tetris/Serveur/)): instantie et expose aux autres modules le jeu (définie dans [`projet_nao/tetris/Jeu/`](/tetris/Jeu/).
 * **l'interface utilisateur**: écrite en HTML/Javascript (dans [`projet_nao/tetris/JoueurGUI/tetris_ui.html`](/tetris/JoueurGUI/tetris_ui.html)).
 * les modules de **stratégies des intelligence artificielle**: définies dans [`projet_nao/tetris/JoueurIA/Client/`](/tetris/JoueurIA/Client/), elles peuvent être invoquées par l'interface utilisateur pour les affronter, ou bien directement en tant que scripts pour les entraînements (voir [Entraîner une IA](#entra%C3%AEner-une-ia)).
+* les modules **d'interactions avec le Nao**: voir [`projet_nao/tetris/JoueurIA/Client/NaoSpeech.py`](/tetris/JoueurIA/Client/NaoSpeech.py), et [`projet_nao/tetris/JoueurIA/Client/Voice.py`](/tetris/JoueurIA/Client/Voice.py).
 
 ## Lancer l’application
 ### Lancer une partie
