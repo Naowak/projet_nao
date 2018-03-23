@@ -114,6 +114,7 @@
         var IA_level2=0;
         var attention = 'Voulez-vous quitter la partie en cours ?';
         var HN = false;
+        var NN = false;
         var listeLigneSupp = [];
         var queue = new Promise(resolve => resolve());
         var preview;
@@ -131,10 +132,12 @@
                     in_game=false;
                     ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 2]] , 'viewers' : [] , 'IAs': [], "audio" : audio}))
                     HN = false;
+                    NN = false;
                 } 
             }else{
                 ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 2]] , 'viewers' : [] , 'IAs': [], "audio" : audio}));
                 HN = false;
+                NN = false;
             }
         }
 
@@ -147,10 +150,12 @@
                     in_game=false;
                     ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'viewers' : [] , 'IAs':[[parseInt(IA_level),1]], 'audio' : audio}));
                     HN = true;
+                    NN = false;
                 } 
             }else{
                 ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [[id, 1]] , 'viewers' : [] , 'IAs':[[parseInt(IA_level),1]], 'audio' : audio}));
                 HN = true;
+                NN = false;
             }
         }
 
@@ -162,10 +167,12 @@
                     in_game=false;
                     ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'viewers' : [id] , 'IAs': [[parseInt(IA_level),1], [parseInt(IA_level2),1]]}));
                     HN = false;
+                    NN = true;
                 }
             }else{
                 ws.send(JSON.stringify({'mess_type':'new_game' , 'players': [] , 'viewers' : [id] , 'IAs': [[parseInt(IA_level),1], [parseInt(IA_level2),1]]}));
                 HN = false;
+                NN = true;
             }
         }
 
@@ -176,7 +183,9 @@
                 obID = select.options[select.selectedIndex].value;
                 ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
                 ws.send(JSON.stringify({'mess_type':'link_game', 'gid':parseInt(obID) }));
-                gid = parseInt(obID) ;          
+                gid = parseInt(obID) ;
+                HN = false;
+                NN = true;          
             }
         }
         
@@ -361,7 +370,7 @@
                                     drawGame();
                                 }else{
                                     drawAnim(data);   
-                                }}, (actual_player == 1 && HN && gfx)?300:0); 
+                                }}, ( (actual_player == 1 && HN && gfx) ||  NN && gfx )?300:0); 
                         break;
                     case "finished" :
                         enqueueUpdate(()=>{
