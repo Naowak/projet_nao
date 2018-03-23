@@ -32,6 +32,8 @@ class State:
         self.grid = copy_grid(grid)
         self.score = [0]*gp.NOMBRE_DE_JOUEUR    
         self.indices_lines_complete_this_turn = list()
+        self.falling_blocks = []
+        self.falling_color = None
 
     def drop_piece(self, piece, player):
         """Fait tomber une pièce dans la grille, si celle-ci réalise une (ou plusieurs)
@@ -40,9 +42,19 @@ class State:
         Attributs :
             - piece : instance Piece
             - player : int représentant l'ID du joueur"""
+
+        #flag pour la chute de la piece sur l'interface client
+
         self.clear_rotation_vue()
         while not self.is_piece_blocked(piece):
             piece.center[1] -= 1
+            #on retiens tous les blocks lors de la chute pour l'affichage 
+            coord_actual = []
+            for block in piece.blocks:
+                coord_actual += [[int(piece.center[0] + block[0]), int(piece.center[1] + block[1])]]
+            self.falling_blocks += [coord_actual]
+            self.falling_color = Piece.Piece.colors[piece.kind]
+
         for block in piece.blocks:
             self.grid[int(piece.center[0] + block[0])
                       ][int(piece.center[1] + block[1])] = piece.color
@@ -201,12 +213,26 @@ class State:
         #On créé le message json
         serialize = {"score":self.score, "grid":[[j for j in i] for i in self.grid], \
          "lines_complete_this_turn" : self.indices_lines_complete_this_turn, \
-         "preview" : coord_blocks}
+         "preview" : coord_blocks, \
+         "falling_piece" : self.falling_blocks, \
+         "falling_color" : self.falling_color}
+
+        #print les lignes la piece qui descend
+        # for t in self.falling_blocks :
+        #     s = State(self.grid)
+        #     for b in t :
+        #         s.grid[b[0]][b[1]] = Block.Block.Red
+        #     print(s)
         
         #ATTENTION : moyen pas beau d'envoyer les lignes correctement au serveur
         #à corriger potentiellement plus tard
         if len(self.indices_lines_complete_this_turn) > 0 :
             self.indices_lines_complete_this_turn = []
+
+        if len(self.falling_blocks) > 0 :
+            self.falling_blocks = []
+            self.falling_color = None
+
         return serialize
 
     

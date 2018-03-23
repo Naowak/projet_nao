@@ -37,6 +37,8 @@
             <br>
             Controle Vocale On/Off
             <input id="voice_control_checkbox" type="checkbox" name="voice_control"> </input> 
+            Effets Graphiques 
+            <input id="GFX_checkbox" type="checkbox" name="GFX"> </input> 
             <br>
             <h5>Joueur(s) connect&eacute(s) :</h5>
             <ol id='listJ' style="list-style-type:none;">
@@ -115,9 +117,13 @@
         var listeLigneSupp = [];
         var queue = new Promise(resolve => resolve());
         var preview;
+        var gridPrev;
+        var gridNow;
+        var gfx;
         
         function fHH(){
             var audio = document.getElementById('voice_control_checkbox').checked;
+            gfx = document.getElementById('GFX_checkbox').checked;
             if(in_game){
                 if (confirm(attention)){
 
@@ -134,6 +140,7 @@
 
         function fHN(){
             var audio = document.getElementById('voice_control_checkbox').checked;
+            gfx = document.getElementById('GFX_checkbox').checked;
             if(in_game){
                 if (confirm(attention)){
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
@@ -148,6 +155,7 @@
         }
 
         function fNN(){
+            gfx = document.getElementById('GFX_checkbox').checked;
             if(in_game){
                 if (confirm(attention)){
                     ws.send(JSON.stringify({'mess_type':'unlink_game', gid}));
@@ -162,6 +170,7 @@
         }
 
         function fO(){
+            gfx = document.getElementById('GFX_checkbox').checked;
             if(document.getElementById('obsP').options.length != 0){
                 var select = document.getElementById('obsP');
                 obID = select.options[select.selectedIndex].value;
@@ -334,18 +343,25 @@
                     case "game" :
                         enqueueUpdate(() => { 
                                 in_game=true;
-                                game.grid = data.grid;
+                                gridPrev = game.grid;
                                 game.score = data.score;
                                 game.choices = data.pieces;
                                 game.turn = data.turn;
+                                fallingPiece = data.falling_piece;
+                                fallingColor = data.falling_color;
                                 listeLigneSupp = data.lines_complete_this_turn;
                                 actual_player = data.actual_player;
                                 preview = data.preview;
+                                game.grid = data.grid;    
+                                gridNow = data.grid;
+                                if(gfx){
+                                    drawFall(fallingPiece, fallingColor);  
+                                }       
                                 if(listeLigneSupp.length == 0){
                                     drawGame();
                                 }else{
                                     drawAnim(data);   
-                                }}, (actual_player == 1 && HN)?300:0); 
+                                }}, (actual_player == 1 && HN && gfx)?300:0); 
                         break;
                     case "finished" :
                         enqueueUpdate(()=>{
@@ -633,7 +649,6 @@
                 game.grid = data.grid;
                 await sleep(300);
                 drawGame();
-                console.log("DRAW ANIM");
             });
         }
 
@@ -658,8 +673,29 @@
             update();
         }
 
+        async function drawFall(fallingPiece, fallingColor){
+            if(fallingPiece.length != 0){
+                    enqueueUpdate(async () => {
+                        game.grid = gridPrev;
+                        for(i = 0; i < fallingPiece.length; i++){
+                            piece = fallingPiece[i];
+                            drawGame();
+                            for(j = 0; j <piece.length;j++){
+                                block = piece[j];
+                                drawBlock(fallingColor,block);
+                            }
+                            update();
+                            await sleep(5);
+                        }
+                        game.grid = gridNow;
+                        fallingPiece = [];
+                        drawGame();
+                    });
+            }
 
-        async function drawGame() {       
+        }
+
+        function drawGame() {       
             clear_canvas();
             drawBackground();           
             drawInfo();
