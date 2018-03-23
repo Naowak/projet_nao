@@ -38,13 +38,13 @@ class VoiceControl(ClientInterface.ClientInterface):
                     except sr.WaitTimeoutError:
                         print("Timeout exception")
                         continue
-					except KeyboardInterrupt:
-                		print("Would you cancel the recog or quit ? (C/q)")
-                		rep = input()
-                		if rep == "" or rep == "C" or rep == "c":
-                    		continue
-                		else:
-                    		exit()
+                    except KeyboardInterrupt:
+                        print("Would you cancel the recog or quit ? (C/q)")
+                        rep = input()
+                        if rep == "" or rep == "C" or rep == "c":
+                            continue
+                        else:
+                            exit()
                     print("Record done !")
                     return audio
         return await asyncio.wrap_future(self.executor.submit(_record, self))
@@ -66,11 +66,11 @@ class VoiceControl(ClientInterface.ClientInterface):
             except sr.RequestError as e:
                 print("Could not request results from Google Speech Recognition service; {0}".format(e))
                 return
-			except KeyboardInterrupt:
+            except KeyboardInterrupt:
                 print("Would you cancel the recog or quit ? (C/q)")
                 rep = input()
                 if rep == "" or rep == "C" or rep == "c":
-                    continue
+                    return
                 else:
                     exit()
             return spoken
@@ -105,7 +105,7 @@ class VoiceControl(ClientInterface.ClientInterface):
                 print("Grammar.UnvalaibleChooseException")
                 UnvalaibleChooseException = True
                 continue
-			except KeyboardInterrupt:
+            except KeyboardInterrupt:
                 print("Would you cancel the interpretation or quit ? (C/q)")
                 rep = input()
                 if rep == "" or rep == "C" or rep == "c":
@@ -143,7 +143,6 @@ class VoiceControl(ClientInterface.ClientInterface):
         print("play")
         print(state["pieces"])
         while True:
-            await asyncio.sleep(0)
             try:
                 audio = await self.record()
                 spoken = await self.recognize(audio)
