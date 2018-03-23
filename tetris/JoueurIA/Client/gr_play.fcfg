@@ -1,0 +1,93 @@
+##Grammaire pour donner une action
+% start R_PIECE
+
+
+
+#Regle Piece
+R_PIECE[SEM=(?p)] -> VERB[] CPIE[SEM=?p]
+R_PIECE
+
+
+
+#Classe Ordinaux
+ORD[SEM=1] -> 'première' |	'1er'
+ORD[SEM=2] -> 'deuxième'|	'2e'
+ORD[SEM=3] -> 'troisième'|	'3e'
+ORD[SEM=4] -> 'quatrième'|	'4e'
+ORD[SEM=5] -> 'cinquième'|	'5e'
+ORD[SEM=6] -> 'sixième' |	'6e'
+ORD[SEM=7] -> 'septième'|	'7e'
+ORD[SEM=8] -> 'huitième'|	'8e'
+ORD[SEM=9] -> 'neuvième' |	'9e'
+ORD[SEM=10] -> 'dixième' |	'10e'
+
+#Classe Forme
+SHAPE[SEM='O'] -> 'carré' | 'bloc' | 'o'|'haut' | 'eau'
+SHAPE[SEM='I'] -> 'barre' | 'bâton' | 'i'
+SHAPE[SEM='T'] -> 'thé' | 't'
+SHAPE[SEM='L'] -> 'l' |'elle' | 'lambda'
+SHAPE[SEM='J'] -> 'j' | 'l' 'inversé' | 'gamma'
+SHAPE[SEM='Z'] -> 'z' | 'biais'
+SHAPE[SEM='S'] -> 's' | 'z' 'inversé' | 'biais' 'inversé'
+
+
+#Classe index de piece
+INDEX[SEM=1] -> '1' | 'un' |'une'
+INDEX[SEM=2] -> '2' | 'de' |'deux'
+INDEX[SEM=3] -> '3' | 'trois' | 'troie'
+
+#Classe colonne
+COL[SEM=1] -> '1' | 'un' |'une'
+COL[SEM=2] -> '2' | 'de' |'deux'
+COL[SEM=3] -> '3' | 'trois' | 'troie'
+COL[SEM=4] -> '4' | 'quatre'
+COL[SEM=5] -> '5'|'cinq'
+COL[SEM=6] -> '6'|'six'
+COL[SEM=7] -> '7'|'sept'
+COL[SEM=8] -> '8'|'huit'
+COL[SEM=9] -> '9'|'neuf'
+COL[SEM=10] -> '10'|'dix'
+
+#Classe Couleur
+COLOR[SEM='Fuchsia'] -> 'rose'|'violet'|'mauve'|'magenta'|'fuchsia'|'lila'|'violette'
+COLOR[SEM='Green'] -> 'verte'|'kaki'|'vert'
+COLOR[SEM='Yellow'] -> 'jaune'
+COLOR[SEM='Blue'] -> 'bleu' 'foncé'| 'bleu'
+COLOR[SEM='Aqua'] -> 'bleu' 'ciel' | 'bleu' 'clair' | 'bleu' 'cyan' |'cyan'|'turquoise'|'bleu' 'turquoise'
+COLOR[SEM='Red'] -> 'rouge'
+COLOR[SEM='Orange'] -> 'orange'
+
+#Classe Direction
+DIRECT[SEM=1] -> 'gauche' | 'vers' 'la' 'droite' | 'à' 'droite'
+DIRECT[SEM=-1] -> 'droite' | 'vers' 'la' 'gauche' | 'à' 'gauche'
+
+#Classe Valider
+VALID[SEM=True] -> 'valider'
+VALID[SEM=True] -> 'validé'
+VALID[SEM=True] -> 'en' 'bas'
+
+#Classe Determinant
+DETER[] -> 'la'  | 'le'
+
+#Classe DetDirection
+DETDIRECTION[] -> 'vers' | 'dans' 
+
+#Classe Verbe début
+D_VERB[] -> 'placé'| 'decalé' | 'posé' |'place'| 'decale' | 'pose' |'placer'| 'decaler' | 'poser' | 'placez'| 'decalez' | 'posez' |'place-la'| 'decale-la' | 'pose-la' | 'mets' | 'mets-la' |'place-le'| 'decale-le' | 'pose-le' | 'met-le' 
+
+#Classe Verbe
+VERB[] -> D_VERB[] DETER[] | D_VERB[]
+
+
+#Classe Piece
+PIE[] -> 'piece' | 'pièce' | 'tetromino'
+
+#Classe CPiece
+CPIE[SEM=(?c)] -> PIE[] COLOR[SEM=?c]
+CPIE[SEM=(?c)] -> PIE[] 'de' 'couleur' COLOR[SEM=?c]
+CPIE[SEM=(?p)] -> PIE[] SHAPE[SEM=?p]
+CPIE[SEM=(?p)] -> PIE[] 'en' 'forme' 'de' SHAPE[SEM=?p]
+CPIE[SEM=(?i)] -> PIE[] INDEX[SEM=?i]
+CPIE[SEM=(?o)] -> ORD[SEM=?o] PIE[] 
+CPIE[SEM=(?c + ?p)] -> PIE[] SHAPE[SEM=?p] COLOR[SEM=?c]
+CPIE[SEM=(?c + ?p)] -> SHAPE[SEM=?p] COLOR[SEM=?c]

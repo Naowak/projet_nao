@@ -8,7 +8,17 @@ from JoueurIA.Client import ClientInterface
 import GlobalParameters as gp
 
 class Stats(ClientInterface.ClientInterface):
+    """ Classe Observatrice des parties, elle permet de calculer des statistiques."""
+
     def __init__(self, name = "statistique", file = None):
+        """ Création d'une nouvelle instance d'observateur statistique.
+
+        Paramètres :
+            - name : String : nom de l'observateur
+            - file : String : nom du fichier dans lequel écrire les statistiques
+
+        Retour :
+            Une nouvelle instance de Stats."""
         super().__init__(name, file, active=False)
         self.is_finished = False
         self.stats_first = MyStats(0) #stats liées à l'ia level 1  
@@ -16,6 +26,13 @@ class Stats(ClientInterface.ClientInterface):
 
 
     def update_play(self, data):
+        """ Cette fonction est appelée à chaque tour après chaque action.
+        Son comportement ici est de calculé les statistiques dépendantes de chacun de tours.
+
+        Paramètres :
+            - data : dictionnaire : message reçu de la part du serveur
+
+        """
         player = data["actual_player"]
         nb_points_gagne = 0
         nb_lines = 0
@@ -48,6 +65,13 @@ class Stats(ClientInterface.ClientInterface):
         pass
 
     def on_finished_game(self,data):
+        """ Cette fonction est appelée à la fin de chaque partie. 
+        Son comportement ici est de calculé des statistiques dépendantes de la fin de partie.
+
+        Paramètres : 
+            - data : dictionnaire : message reçu de la part du serveur.
+
+            """
         self.score_last_turn = 0
         self.is_finished = True
 
@@ -87,6 +111,13 @@ class Stats(ClientInterface.ClientInterface):
 
 
     async def run(self, level1, level2, nb_games_to_observe = 10) :
+        """ Lance l'observation de (nb_games_to_observe) parties level1 vs level2
+
+        Paramètres :
+            - level1 : instance Level : représente une IA
+            - level2 : instance Levek : représente une IA
+            - nb_games_to_observe : int : nombre de partie que l'on souhaite observer entre ces deux adversaires.
+        """
         await super().init_train()
         for _ in range(nb_games_to_observe) :
             if level1==level2:
@@ -99,6 +130,8 @@ class Stats(ClientInterface.ClientInterface):
                 await asyncio.sleep(0)
 
     async def observe(self) :
+        """ Initialise l'observation pour pouvoir être appelé de l'extérieur pour observer des parties.
+        Exemple : pour pouvoir être appelé pendant les entrainements."""
         await super().init_train()
         while self.my_client == None :
             asyncio.sleep(0)
@@ -112,10 +145,18 @@ class Stats(ClientInterface.ClientInterface):
         pass
 
     def __str__(self) :
+        """ Retourne une String représentant les statistiques observées."""
         return str(self.stats_first) + "\n\n" + str(self.stats_second)
 
 class MyStats() :
+    """ Classe nécessaire à Stats, c'est elle qui retient les informations observées pour calculer les statistiques. """
+
     def __init__(self, id) :
+        """ Initialise une instance de MyStats et la retourne
+
+        Paramètre : 
+            - id : int : identifiant de l'instance
+        """
         self.id = id
 
         self.nb_line_current_game = 0
@@ -130,6 +171,7 @@ class MyStats() :
         self.egalite = 0
 
     def __str__(self) :
+        """ Retourne une String représentant les statistiques observées."""
         string = "ID = " + str(self.id) + "\n"
         string += "Parties gagnées (points, ko) : " + str(self.wins_by_points + self.win_by_height) \
             + "(" + str(self.wins_by_points) + ", " + str(self.win_by_height) + ")\n"
