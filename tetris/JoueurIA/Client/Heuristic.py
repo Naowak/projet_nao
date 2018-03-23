@@ -455,6 +455,20 @@ def wells(g_prec, g_next, action) :
                 break
     return cpt
 
+#highest column
+def highest_column(g_prec, g_next, action):
+    return max(columns_heights(g_prec, g_next, action))
+
+# columns heights
+def columns_heights(g_prec, g_next, action):
+    heights = [0] * gp.TAILLE_X
+    for i in range(gp.TAILLE_X):
+        for j in range(gp.TAILLE_Y_LIMITE):
+            if g_next.grid[i][j] != Block.Block.Empty:
+                heights[i] = j+1
+
+    return heights
+
 
 if __name__ == "__main__" :
     my_grid = [[Block.Block.Red, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty, Block.Block.Empty], 
@@ -473,7 +487,6 @@ if __name__ == "__main__" :
     # etat.score[0] = 125
     # etat.score[1] = 168
     # print(etat)
-
     # etat2 = State.State(my_grid)
     # etat2.score[0] = 125
     # etat2.score[1] = 365

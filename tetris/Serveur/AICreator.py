@@ -11,8 +11,7 @@ import asyncio
 
 from JoueurIA import Level
 from JoueurIA import Comunication
-from JoueurIA.Client import Entropy
-from JoueurIA.Client import Heuristic as H
+from JoueurIA.Client import Entropy, Reinforcement
 
 async def create_ia(name,level):
     """
@@ -36,6 +35,8 @@ async def create_ia(name,level):
         IA_STRATEGIE = Entropy.Entropy(name, load_file = "./JoueurIA/Client/backup/concurrente_1.save")
     elif level == 5 :
         IA_STRATEGIE = Entropy.Entropy(name, load_file = "./JoueurIA/Client/backup/concurrente_2.save")
+    elif level == 6 :
+        IA_STRATEGIE = Reinforcement.Reinforcement(name)
     my_client = Comunication.Comunication(name, IA_STRATEGIE, level = level)
     my_client.make_connection_to_server()
     while my_client.my_socket is None:
