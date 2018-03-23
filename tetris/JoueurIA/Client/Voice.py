@@ -66,6 +66,7 @@ class VoiceControl(ClientInterface.ClientInterface):
         interprets = []
         UnvalaibleChooseException = False
         ShapeAndColorNotMatchException = False
+        HorMoveException = False
         for sentence in spoken:
             try:
                 parse_tree = Grammar.parser.parse(sentence.lower())
@@ -107,7 +108,11 @@ class VoiceControl(ClientInterface.ClientInterface):
             command = {}
             for d in interprets:
                 for k in d:
-                    command[k].append(d[k])
+                    try:
+                        command[k].append(d[k])
+                    except KeyError :
+                        command[k]=[d[k]]
+                        continue
             for key in command:
                 command[key] = Counter(command[key]).most_common(1)[0][0]
             print(command)
