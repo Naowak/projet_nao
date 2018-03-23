@@ -363,14 +363,14 @@
                                 preview = data.preview;
                                 game.grid = data.grid;    
                                 gridNow = data.grid;
-                                if(gfx){
+                                if(gfx && !NN){
                                     drawFall(fallingPiece, fallingColor);  
                                 }       
                                 if(listeLigneSupp.length == 0){
                                     drawGame();
                                 }else{
                                     drawAnim(data);   
-                                }}, ( (actual_player == 1 && HN && gfx) ||  NN && gfx )?300:0); 
+                                }}, ( (actual_player == 1 && HN && gfx) ||  (NN && gfx) )?300:0); 
                         break;
                     case "finished" :
                         enqueueUpdate(()=>{
