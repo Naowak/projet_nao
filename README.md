@@ -2,11 +2,14 @@
 
 ## Détails et Objectifs du projet
 Ce projet est réalisé par 5 étudiants de l'Université Paul Sabatier de Toulouse en M2.
+
 Le but de ce projet était de créer un "compagnon de jeu" simulé par le robot Nao de SoftBank Robotics. A la demande des clients, le jeu devait prendre la forme d'un tétris deux joueurs. 
+
 Ainsi, nous pouvons séparer ce projet en trois grandes parties : 
 * Le développement du jeu.
 * Le développement et entrainement des Intelligences Artificielles contre lesquels l'utilisateur peut jouer.
 * Le développement d'intéraction sur le robot Nao (Gestuelle et Vocale). Le Nao doit être capable de s'exprimer, et de comprendre l'utilisateur pour pouvoir jouer à sa place si ce dernier lui dicte un coup.
+
 Ce projet comporte donc les technologies suivantes : 
 * Des algorithmes génétiques
 * De l'apprentissage par renforcement
