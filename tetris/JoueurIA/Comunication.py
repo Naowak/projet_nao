@@ -122,8 +122,8 @@ class Comunication:
             asyncio.ensure_future(self.play(data))
 
     async def send_message(self, data):
-        # print("send")
-        # print(data)
+        print("send")
+        print(data)
         await self.my_socket.send(json.dumps(data))
 
 

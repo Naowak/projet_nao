@@ -136,7 +136,7 @@ class VoiceControl(ClientInterface.ClientInterface):
                         continue
             for key in command:
                 command[key] = Counter(command[key]).most_common(1)[0][0]
-            print(command)
+            print("command",command)
             return command
 
     async def play(self, state):
@@ -144,8 +144,10 @@ class VoiceControl(ClientInterface.ClientInterface):
         print(state["pieces"])
         while True:
             try:
-                audio = await self.record()
-                spoken = await self.recognize(audio)
+                #audio = await self.record()
+                #spoken = await self.recognize(audio)
+                print("refgerferf")
+                spoken = [input()]
                 if spoken is not None:
                     action = self.interpret(spoken, state)
                     if action:

@@ -6,6 +6,7 @@ import arpeggio as peg
 from arpeggio.cleanpeg import ParserPEG
 from arpeggio import Optional, ZeroOrMore, OneOrMore, EOF
 from sys import argv
+from math import *
 
 ["Place la pièce 2 dans la deuxième colonne",\
 "Tourne la pièce rouge deux fois vers la droite",\
@@ -56,6 +57,9 @@ def ordinaux(): return peg.RegExMatch(
 def verb(): return peg.RegExMatch(
     r"(?:(?:(?:décal|pos|termin|plac|sélectionn)(?:er|ez|é|e))|(?:choisi(?:s|r|e|ssez))|(?:met(?:s|ttez|tre)))(?:(?: |-)(?:la|le)| une| un)")
 
+def turn(): return peg.RegExMatch(
+	r"(?:(?:(tourn)(?:er|ez|é|e))(?:(?: |-)(?:la|le))?)")
+
 def reg_o() : return ["carré","bloc","o","haut","eau"]
 def reg_i() : return["barre","bâton","i"]
 def reg_t() : return["thé","t"]
@@ -72,8 +76,8 @@ def yellow(): return "jaune"
 def blue(): return ["bleue foncé","bleu foncé","bleue","bleu"]
 
 
-def aqua(): return ["ciel", "bleue clair", "bleue cyan", "cyan", "turquoise",
-                    "bleue turquoise", "bleu clair", "bleu cyan", "bleu turquoise","bleue ciel","bleu ciel"]
+def aqua(): return ["ciel", "bleue claire", "bleue clair", "bleue cyan", "cyan", "turquoise",
+                    "bleue turquoise","bleu claire", "bleu clair", "bleu cyan", "bleu turquoise","bleue ciel","bleu ciel"]
 def red(): return ["rouge"]
 def orange(): return ["orange"]
 
@@ -89,10 +93,13 @@ def select_column(): return [("dans la", [(ordinaux, "colonne"), ("colonne", num
                             (direction, Optional(["de"]), num_column, ["colonnes", "colonne"])
                             ]
 
-def action(): return Optional((verb, [(select_piece,select_column),
+def select_turn(): return turn, ((Optional(select_piece), Optional(num_column, "fois"), Optional(direction)))
+
+def action(): return [(Optional((verb, [(select_piece,select_column),
                             (select_column,select_piece),
                             select_column,
-                            select_piece])),Optional(valid)
+                            select_piece]))),
+                        (select_turn)],Optional(valid)
 
 def mainrule(): return action, peg.EOF
 
@@ -178,6 +185,16 @@ class Visit(peg.PTNodeVisitor):
         else :
             raise HorMoveException
         return info
+
+    def visit_select_turn(self, node, children):
+    	info = filter_dict(children)
+    	if num_column in info:
+    		self.mess["rotate"] = num_column 
+    	else:
+    		self.mess["rotate"] = 1
+    	if direction in info and info[direction]==-1:
+    		self.mess["rotate"] = 4 - (self.mess["rotate"] % 4)
+
 
     def visit_num_column(self, node, children):
         return {num_column: index_column_vocab[node.value] }
