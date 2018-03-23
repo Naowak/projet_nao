@@ -62,7 +62,7 @@ def turn(): return peg.RegExMatch(
 
 def reg_o() : return ["carré","bloc","o","haut","eau"]
 def reg_i() : return["barre","bâton","i"]
-def reg_t() : return["thé","t"]
+def reg_t() : return["thé","t ",("t",peg.And(peg.EOF))]
 def reg_l() : return["elle","lambda","l"]
 def reg_j() : return["j","gamma"]
 def reg_z() : return["z","biais"]
@@ -85,7 +85,7 @@ def color(): return Optional(["de couleur "]),[yellow, fuchsia, green, aqua, blu
 
 def select_piece(): return [("pièce", peg.Not([color, num_column, shape])),
                             ("pièce", peg.And( num_column, ["colonnes", "colonne"] )),
-                            ("pièce", [num_piece, (shape, color), (color, shape), color, shape]),
+                            ("pièce", [num_piece, (shape,color), (color,shape), color, shape]),
                             (shape, Optional([color]))]
 
 def select_column(): return [("dans la", [(ordinaux, "colonne"), ("colonne", num_column)]),
@@ -95,16 +95,16 @@ def select_column(): return [("dans la", [(ordinaux, "colonne"), ("colonne", num
 
 def select_turn(): return turn, ((Optional(select_piece), Optional(num_column, "fois"), Optional(direction)))
 
-def action(): return [(Optional((verb, [(select_piece,select_column),
+def action(): return Optional([((verb, [(select_piece,select_column),
                             (select_column,select_piece),
                             select_column,
-                            select_piece]))),
-                        (select_turn)],Optional(valid)
+                            select_piece])),
+                        (select_turn)]),Optional(valid)
 
 def mainrule(): return action, peg.EOF
 
 def filter_dict(l): 
-    return dict(elem.popitem() for elem in l if type(elem) is dict)
+    return dict(elem.popitem() for elem in l if type(elem) is dict and elem)
 
 
 class ShapeAndColorNotMatchException(Exception):
@@ -187,6 +187,7 @@ class Visit(peg.PTNodeVisitor):
         return info
 
     def visit_select_turn(self, node, children):
+    	print(children)
     	info = filter_dict(children)
     	if num_column in info:
     		self.mess["rotate"] = num_column 
