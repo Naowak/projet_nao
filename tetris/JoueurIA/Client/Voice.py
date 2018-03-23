@@ -38,6 +38,13 @@ class VoiceControl(ClientInterface.ClientInterface):
                     except sr.WaitTimeoutError:
                         print("Timeout exception")
                         continue
+					except KeyboardInterrupt:
+                		print("Would you cancel the recog or quit ? (C/q)")
+                		rep = input()
+                		if rep == "" or rep == "C" or rep == "c":
+                    		continue
+                		else:
+                    		exit()
                     print("Record done !")
                     return audio
         return await asyncio.wrap_future(self.executor.submit(_record, self))
@@ -60,7 +67,7 @@ class VoiceControl(ClientInterface.ClientInterface):
                 print("Could not request results from Google Speech Recognition service; {0}".format(e))
                 return
 			except KeyboardInterrupt:
-                print("Would you cancel the record or quit ? (C/q)")
+                print("Would you cancel the recog or quit ? (C/q)")
                 rep = input()
                 if rep == "" or rep == "C" or rep == "c":
                     continue
