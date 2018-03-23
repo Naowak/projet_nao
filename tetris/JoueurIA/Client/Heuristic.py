@@ -201,10 +201,12 @@ def agregate_height(g_prec, g_next, action) :
 
         retour :
             - int : somme de la heuteur de chaque colonne de g_next """
-    etat = State.state(g_next)
+    etat = State.State(g_next.grid)
     somme = 0
     for i in range(gp.TAILLE_X) :
-        for j in reverse(list(range(gp.TAILLE_Y_LIMITE-1))) :
+        ordonnes = list(range(gp.TAILLE_Y_LIMITE - 1))
+        ordonnes.reverse()
+        for j in ordonnes :
             if etat.grid[i][j] != Block.Block.Empty :
                 #première case de la colonne qui n'est pas vide
                 somme += j
