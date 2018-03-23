@@ -64,6 +64,8 @@ class VoiceControl(ClientInterface.ClientInterface):
 
     def interpret(self, spoken, state):
         interprets = []
+        UnvalaibleChooseException = False
+        ShapeAndColorNotMatchException = False
         for sentence in spoken:
             try:
                 parse_tree = Grammar.parser.parse(sentence.lower())
@@ -78,22 +80,38 @@ class VoiceControl(ClientInterface.ClientInterface):
                 interprets.append(visit.mess)
             except Grammar.ShapeAndColorNotMatchException:
                 print("Grammar.ShapeAndColorNotMatchException")
-                naopy.nao_talk(
-                    "La forme et la couleur ne correspondent à aucune pièce.")
+                ShapeAndColorNotMatchException = True
                 continue
             except Grammar.HorMoveException:
                 print("Grammar.HorMoveException")
+                HorMoveException = True
                 continue
             except Grammar.UnvalaibleChooseException:
                 print("Grammar.UnvalaibleChooseException")
-                naopy.nao_talk(
-                    "La pièce selectionnée n''est pas disponible ce tour-ci.")
+                UnvalaibleChooseException = True
                 continue
         if not interprets :
-            naopy.nao_talk("Je n''ai pas compris ce que tu voulais faire.")
+            if UnvalaibleChooseException:
+                naopy.nao_talk(
+                    "La pièce sélectionnée n''est pas disponible ce tour-ci.")
+            elif ShapeAndColorNotMatchException:
+                naopy.nao_talk(
+                    "La forme et la couleur ne correspondent à aucune pièce.")
+            elif HorMoveException:
+                naopy.nao_talk(
+                    "Problème inconnu avec le déplacement horizontal.")
+            else :
+                naopy.nao_talk("Je n''ai pas compris ce que tu voulais faire.")
             return
         else :
-            return interprets[0]
+            command = {}
+            for d in interprets:
+                for k in d:
+                    command[k].append(d[k])
+            for key in command:
+                command[key] = Counter(command[key]).most_common(1)[0][0]
+            print(command)
+            return command
 
     async def play(self, state):
         print("play")
