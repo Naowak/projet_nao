@@ -95,11 +95,11 @@ def select_column(): return [("dans la", [(ordinaux, "colonne"), ("colonne", num
 
 def select_turn(): return turn, ((Optional(select_piece), Optional(num_column, "fois"), Optional(direction)))
 
-def action(): return Optional([((verb, [(select_piece,select_column),
+def action(): return Optional((verb, [(select_piece,select_column),
                             (select_column,select_piece),
                             select_column,
                             select_piece])),
-                        (select_turn)]),Optional(valid)
+                     Optional(select_turn),Optional(valid)
 
 def mainrule(): return action, peg.EOF
 
