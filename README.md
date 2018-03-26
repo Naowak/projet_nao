@@ -1,14 +1,14 @@
 # projet_nao
 
-## Détails et Objectifs du projet
+## Détails et objectifs du projet
 Ce projet est réalisé par 5 étudiants de l'Université Paul Sabatier de Toulouse en M2.
 
 Le but de ce projet était de créer un "compagnon de jeu" simulé par le robot Nao de SoftBank Robotics. A la demande des clients, le jeu devait prendre la forme d'un tétris deux joueurs. 
 
 Ainsi, nous pouvons séparer ce projet en trois grandes parties : 
 * Le développement du jeu.
-* Le développement et entrainement des Intelligences Artificielles contre lesquels l'utilisateur peut jouer.
-* Le développement d'intéraction sur le robot Nao (Gestuelle et Vocale). Le Nao doit être capable de s'exprimer, et de comprendre l'utilisateur pour pouvoir jouer à sa place si ce dernier lui dicte un coup.
+* Le développement et entrainement des Intelligences Artificielles contre lesquelles l'utilisateur peut jouer.
+* Le développement d'interaction sur le robot Nao (Gestuelle et Vocale). Le Nao doit être capable de s'exprimer, et de comprendre l'utilisateur pour pouvoir jouer à sa place si ce dernier lui dicte un coup.
 
 Ce projet comporte donc les technologies suivantes : 
 * Des algorithmes génétiques
@@ -28,7 +28,7 @@ Ce projet comporte donc les technologies suivantes :
 * [PyAudio](https://pypi.python.org/pypi/PyAudio/0.2.11) (0.2.11)
 * [Arpeggio](https://pypi.python.org/pypi/Arpeggio/1.7.1) (1.7.1)
 
-Les modules peuvent être installés avec pip : `python -m pip install <module>` ou `python` désigne la commande permettant de lancer python (`python3` ou `python3.6` sur certaines machines). Pour éviter les problèmes, un environnement virtuel conda peut-être créé avec `conda create` : https://conda.io/docs/commands.html.
+Les modules peuvent être installés avec pip : `python -m pip install <module>` ou `python` désigne la commande permettant de lancer python (`python3` ou `python3.6` sur certaines machines). Pour éviter les problèmes avec les versions des modules (par exemple, si des modules sont déjà installés dans des versions différentes), un environnement virtuel conda peut-être créé avec `conda create` : https://conda.io/docs/commands.html.
 
 ## Structure de l’application
 L’application se décompose en plusieurs modules distincts, qui communiquent en utilisant la technologie websocket:
