@@ -50,7 +50,7 @@ class VoiceControl(ClientInterface.ClientInterface):
         return await asyncio.wrap_future(self.executor.submit(_record, self))
     
     async def recognize(self,audio):
-        def _recognize(self):
+        def _recognize(self, audio):
             spoken = []
             try:
                 alternative = self.recog.recognize_google(audio, language="fr-FR", show_all=True)
@@ -74,7 +74,7 @@ class VoiceControl(ClientInterface.ClientInterface):
                 else:
                     exit()
             return spoken
-        return await asyncio.wrap_future(self.executor.submit(_recognize, self))
+        return await asyncio.wrap_future(self.executor.submit(_recognize, self, audio))
 
     def interpret(self, spoken, state):
         interprets = []
