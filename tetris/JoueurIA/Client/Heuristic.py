@@ -495,6 +495,6 @@ if __name__ == "__main__" :
     # print(score(etat, etat2, None))
 
     etat = State.State(my_grid)
-    print(etat)
-    print("Erosion : ", erosion(etat, None, action))
+    #print(etat)
+    #print("Erosion : ", erosion(etat, None, action))
 

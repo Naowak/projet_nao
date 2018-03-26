@@ -184,7 +184,18 @@ class MyStats() :
 
 
 if __name__ == "__main__":
-    statistique = Stats()
     AI_LOOP = asyncio.get_event_loop()
-    AI_LOOP.run_until_complete(statistique.run(3, 3))
-    print(statistique.stats_first, "\n\n" , statistique.stats_second)
+    nb_game = 10
+    for i in range(6):
+        statistique = Stats()   
+        AI_LOOP.run_until_complete(statistique.run(i, 0, nb_game))
+        first = statistique.stats_first
+        print("###########################################################")
+        print(gp.LEVELS[i], 
+             (first.wins_by_points + first.win_by_height)/nb_game,
+             first.wins_by_points, first.win_by_height,
+             sum(first.nb_lines)/nb_game,
+             sum(first.scores)/nb_game,
+             sep=", ")
+        print("###########################################################")
+        #print(statistique.stats_first, "\n\n" , statistique.stats_second)
