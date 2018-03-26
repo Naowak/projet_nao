@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html style="overflow:hidden;">
     <head>
         <script src="easeljs.min.js">
         </script>
@@ -308,7 +308,7 @@
             ws = new WebSocket("ws://"+ip_addr+":9001");
             ws.onopen = function (event) {
                 var msg = {
-                    name: "Rambo",
+                    name: "Affichage",
                     active: true,
                     audio: true
                 };
@@ -713,5 +713,4 @@
             update();    
         }
       </script>
-      <audio src="music/Music.mp3" autoplay="true" loop="true" preload="auto" id="audio">
 </html>

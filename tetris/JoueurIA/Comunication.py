@@ -91,7 +91,12 @@ class Comunication:
     async def play(self, data):
         dec = await self.my_ia.play(data)
         self.last_turn[data["gid"]] = data["turn"]
-        #await self.send_message({"gid": data["gid"], "mess_type": "action", "action": ["choose", dec.pop("choose")]})
+        #await self.send_message({"gid": data["gid"], "mess_type": "action", "action": ["choose", dec.pop("choose")]})*
+        try:
+            choose = dec.pop("choose")
+            await self.send_message({"gid": data["gid"], "mess_type": "action", "action": ["choose", choose]})
+        except KeyError:
+            pass
         for (key, value) in dec.items():
             if key != "valid":
                 await self.send_message({"gid": data["gid"], "mess_type": "action", "action": [key, value]})
@@ -103,13 +108,22 @@ class Comunication:
     async def suggest(self, data):
         dec = await self.my_ia.play(data)
         self.last_turn[data["gid"]] = data["turn"]
-        await self.send_message({"gid": data["gid"],"mess_type": "action", "action": ["choose", dec.pop("choose")]})
+        try:
+            choose = dec.pop("choose")
+            await self.send_message({"gid": data["gid"], "mess_type": "action", "action": ["choose", choose]})
+        except KeyError:
+            pass
         for (key, value) in dec.items():
-            await self.send_message({"gid": data["gid"], "mess_type": "action", "action": [key, value]})
+            if key != "valid":
+                await self.send_message({"gid": data["gid"], "mess_type": "action", "action": [key, value]})
+        if (not "valid" in dec.keys()) or (dec["valid"]):
+            await self.send_message({"gid": data["gid"], "mess_type": "action", "action": ["valid"]})
+        else:
+            asyncio.ensure_future(self.play(data))
 
     async def send_message(self, data):
-        # print("send")
-        # print(data)
+        print("send")
+        print(data)
         await self.my_socket.send(json.dumps(data))
 
 
