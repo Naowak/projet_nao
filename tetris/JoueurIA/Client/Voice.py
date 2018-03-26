@@ -52,8 +52,6 @@ class VoiceControl(ClientInterface.ClientInterface):
     async def recognize(self,audio):
         def _recognize(self):
             spoken = []
-            spoken = [input()]
-            return spoken
             try:
                 alternative = self.recog.recognize_google(audio, language="fr-FR", show_all=True)
                 print("You said: ")
@@ -147,9 +145,8 @@ class VoiceControl(ClientInterface.ClientInterface):
         while True:
             asyncio.sleep(0)
             try:
-                #audio = await self.record()
+                audio = await self.record()
                 spoken = await self.recognize(None)
-                print("refgerferf")
                 if spoken is not None:
                     action = self.interpret(spoken, state)
                     if action:
