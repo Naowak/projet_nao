@@ -146,7 +146,7 @@ class VoiceControl(ClientInterface.ClientInterface):
             asyncio.sleep(0)
             try:
                 audio = await self.record()
-                spoken = await self.recognize(None)
+                spoken = await self.recognize(audio)
                 if spoken is not None:
                     action = self.interpret(spoken, state)
                     if action:
