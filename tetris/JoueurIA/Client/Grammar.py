@@ -98,8 +98,7 @@ def select_turn(): return turn, ((Optional(select_piece), Optional(num_column, "
 def action(): return Optional((verb, [(select_piece,select_column),
                             (select_column,select_piece),
                             select_column,
-                            select_piece])),
-                     Optional(select_turn),Optional(valid)
+                            select_piece])),Optional(select_turn),Optional(valid)
 
 def mainrule(): return action, peg.EOF
 
