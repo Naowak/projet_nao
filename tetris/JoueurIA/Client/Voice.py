@@ -3,6 +3,7 @@ import sys
 import os
 sys.path.append("../")
 sys.path.append("../../")
+sys.path.append("../../../")
 import copy
 import random
 import numpy as np
@@ -17,113 +18,141 @@ from JoueurIA.Client import Grammar
 import speech_recognition as sr
 import re
 
+from concurrent.futures import ThreadPoolExecutor
+
 class VoiceControl(ClientInterface.ClientInterface):
     def __init__(self):
         super().__init__("VoiceControl", None)
         self.recog = sr.Recognizer()
+        self.executor = ThreadPoolExecutor(max_workers=2)
 
     async def record(self):
-        audio = None
-        while True:
-            await asyncio.sleep(0)
-            with sr.Microphone() as source:
-                self.recog.adjust_for_ambient_noise(source)
-                await asyncio.sleep(0)
-                print("Say something!")
-                try:
-                    audio = self.recog.listen(source,timeout=10, phrase_time_limit=10)
-                except sr.WaitTimeoutError:
-                    print("Timeout exception")
-                    continue
-                print("Record done !")
-                return audio
+        def _record(self):
+            audio = None
+            while True:
+                with sr.Microphone() as source:
+                    self.recog.adjust_for_ambient_noise(source)
+                    print("Say something!")
+                    try:
+                        audio = self.recog.listen(source,timeout=10, phrase_time_limit=10)
+                    except sr.WaitTimeoutError:
+                        print("Timeout exception")
+                        continue
+                    except KeyboardInterrupt:
+                        print("Would you cancel the recog or quit ? (C/q)")
+                        rep = input()
+                        if rep == "" or rep == "C" or rep == "c":
+                            continue
+                        else:
+                            exit()
+                    print("Record done !")
+                    return audio
+        return await asyncio.wrap_future(self.executor.submit(_record, self))
     
-    def recognize(self,audio):
-        spoken = []
-        try:
-            alternative = self.recog.recognize_google(audio, language="fr-FR", show_all=True)
-            print("You said: ")
-            if not alternative:
+    async def recognize(self,audio):
+        def _recognize(self, audio):
+            spoken = []
+            try:
+                alternative = self.recog.recognize_google(audio, language="fr-FR", show_all=True)
+                print("You said: ")
+                if not alternative:
+                    return
+                for transcript in alternative["alternative"]:
+                    spoken.append(transcript["transcript"])
+                print(spoken)
+            except sr.UnknownValueError:
+                print("Google Speech Recognition could not understand audio")
                 return
-            for transcript in alternative["alternative"]:
-                spoken.append(transcript["transcript"])
-            print(spoken)
-        except sr.UnknownValueError:
-            print("Google Speech Recognition could not understand audio")
-            return
-        except sr.RequestError as e:
-            print("Could not request results from Google Speech Recognition service; {0}".format(e))
-            return
-        return spoken
-
-    @classmethod
-    def interpret(cls, spoken, state):
-        extract_info = {"piece":[],"colonne":[],"direction":[],"rotate":[],"valid":[]}
-        for sentence in spoken:
-            sentence = sentence.lower()
-            extract_info["piece"].append(Grammar.apply_basic_rule(Grammar.rule_piece,sentence))
-            extract_info["colonne"].append(Grammar.apply_basic_rule(Grammar.rule_colonne, sentence))
-            extract_info["direction"].append(Grammar.apply_basic_rule(Grammar.rule_direction, sentence))
-            extract_info["rotate"].append(Grammar.apply_basic_rule(Grammar.rule_rotate, sentence))
-            extract_info["valid"].append(Grammar.apply_basic_rule(Grammar.rule_valid, sentence))
-
-        best_interpret = {}
-        for k in extract_info:
-            extract_info[k] = list(filter(None, extract_info[k]))
-            if extract_info[k]:
-                best_interpret[k] = Counter(extract_info[k]).most_common(1)[0][0]
-            else:
-                best_interpret[k] = None
-        print(best_interpret)
-        return best_interpret
-
-    def traitement(self,interpret,state):
-        action = {}
-        if interpret["piece"] is not None:
-            if isinstance(interpret["piece"],type("")) :
-                if self.colors[interpret["piece"]] in state["pieces"]:
-                    action["choose"] = self.colors[interpret["piece"]]
+            except sr.RequestError as e:
+                print("Could not request results from Google Speech Recognition service; {0}".format(e))
+                return
+            except KeyboardInterrupt:
+                print("Would you cancel the recog or quit ? (C/q)")
+                rep = input()
+                if rep == "" or rep == "C" or rep == "c":
+                    return
                 else:
-                    print("Unvalaible piece : you must choose in ",\
-                            state["pieces"])
-                    naopy.nao_talk(
-                        "La pièce que tu as choisi n'est pas disponible")
-                    return None
-            else:
-                action["choose"] = state["pieces"][interpret["piece"]]    
-        if interpret["colonne"] is not None:
-            if interpret["direction"] is not None:
-                action["hor_move"] = interpret["colonne"] * interpret["direction"]
-            else:
-                action["hor_move"] = interpret["colonne"] - state["actual_abscisse"]
-        if interpret["rotate"] is not None:
-            action["rotate"] = interpret["rotate"]
-        if interpret["valid"] is not None:
-            action["valid"] = interpret["valid"]
-        else:
-            action["valid"] = False
-            naopy.nao_talk(
-                "N'oublie pas de valider ton coup")
-        print(action)
-        return action
-    
+                    exit()
+            return spoken
+        return await asyncio.wrap_future(self.executor.submit(_recognize, self, audio))
+
+    def interpret(self, spoken, state):
+        interprets = []
+        UnvalaibleChooseException = False
+        ShapeAndColorNotMatchException = False
+        HorMoveException = False
+        for sentence in spoken:
+            try:
+                parse_tree = Grammar.parser.parse(sentence.lower())
+            except Grammar.peg.NoMatch as e:
+                print("NoMatchError: ",e)
+                continue
+            try:
+                visit = Grammar.Visit(colors = self.colors,state=state,debug=True)
+                result = Grammar.peg.visit_parse_tree(parse_tree,visit)
+                print ("result",result)
+                print("visit: ",visit.mess)
+                interprets.append(visit.mess)
+            except Grammar.ShapeAndColorNotMatchException:
+                print("Grammar.ShapeAndColorNotMatchException")
+                ShapeAndColorNotMatchException = True
+                continue
+            except Grammar.HorMoveException:
+                print("Grammar.HorMoveException")
+                HorMoveException = True
+                continue
+            except Grammar.UnvalaibleChooseException:
+                print("Grammar.UnvalaibleChooseException")
+                UnvalaibleChooseException = True
+                continue
+            except KeyboardInterrupt:
+                print("Would you cancel the interpretation or quit ? (C/q)")
+                rep = input()
+                if rep == "" or rep == "C" or rep == "c":
+                    return
+                else:
+                    exit()
+        if not interprets :
+            if UnvalaibleChooseException:
+                naopy.nao_talk(
+                    "La pièce sélectionnée n''est pas disponible ce tour-ci.")
+            elif ShapeAndColorNotMatchException:
+                naopy.nao_talk(
+                    "La forme et la couleur ne correspondent à aucune pièce.")
+            elif HorMoveException:
+                naopy.nao_talk(
+                    "Problème inconnu avec le déplacement horizontal.")
+            else :
+                naopy.nao_talk("Je n''ai pas compris ce que tu voulais faire.")
+            return
+        else :
+            command = {}
+            for d in interprets:
+                for k in d:
+                    try:
+                        command[k].append(d[k])
+                    except KeyError :
+                        command[k]=[d[k]]
+                        continue
+            for key in command:
+                command[key] = Counter(command[key]).most_common(1)[0][0]
+            print("command",command)
+            return command
+
     async def play(self, state):
         print("play")
         print(state["pieces"])
         while True:
-            await asyncio.sleep(0)
+            asyncio.sleep(0)
             try:
-                audio = await asyncio.ensure_future(self.record())
-                await asyncio.sleep(0)
-                spoken = self.recognize(audio)
-                await asyncio.sleep(0)
+                audio = await self.record()
+                spoken = await self.recognize(audio)
                 if spoken is not None:
-                    interpret = VoiceControl.interpret(spoken, state)
-                    action = self.traitement(interpret,state)
+                    action = self.interpret(spoken, state)
                     if action:
                         return action
             except KeyboardInterrupt:
-                print("Would you cancel the record or quit ? (C/q)")
+                print("Would you cancel the play or quit ? (C/q)")
                 rep = input()
                 if rep == "" or rep == "C" or rep == "c":
                     continue

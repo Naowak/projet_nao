@@ -9,7 +9,26 @@ from Jeu import State
 from Jeu import Piece
 
 
+""" Dans ce fichier sont écrites toutes les heuristiques utilisées dans nos IA,
+ainsi que quelques fonctions utiles à leurs bon fonctionnement.
+Les heuristiques prennent toutes la forme :
+	def mon_heuristique(grid_prec, grid_next, action) :
+Où grid_prec est l'instance State.State avant le coup joué,
+grid_next est l'instance State.State après le coup joué,
+action est le coup jouer sous la forme {"choose" : kind, "rotate" : rotation, "hor_move" : move}.
+Tel que, si l'état actuel du jeu est grid_prec, et que l'on joue l'action action, on arrive dans 
+l'état grid_next."""
+
+
 def copy_grid(grid):
+    """ Créer une copie d'une grille du jeu, et la retourne.
+    
+    Paramètres :
+        - grid : liste double entrée : représente la grille du jeu.
+
+    Retour :
+        liste double entrée : Copie de grid """
+
     size = (len(grid), len(grid[0]))
     new_grid = list()
     for i in range(size[0]):
@@ -19,6 +38,19 @@ def copy_grid(grid):
     return new_grid
 
 def best_move(heuristic, weights, state):
+        """ Teste toutes les coups et retourne le meilleurs selon les heuristiques et 
+        l'état du jeu.
+        
+        Paramètres :
+            - heuristic : liste de fonction : chaque fonction de la liste représente une heuristic
+                et est de la forme : fonction(grid_prec, grid_next, action) .
+            - weights : liste de poids (float) : cette liste doit être de la même taille que heuristic.
+                Chaque poids indicé i dans la liste sera associé à l'heuristique indicée i.
+            - state :  instance State.State : représente l'état du jeu au moment de choisir le l'action
+
+        Retour :
+            dictionnaire de la forme {"choose" : kind, "rotate" : rotation, "hor_move" : move} :
+               Représente la meilleur action calculée en fonction des heuristiques."""
         pieces = copy.copy(state["pieces"])
         scores_valid = []
         scores_non_valid = []
@@ -64,15 +96,36 @@ def best_move(heuristic, weights, state):
         play_send = random.choice(best_plays)[0]
         return play_send
 
-#retourne le coup d'un play en fonction des heuristics choisi pour le calculer
 def evaluate_play(grid_prec, grid_next, action, weights, heuristic) :
+        """ Retourne la valeur d'un play en fonction des heuristiques choisies pour la calculer. 
+            
+            Paramètres :
+                - grid_prec : instance State.State : Etat du jeu avant le coup 'action'.
+                - grid_next : instance State.State : Etat du jeu après le coup 'action'.
+                - action : dictionnaire de la forme {"choose" : kind, "rotate" : rotation, "hor_move" : move} :
+                    action à jouer.
+                - weights : liste de float : poids des heuristiques
+                - heuristic : liste de fonction : fonctions représentants les heuristiques.
+
+            Retour : 
+                float : valeur du coup"""
         tot = 0
         for i,func in enumerate(heuristic):
             tot += weights[i]*func(grid_prec,grid_next,action)
         return tot
 
-#Calcul du nombre de cellule vide inaccessible (recouverte par un block plein)
 def hidden_empty_cells(g_prec, g_next, action) :
+    """ Heuristique calculant le nombre de cellule vide inaccessible (recouverte par un block plein).
+        Heuristiques post-action.
+        
+        Paramètres :
+                - grid_prec : instance State.State : Etat du jeu avant le coup 'action'.
+                - grid_next : instance State.State : Etat du jeu après le coup 'action'.
+                - action : dictionnaire de la forme {"choose" : kind, "rotate" : rotation, "hor_move" : move} :
+                    action à jouer.
+
+        Retour :
+            int : nombre de cellule vide"""
     cpt = 0
     for i in range(gp.TAILLE_X) :
         for j in range(gp.TAILLE_Y_LIMITE) :
@@ -83,16 +136,39 @@ def hidden_empty_cells(g_prec, g_next, action) :
                         break
     return cpt
 
-#Return the score won by the latest action
+
 def score(g_prec, g_next, action) :
+    """ Heuristique qui retourne le score rapporté par le dernier coup.
+        Heuristique post-action.
+
+        Paramètres :
+                - grid_prec : instance State.State : Etat du jeu avant le coup 'action'.
+                - grid_next : instance State.State : Etat du jeu après le coup 'action'.
+                - action : dictionnaire de la forme {"choose" : kind, "rotate" : rotation, "hor_move" : move} :
+                    action à jouer.
+
+        retour :
+            int : score gagné        
+        """
     a = g_next.score[0] - g_prec.score[0]
     b = g_next.score[1] - g_prec.score[1]
     if a != 0 :
         return a
     return b
     
-#Return the latest action's height
+
 def height(g_prec, g_next, action) :
+    """ Heuristique qui retourne la hauteur du dernier coup joué.
+
+       Paramètres :
+                - grid_prec : instance State.State : Etat du jeu avant le coup 'action'.
+                - grid_next : instance State.State : Etat du jeu après le coup 'action'.
+                - action : dictionnaire de la forme {"choose" : kind, "rotate" : rotation, "hor_move" : move} :
+                    action à jouer.
+
+        retour :
+            int : hauteur du dernier coup"""
+
     kind = action["choose"]
     rotation = action["rotate"]
     hor_move = action["hor_move"]
@@ -113,12 +189,24 @@ def height(g_prec, g_next, action) :
         return hauteur
     return gp.TAILLE_Y_LIMITE - 1
 
-#Retourne the sum of each column hight
+
 def agregate_height(g_prec, g_next, action) :
-    etat = State.state(g_next)
+    """ Heuristique : Somme de la hauteur de chaque colonne.
+        
+        Paramètres :
+                - grid_prec : instance State.State : Etat du jeu avant le coup 'action'.
+                - grid_next : instance State.State : Etat du jeu après le coup 'action'.
+                - action : dictionnaire de la forme {"choose" : kind, "rotate" : rotation, "hor_move" : move} :
+                    action à jouer.
+
+        retour :
+            - int : somme de la heuteur de chaque colonne de g_next """
+    etat = State.State(g_next.grid)
     somme = 0
     for i in range(gp.TAILLE_X) :
-        for j in reverse(list(range(gp.TAILLE_Y_LIMITE-1))) :
+        ordonnes = list(range(gp.TAILLE_Y_LIMITE - 1))
+        ordonnes.reverse()
+        for j in ordonnes :
             if etat.grid[i][j] != Block.Block.Empty :
                 #première case de la colonne qui n'est pas vide
                 somme += j
@@ -126,8 +214,17 @@ def agregate_height(g_prec, g_next, action) :
     return somme
 
 
-#(number of line last action)*(number of cells eliminated from the last piece)
 def erosion(g_prec, g_next, action):
+    """ Heuristique : (nombre de line réalisée par action)*(nombre de block de la piece détuits).
+
+    Paramètres :
+                - grid_prec : instance State.State : Etat du jeu avant le coup 'action'.
+                - grid_next : instance State.State : Etat du jeu après le coup 'action'.
+                - action : dictionnaire de la forme {"choose" : kind, "rotate" : rotation, "hor_move" : move} :
+                    action à jouer.
+       
+    retour :
+        - int : (nombre de line réalisée par action)*(nombre de block de la piece détuits) """
     kind = action["choose"]
     rotation = action["rotate"]
     hor_move = action["hor_move"]
@@ -173,8 +270,18 @@ def erosion(g_prec, g_next, action):
 
 
 
-#number of empty/filled or filled/empty cells transition
 def line_transition(g_prec, g_next, action):
+    """Heuristique : Compte le nombre de transition vide/pleine et pleine/vide entre les cellules
+        selon les lignes.
+
+       Paramètres :
+                - grid_prec : instance State.State : Etat du jeu avant le coup 'action'.
+                - grid_next : instance State.State : Etat du jeu après le coup 'action'.
+                - action : dictionnaire de la forme {"choose" : kind, "rotate" : rotation, "hor_move" : move} :
+                    action à jouer.
+    
+        retour : 
+             - int : nombre de transition vide/pleine et pleine/vide entre les cellules"""
     cpt = 0
     for j in range(gp.TAILLE_Y_LIMITE):
         for i in range(gp.TAILLE_X - 1) :
@@ -183,8 +290,18 @@ def line_transition(g_prec, g_next, action):
                 cpt += 1
     return cpt
 
-#number of empty/filled or filled/empty cells transition
 def column_transition(g_prec, g_next, action):
+    """Heuristique : Compte le nombre de transition vide/pleine et pleine/vide entre les cellules
+        selon les colonnes.
+
+       Paramètres :
+                - grid_prec : instance State.State : Etat du jeu avant le coup 'action'.
+                - grid_next : instance State.State : Etat du jeu après le coup 'action'.
+                - action : dictionnaire de la forme {"choose" : kind, "rotate" : rotation, "hor_move" : move} :
+                    action à jouer.
+    
+        retour : 
+             - int : nombre de transition vide/pleine et pleine/vide entre les cellules"""
     cpt = 0
     for i in range(gp.TAILLE_X) :
         for j in range(gp.TAILLE_Y_LIMITE-1) :
@@ -193,8 +310,18 @@ def column_transition(g_prec, g_next, action):
                 cpt += 1
     return cpt
 
-#number of holes
 def holes(g_prec, g_next, action):
+    """ Heuristique : compte le nombre de trou (cellule vide entourné de ses quatres cotés par une
+            cellule pleine.
+
+        Paramètres :
+                - grid_prec : instance State.State : Etat du jeu avant le coup 'action'.
+                - grid_next : instance State.State : Etat du jeu après le coup 'action'.
+                - action : dictionnaire de la forme {"choose" : kind, "rotate" : rotation, "hor_move" : move} :
+                    action à jouer.
+
+        retour :
+            - int : nombre de trou"""
     cpt = 0
     for i in range(gp.TAILLE_X) :
         for j in range(gp.TAILLE_Y_LIMITE) :
@@ -224,8 +351,21 @@ def holes(g_prec, g_next, action):
                     cpt += 1
     return cpt
 
-#number of wells :
 def wells(g_prec, g_next, action) :
+    """ Heuristique : compte la valeur des puits dans la grille :
+            Un puit est un trou non recouvert de un de profondeur minimum. 
+            La valeur d'un puit est égale à :
+                (n*n+1)/2
+
+        Paramètres :
+                - grid_prec : instance State.State : Etat du jeu avant le coup 'action'.
+                - grid_next : instance State.State : Etat du jeu après le coup 'action'.
+                - action : dictionnaire de la forme {"choose" : kind, "rotate" : rotation, "hor_move" : move} :
+                    action à jouer.
+
+        retour  :
+            valeur des puits"""
+
     cpt = 0
     #on compte les puits dans l'intérieur de la grille (attention dépassement indice)
     for i in range(1, gp.TAILLE_X-1) :
@@ -355,6 +495,6 @@ if __name__ == "__main__" :
     # print(score(etat, etat2, None))
 
     etat = State.State(my_grid)
-    print(etat)
-    print("Erosion : ", erosion(etat, None, action))
+    #print(etat)
+    #print("Erosion : ", erosion(etat, None, action))
 
