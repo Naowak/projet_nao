@@ -17,16 +17,17 @@ Ce projet comporte donc les technologies suivantes :
       
 
 ## Installer les dépendances
-
 * Python 3.6
-* [multi_key_dict](https://pypi.python.org/pypi/multi_key_dict/2.0.3) (2.0.3)
-* [numpy](https://pypi.python.org/pypi/numpy/1.14.2) (1.14.2)
-* [tensorflow](https://pypi.python.org/pypi/tensorflow/1.5.0) (1.5.0)
-* [tensorforce](https://pypi.python.org/pypi/tensorforce/0.3.5.1) (0.3.5.1)
-* [websockets](https://pypi.python.org/pypi/websockets/4.0.1) (4.0.1)
-* [SpeechRecognition](https://pypi.python.org/pypi/SpeechRecognition/3.8.1) (3.8.1)
-* [PyAudio](https://pypi.python.org/pypi/PyAudio/0.2.11) (0.2.11)
-* [Arpeggio](https://pypi.python.org/pypi/Arpeggio/1.7.1) (1.7.1)
+* modules Python :
+  * [multi_key_dict](https://pypi.python.org/pypi/multi_key_dict/2.0.3) (2.0.3)
+  * [numpy](https://pypi.python.org/pypi/numpy/1.14.2) (1.14.2)
+  * [tensorflow](https://pypi.python.org/pypi/tensorflow/1.5.0) (1.5.0)
+  * [tensorforce](https://pypi.python.org/pypi/tensorforce/0.3.5.1) (0.3.5.1)
+  * [websockets](https://pypi.python.org/pypi/websockets/4.0.1) (4.0.1)
+  * [SpeechRecognition](https://pypi.python.org/pypi/SpeechRecognition/3.8.1) (3.8.1)
+  * [PyAudio](https://pypi.python.org/pypi/PyAudio/0.2.11) (0.2.11)
+  * [Arpeggio](https://pypi.python.org/pypi/Arpeggio/1.7.1) (1.7.1)
+* [ROS avec NAOqi SDK](http://wiki.ros.org/nao/Tutorials/Installation)
 
 Les modules peuvent être installés avec pip : `python -m pip install <module>` ou `python` désigne la commande permettant de lancer python (`python3` ou `python3.6` sur certaines machines). Pour éviter les problèmes avec les versions des modules (par exemple, si des modules sont déjà installés dans des versions différentes), un environnement virtuel conda peut-être créé avec `conda create` : https://conda.io/docs/commands.html.
 
