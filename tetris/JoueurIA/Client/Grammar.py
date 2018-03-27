@@ -70,7 +70,7 @@ def reg_s() : return["z inversé","biais inversé"]
 
 def shape(): return Optional(["en forme de "]),[reg_o,reg_i,reg_j,reg_l,reg_s,reg_t,reg_z]
 
-def fuchsia() : return ["rose","violet","mauve","magenta","fuchsia","lila","violette"]
+def fuchsia() : return ["rose","violette","violet","mauve","magenta","fuchsia","lila"]
 def green(): return ["verte" ,"kaki","vert"]
 def yellow(): return "jaune"
 def blue(): return ["bleue foncé","bleu foncé","bleue","bleu"]

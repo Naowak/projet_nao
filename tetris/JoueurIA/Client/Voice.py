@@ -25,6 +25,7 @@ class VoiceControl(ClientInterface.ClientInterface):
         super().__init__("VoiceControl", None)
         self.recog = sr.Recognizer()
         self.executor = ThreadPoolExecutor(max_workers=2)
+        self.play_coro = None
 
     async def record(self):
         def _record(self):
@@ -117,22 +118,26 @@ class VoiceControl(ClientInterface.ClientInterface):
                 command[key] = Counter(command[key]).most_common(1)[0][0]
             print("command",command)
             return command
-
-    def update_play(self,state):
-        print(state)
         
     async def play(self, state):
-        print("play")
-        print(state["pieces"])
         while True:
             asyncio.sleep(0)
-            audio = await self.record()
-            spoken = await self.recognize(audio)
+            try:
+                audio_coro = asyncio.Task(self.record())
+                audio = await audio_coro
+            except asyncio.CancelledError:
+                audio_coro.cancel()
+                return
+            try:
+                spoken_coro = asyncio.Task(self.recognize(audio))
+                spoken = await spoken_coro
+            except asyncio.CancelledError:
+                spoken_coro.cancel()
+                return
             if spoken is not None:
                 action = self.interpret(spoken, state)
                 if action:
                     return action
-
 
     async def run(self):
         await super().init_train()
@@ -141,8 +146,12 @@ class VoiceControl(ClientInterface.ClientInterface):
             await asyncio.sleep(0)
 
     def on_init_game(self, data):
+        self.ids_in_game = data["ids_in_game"]
         self.colors = {v: k for k,v in data["color"].items()}
-        print(self.colors)
+
+    def update_play(self, data):
+        if data["actual_player"] not in self.ids_in_game:
+            self.play_coro.cancel()
 
 if __name__ == '__main__':
     voice = VoiceControl()

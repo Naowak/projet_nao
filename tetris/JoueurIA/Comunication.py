@@ -48,10 +48,10 @@ class Comunication:
         elif data["step"] == "init_game":
             self.init_game(data)
         elif data["step"] == "game":
+            self.update_play(data)
             if data["actual_player"] in self.ids_in_games[data["gid"]] and\
             data["turn"]!= self.last_turn[data["gid"]]:
-                await asyncio.ensure_future(self.play(data))
-            self.update_play(data)
+                asyncio.ensure_future(self.play(data))
         elif data["step"] == "suggest":
             if data["actual_player"] in self.ids_in_games[data["gid"]] and\
             data["turn"] != self.last_turn[data["gid"]]:
@@ -89,9 +89,15 @@ class Comunication:
         print(self.name, ": Succesfull server connection id:", str(self.pid))
 
     async def play(self, data):
-        dec = await self.my_ia.play(data)
         self.last_turn[data["gid"]] = data["turn"]
+        if hasattr(self.my_ia, "play_coro"):
+            self.my_ia.play_coro = asyncio.Task(self.my_ia.play(data))
+            dec = await self.my_ia.play_coro
+        else:
+            dec = await self.my_ia.play(data)
         #await self.send_message({"gid": data["gid"], "mess_type": "action", "action": ["choose", dec.pop("choose")]})*
+        if dec is None:
+            return
         try:
             choose = dec.pop("choose")
             await self.send_message({"gid": data["gid"], "mess_type": "action", "action": ["choose", choose]})

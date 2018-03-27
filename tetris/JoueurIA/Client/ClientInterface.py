@@ -19,22 +19,14 @@ class ClientInterface:
     async def init_train(self): #rappeler connect (eventuellement)
         self.my_client = Comunication.Comunication(self.name, self)
         self.my_client.make_connection_to_server()
-        print("Wait for connection")
         while self.my_client.my_socket is None or self.my_client.pid is None:
             await asyncio.sleep(0)
-        print("Connect")
         asyncio.ensure_future(self.message_loop())
-        print("end")
 
     async def message_loop(self):
-        print("depart",self.my_client.keep_connection)
-        try :
-            while self.my_client.keep_connection:
-                await self.my_client.on_message()
-                await asyncio.sleep(0)
-        except KeyboardInterrupt :
-            #print("\nStop the program. Please press [Ctrl+C] once again to save & quit.")
-            raise KeyboardInterrupt
+        while self.my_client.keep_connection:
+            await self.my_client.on_message()
+            await asyncio.sleep(0)
 
     async def play(self, state):
         pass
