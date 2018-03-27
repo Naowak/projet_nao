@@ -185,8 +185,8 @@ class MyStats() :
 
 if __name__ == "__main__":
     AI_LOOP = asyncio.get_event_loop()
-    nb_game = 10
-    for i in range(6):
+    nb_game = 1000
+    for i in [4,5]:
         statistique = Stats()   
         AI_LOOP.run_until_complete(statistique.run(i, 0, nb_game))
         first = statistique.stats_first
@@ -198,4 +198,5 @@ if __name__ == "__main__":
              sum(first.scores)/nb_game,
              sep=", ")
         print("###########################################################")
+        sys.stdout.flush()
         #print(statistique.stats_first, "\n\n" , statistique.stats_second)
