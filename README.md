@@ -17,7 +17,7 @@ Ce projet comporte donc les technologies suivantes :
       
 
 ## Installer les dépendances
-* Python 3.6
+* [Python 3.6](https://www.python.org/downloads/)
 * modules Python :
   * [multi_key_dict](https://pypi.python.org/pypi/multi_key_dict/2.0.3) (2.0.3)
   * [numpy](https://pypi.python.org/pypi/numpy/1.14.2) (1.14.2)
