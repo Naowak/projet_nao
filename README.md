@@ -53,4 +53,4 @@ Les IAs sont définies dans le dossier [`projet_nao/tetris/JoueurIA/Client/`](/t
 
 ## Interactions Nao
 Pour lancer le module contrôllant les réactions de Nao, il faut lancer [`projet_nao/tetris/JoueurIA/Client/NaoSpeech.py`](/tetris/JoueurIA/Client/NaoSpeech.py) après avoir lancé le jeu (avec [`projet_nao/tetris/launcher.py`](/tetris/launcher.py)). Les paramètres réseau de ROS doivent avoir été mis à jours préalablement (voir [Structure de l'application](#structure-de-lapplication)).
-
+A noter que le Nao doit être en position assise pour que les animations se lançent correctement. Il est possible que suite à certaines animations, le Nao tentent de se relever (ceci est dû à des imprécisions dans les capteurs et à un comportement par défaut qui force la structure articulaire à reprendre la posture la plus proche après un mouvement: cette fonctionnalité peut être désactivée en lançant le comportement Choregraphe `Idle` fourni dans [`Idle.zip`](/Idle.zip). Ce dernier doit continuellement être actif, sans quoi le comportement par défaut reprend automatiquement).
