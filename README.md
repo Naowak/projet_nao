@@ -27,7 +27,7 @@ Ce projet comporte donc les technologies suivantes :
   * [SpeechRecognition](https://pypi.python.org/pypi/SpeechRecognition/3.8.1) (3.8.1)
   * [PyAudio](https://pypi.python.org/pypi/PyAudio/0.2.11) (0.2.11)
   * [Arpeggio](https://pypi.python.org/pypi/Arpeggio/1.7.1) (1.7.1)
-* [ROS avec NAOqi SDK](http://wiki.ros.org/nao/Tutorials/Installation)
+* [ROS avec les packages ros-nao](http://wiki.ros.org/nao) ([Tuto installation](http://wiki.ros.org/nao/Tutorials/Installation), [Paquets à installer](http://wiki.ros.org/nao#Library_Overview))
 
 Les modules peuvent être installés avec pip : `python -m pip install <module>` ou `python` désigne la commande permettant de lancer python (`python3` ou `python3.6` sur certaines machines). Pour éviter les problèmes avec les versions des modules (par exemple, si des modules sont déjà installés dans des versions différentes), un environnement virtuel conda peut-être créé avec `conda create` : https://conda.io/docs/commands.html.
 
@@ -50,4 +50,7 @@ Pour déplacer une pièce, on utilise les touches [Z,Q,S,D] ou les flèches. Pou
 
 ## Ajouter une IA
 Les IAs sont définies dans le dossier [`projet_nao/tetris/JoueurIA/Client/`](/tetris/JoueurIA/Client/). La façon la plus simple de créer une IA est de définir une fonction qui associe une action à un état du jeu, comment par exemple la fonction `random_ia` du fichier [`projet_nao/tetris/JoueurIA/Level.py`](/tetris/JoueurIA/Level.py). Il faut aussi ajouter le nom de l'IA dans la liste `LEVELS` du fichier [`projet_nao/tetris/GlobalParameters.py`](/tetris/GlobalParameters.py). C'est le nom qui sera affiché dans l'interface graphique. L'indice dans la liste correspond au numéro de l'IA. Enfin, il faut ajouter un `elif == <numéro de l'IA>` correspondant dans la fonction `create_ia` du fichier [`projet_nao/tetris/Serveur/`](tetris/Serveur/), comme pour l'IA `random`. A l'intérieur, on affecte un nouvel objet `Level` à la variable `IA_STRATEGIE`, en passant au constructeur la fonction associant l'action à l'état (par exemple, `Level.random_ia` pour l'IA `random` qui porte le numéro 0). Il est également possible de créer une classe qui hérite de `Level`, comme la classe `Entropy`. Cette classe devra alors au minimum implémenter la méthode `play`.
+
+## Interactions Nao
+Pour lancer le module contrôllant les réactions de Nao, il faut lancer [`projet_nao/tetris/JoueurIA/Client/NaoSpeech.py`](/tetris/JoueurIA/Client/NaoSpeech.py) après avoir lancé le jeu (avec [`projet_nao/tetris/launcher.py`](/tetris/launcher.py)). Les paramètres réseau de ROS doivent avoir été mis à jours préalablement (voir [Structure de l'application](#structure-de-lapplication)).
 
